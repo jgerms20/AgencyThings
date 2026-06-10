@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Digital Task Brief Maker</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AgencyThings · work tools</p>
+        <h1>Digital Task Brief Maker</h1>
+        <p class="lede">
+          Paste a media plan, match placements to reusable ad specs, and generate a printable creative task brief with copy fields, reminders, and source links.
+        </p>
+      </div>
+      <div class="hero-card">
+        <strong>Best MVP workflow</strong>
+        <ol>
+          <li>Paste placement rows from Excel, Google Sheets, or CSV.</li>
+          <li>Review auto-matched specs and fill unmatched items.</li>
+          <li>Print to PDF or copy the generated brief into a deck.</li>
+        </ol>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="panel input-panel" aria-labelledby="input-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Step 1</p>
+            <h2 id="input-title">Add the media plan</h2>
+          </div>
+          <button id="load-sample" type="button" class="secondary">Load sample plan</button>
+        </div>
+
+        <label for="plan-input">Paste rows with columns like Platform, Placement, Size, Units, Notes</label>
+        <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
+
+        <div class="button-row">
+          <button id="generate" type="button">Generate brief</button>
+          <button id="clear" type="button" class="secondary">Clear</button>
+        </div>
+
+        <details class="help-box">
+          <summary>What can I paste?</summary>
+          <p>
+            Comma-separated, tab-separated, or copied spreadsheet rows work. The matcher looks for platform and placement names across each row, so imperfect media plan exports are okay.
+          </p>
+        </details>
+      </section>
+
+      <section class="panel" aria-labelledby="review-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h2 id="review-title">Review matches</h2>
+          </div>
+          <span id="match-count" class="pill">0 placements</span>
+        </div>
+        <div id="review-list" class="review-list empty-state">
+          Paste a media plan and click <strong>Generate brief</strong> to see placement matches.
+        </div>
+      </section>
+
+      <section class="panel brief-panel" aria-labelledby="brief-title">
+        <div class="section-heading sticky-tools">
+          <div>
+            <p class="eyebrow">Step 3</p>
+            <h2 id="brief-title">Creative task brief</h2>
+          </div>
+          <div class="button-row compact">
+            <button id="copy-brief" type="button" class="secondary">Copy brief text</button>
+            <button id="export-json" type="button" class="secondary">Export JSON</button>
+            <button id="print-brief" type="button">Print / PDF</button>
+          </div>
+        </div>
+        <article id="brief-output" class="brief-output empty-state">
+          Your generated digital task brief will appear here.
+        </article>
+      </section>
+    </main>
+
+    <template id="placement-card-template">
+      <section class="brief-card">
+        <div class="brief-card-header">
+          <div>
+            <p class="platform"></p>
+            <h3></h3>
+          </div>
+          <span class="asset-type"></span>
+        </div>
+        <div class="grid-two">
+          <div>
+            <h4>Specs to build against</h4>
+            <ul class="spec-list"></ul>
+          </div>
+          <div>
+            <h4>Copy needed</h4>
+            <div class="copy-list"></div>
+          </div>
+        </div>
+        <div>
+          <h4>Creative direction prompts</h4>
+          <ul class="prompt-list"></ul>
+        </div>
+        <div class="source-block"></div>
+      </section>
+    </template>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
