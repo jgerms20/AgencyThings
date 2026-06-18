@@ -1,0 +1,157 @@
+[
+  {
+    "id": "instagram-feed-static",
+    "platform": "Instagram",
+    "placement": "Feed Static Image",
+    "aliases": ["instagram static", "ig static", "instagram feed", "ig feed", "instagram in-feed", "meta instagram feed static"],
+    "assetType": "Static image",
+    "objectiveFit": "Awareness, traffic, engagement, conversion support",
+    "specs": [
+      { "label": "Recommended ratio", "value": "1:1 or 4:5" },
+      { "label": "Recommended resolution", "value": "1080 × 1080 px or 1080 × 1350 px" },
+      { "label": "Primary text guidance", "value": "Keep lead message concise; confirm campaign-specific truncation in Ads Manager." },
+      { "label": "File type", "value": "JPG or PNG" }
+    ],
+    "copyFields": [
+      { "label": "Primary text", "limit": "125 characters recommended", "placeholder": "XXX — write primary post copy here." },
+      { "label": "Headline", "limit": "40 characters recommended", "placeholder": "XXX — write headline here." },
+      { "label": "CTA", "limit": "Use approved platform CTA", "placeholder": "XXX — select CTA." }
+    ],
+    "creativePrompts": [
+      "Design for mobile-first viewing with the key message visible immediately.",
+      "Keep any text overlay minimal and legible at small screen sizes.",
+      "Provide safe-area-aware variants if the asset may be extended into Stories/Reels."
+    ],
+    "exampleSearches": ["Instagram feed static ad example", "Meta image ad creative examples"],
+    "sourceUrls": ["https://www.facebook.com/business/ads-guide/update/image/instagram-feed"]
+  },
+  {
+    "id": "instagram-stories-static",
+    "platform": "Instagram",
+    "placement": "Stories Static Image",
+    "aliases": ["instagram story", "instagram stories", "ig story", "ig stories", "stories static", "meta stories"],
+    "assetType": "Static image",
+    "objectiveFit": "Awareness, reach, traffic, conversion support",
+    "specs": [
+      { "label": "Recommended ratio", "value": "9:16" },
+      { "label": "Recommended resolution", "value": "1080 × 1920 px" },
+      { "label": "Safe areas", "value": "Keep important elements away from top/bottom UI zones." },
+      { "label": "File type", "value": "JPG or PNG" }
+    ],
+    "copyFields": [
+      { "label": "Story frame copy", "limit": "Keep short; design-led copy recommended", "placeholder": "XXX — write on-asset story copy here." },
+      { "label": "CTA", "limit": "Use approved platform CTA", "placeholder": "XXX — select CTA." }
+    ],
+    "creativePrompts": [
+      "Use large, high-contrast type and clear visual hierarchy.",
+      "Keep logo/CTA away from native app controls.",
+      "If multiple frames are needed, indicate frame order and copy per frame."
+    ],
+    "exampleSearches": ["Instagram Stories ad examples", "Meta stories creative examples"],
+    "sourceUrls": ["https://www.facebook.com/business/ads-guide/update/image/instagram-story"]
+  },
+  {
+    "id": "tiktok-topview",
+    "platform": "TikTok",
+    "placement": "TopView",
+    "aliases": ["tiktok topview", "top view", "topview", "tik tok top view"],
+    "assetType": "Video",
+    "objectiveFit": "High-impact awareness and launch moments",
+    "specs": [
+      { "label": "Recommended ratio", "value": "9:16" },
+      { "label": "Creative note", "value": "Build native-feeling vertical video with immediate motion/hook." },
+      { "label": "Audio", "value": "Design with sound-on, but ensure the message works with captions/supers." },
+      { "label": "Safe areas", "value": "Avoid placing key text under TikTok UI controls." }
+    ],
+    "copyFields": [
+      { "label": "Video hook", "limit": "First 1–3 seconds", "placeholder": "XXX — write opening hook here." },
+      { "label": "Caption", "limit": "Confirm current TikTok Ads Manager limit", "placeholder": "XXX — write caption here." },
+      { "label": "CTA", "limit": "Use approved platform CTA", "placeholder": "XXX — select CTA." }
+    ],
+    "creativePrompts": [
+      "Start with the product, problem, creator, or benefit immediately.",
+      "Use native platform pacing, captions, and creator-style framing where appropriate.",
+      "Include music/SFX direction and any legal/audio constraints."
+    ],
+    "exampleSearches": ["TikTok TopView ad examples", "TikTok Creative Center TopView examples"],
+    "sourceUrls": ["https://ads.tiktok.com/help/article/topview"]
+  },
+  {
+    "id": "pinterest-standard-pin",
+    "platform": "Pinterest",
+    "placement": "Standard Pin / Static Pin",
+    "aliases": ["pinterest static", "pinterest pin", "standard pin", "pinterest card", "pinterest image"],
+    "assetType": "Static image",
+    "objectiveFit": "Discovery, traffic, consideration, conversion support",
+    "specs": [
+      { "label": "Recommended ratio", "value": "2:3" },
+      { "label": "Recommended resolution", "value": "1000 × 1500 px" },
+      { "label": "Creative note", "value": "Vertical imagery generally performs best in the feed." },
+      { "label": "File type", "value": "JPG or PNG" }
+    ],
+    "copyFields": [
+      { "label": "Title", "limit": "Up to 100 characters", "placeholder": "XXX — write Pin title here." },
+      { "label": "Description", "limit": "Up to 500 characters", "placeholder": "XXX — write Pin description here." },
+      { "label": "Destination URL", "limit": "Required for traffic-driving ads", "placeholder": "XXX — add landing page URL." }
+    ],
+    "creativePrompts": [
+      "Make the product or outcome easy to understand without relying on sound/motion.",
+      "Use tasteful branding and text overlay that supports search/discovery intent.",
+      "Consider seasonal/contextual visual cues based on the plan timing."
+    ],
+    "exampleSearches": ["Pinterest standard Pin ad examples", "Pinterest creative best practices examples"],
+    "sourceUrls": ["https://help.pinterest.com/en/business/article/creative-specs"]
+  },
+  {
+    "id": "x-promoted-post-static",
+    "platform": "X",
+    "placement": "Promoted Post Static Image",
+    "aliases": ["twitter static", "x static", "x promoted post", "twitter promoted post", "promoted tweet", "x image ad"],
+    "assetType": "Static image",
+    "objectiveFit": "Conversation, awareness, traffic, launch amplification",
+    "specs": [
+      { "label": "Recommended ratio", "value": "1.91:1 or 1:1" },
+      { "label": "Copy", "value": "Short copy is easier to scan in-feed; verify current paid post limit." },
+      { "label": "Creative note", "value": "The image should make sense alongside post text and link card context." },
+      { "label": "File type", "value": "JPG or PNG" }
+    ],
+    "copyFields": [
+      { "label": "Post copy", "limit": "Confirm current X Ads limit", "placeholder": "XXX — write promoted post copy here." },
+      { "label": "Hashtags/mentions", "limit": "Use only if strategically needed", "placeholder": "XXX — add approved tags/mentions." },
+      { "label": "CTA / URL", "limit": "As needed by objective", "placeholder": "XXX — add CTA or destination URL." }
+    ],
+    "creativePrompts": [
+      "Lead with a sharp POV, offer, launch message, or timely reason to care.",
+      "Keep image text limited and legible in a fast-scrolling feed.",
+      "Confirm whether comments, replies, or quote-post behavior requires moderation planning."
+    ],
+    "exampleSearches": ["X promoted post image ad examples", "Twitter promoted image ad examples"],
+    "sourceUrls": ["https://business.x.com/en/help/campaign-setup/creative-ad-specifications.html"]
+  },
+  {
+    "id": "youtube-skippable-instream",
+    "platform": "YouTube",
+    "placement": "Skippable In-Stream",
+    "aliases": ["youtube skippable", "skippable instream", "trueview", "youtube in-stream", "yt skippable"],
+    "assetType": "Video",
+    "objectiveFit": "Awareness, consideration, traffic, conversion support",
+    "specs": [
+      { "label": "Format", "value": "Video ad that can run before/during/after YouTube videos." },
+      { "label": "Opening guidance", "value": "Brand and hook early before users can skip." },
+      { "label": "Companion elements", "value": "Confirm headline, CTA, URL, and companion/banner requirements in Google Ads." },
+      { "label": "Creative note", "value": "Plan for sound-on and captioned viewing." }
+    ],
+    "copyFields": [
+      { "label": "Opening hook", "limit": "First 5 seconds are critical", "placeholder": "XXX — write opening hook here." },
+      { "label": "Headline", "limit": "Confirm current Google Ads limit", "placeholder": "XXX — write headline here." },
+      { "label": "CTA", "limit": "Use approved Google Ads CTA", "placeholder": "XXX — select CTA." }
+    ],
+    "creativePrompts": [
+      "Make the brand, offer, or story clear before the skip point.",
+      "Include supers/captions for key claims and legal lines as needed.",
+      "Specify cutdowns if the media plan includes :06/:15/:30 versions."
+    ],
+    "exampleSearches": ["YouTube skippable in-stream ad examples", "Google Ads video creative examples"],
+    "sourceUrls": ["https://support.google.com/google-ads/answer/2375464"]
+  }
+]
