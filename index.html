@@ -18,7 +18,7 @@
         <p class="eyebrow">AgencyThings · Digital task automation</p>
         <h1>Build the creative brief from the media plan.</h1>
         <p class="lede">
-          Paste a deliverables list or upload CSV, Excel, or PowerPoint files, then watch placements move through matching, spec verification, source review, example clipping, and brief assembly.
+          Paste or upload a media plan, watch each placement move through matching, spec verification, source review, example clipping, and brief assembly.
         </p>
       </div>
       <div class="hero-card control-card">
@@ -84,12 +84,12 @@
         </div>
 
         <label class="drop-zone" for="plan-file">
-          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx" />
-          <span>Upload CSV/XLSX/PPTX</span>
-          <strong>or paste a deliverables list below</strong>
+          <input id="plan-file" type="file" accept=".csv,.tsv,.txt" />
+          <span>Upload CSV/TSV/TXT</span>
+          <strong>or paste rows below</strong>
         </label>
 
-        <label for="plan-input">Rows can include Platform, Placement, Size, Units, Notes — or paste a plain deliverables list</label>
+        <label for="plan-input">Rows can include Platform, Placement, Size, Units, Notes</label>
         <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
 
         <div class="button-row">
@@ -133,8 +133,7 @@
           <div class="button-row compact">
             <button id="copy-brief" type="button" class="secondary">Copy brief text</button>
             <button id="export-json" type="button" class="secondary">Export JSON</button>
-            <button id="export-ppt" type="button" class="secondary">Export PowerPoint</button>
-            <button id="print-brief" type="button">Export PDF</button>
+            <button id="print-brief" type="button">Print / PDF</button>
           </div>
         </div>
         <article id="brief-output" class="brief-output empty-state">
@@ -152,7 +151,6 @@
           </div>
           <span class="asset-type"></span>
         </div>
-        <div class="safe-zone-slot"></div>
         <div class="grid-two">
           <div>
             <h4>Specs to build against</h4>

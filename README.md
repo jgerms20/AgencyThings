@@ -6,32 +6,26 @@ A repository for practical agency/work tools, templates, and experiments.
 
 ### Digital Task Brief Maker
 
-A hosted browser workspace for turning media-plan rows into creative-ready digital task briefs with placement matching, verification sources, example clipping prompts, and exportable brief cards.
+A local-first browser tool for turning pasted media-plan rows into a creative-ready digital task brief.
 
 **Location:** `tools/digital-task-brief-maker/`
 
-**Recommended way to use it:** deploy it with GitHub Pages and open the hosted URL in your browser. You should not need to run a local Python server for day-to-day use.
-
 **What it does now:**
 
-- Accepts pasted deliverables lists plus CSV, TSV, TXT, Excel, or PowerPoint uploads from a media plan.
+- Accepts pasted CSV, TSV, or spreadsheet rows from a media plan.
 - Auto-matches common placements against a starter spec library.
-- Generates printable brief cards with specs, copy placeholders, source links, safe-zone visuals, creative prompts, and example-search starters.
-- Exports brief text to clipboard, JSON, browser PDF/print, or PowerPoint.
+- Generates printable brief cards with specs, copy placeholders, creative prompts, example-search starters, and source links.
+- Exports brief text to clipboard, JSON, or browser print/PDF.
 
-**Deploy online:**
+**Run locally:**
 
-Recommended path:
+```bash
+python3 -m http.server 4173 --directory tools/digital-task-brief-maker
+```
 
-1. Merge this code into your default branch.
-2. In GitHub, go to **Settings → Pages**.
-3. Set **Source** to **GitHub Actions**.
-4. Go to **Actions** and run or wait for **Deploy Digital Task Brief Maker**.
-5. Open the GitHub Pages URL shown by the workflow summary. It will usually be `https://<your-github-username>.github.io/AgencyThings/`.
+Then open <http://localhost:4173>.
 
-If you do not see the workflow under **Actions**, use the fallback in **Settings → Pages**: set **Source** to **Deploy from a branch**, choose your default branch, and choose `/ (root)`. The root `index.html` is the tool experience, so the main Pages URL opens the workspace directly.
-
-See `docs/digital-task-brief-maker-deployment.md` for the full deployment notes, exact places to find the URL, and 404 troubleshooting.
+**Why local-first:** media plans can be sensitive, and the MVP does not need a backend to prove the workflow.
 
 ## Roadmap
 
