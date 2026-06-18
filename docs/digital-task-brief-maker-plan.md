@@ -6,15 +6,14 @@ Build a work-tool that turns a pasted media plan into a creative-ready digital t
 
 ## Recommended product shape
 
-Start as a **static GitHub Pages web app** backed by files in this repository rather than a backend-heavy cloud product.
+Start as a **local-first web app** in this repository rather than a cloud product.
 
 Why:
 
-- A hosted static page is easier to open and share than a Terminal-driven local server.
-- The app still has no backend database in the MVP, so pasted media-plan data is processed in the browser.
+- Media plans can include client-sensitive details, so local-first avoids uploading data to third-party tools during the MVP phase.
 - A browser UI is easier to use than a command-line tool when pasting rows from Excel or Google Sheets.
 - The generated output can be printed to PDF, copied into a deck, or exported as JSON for later automation.
-- The same structure can later become a more advanced internal app if the workflow proves valuable.
+- The same structure can later become a hosted internal app if the workflow proves valuable.
 
 ## MVP workflow
 
@@ -50,9 +49,8 @@ Each placement includes:
 
 ## Near-term roadmap
 
-### Phase 1: Reliable hosted MVP
+### Phase 1: Reliable internal MVP
 
-- Deploy the static app with GitHub Pages so it can be opened from a normal URL.
 - Add the top 20–30 placements used most often by the team.
 - Add a QA checklist to every generated brief: spec verification, legal lines, landing URLs, trafficking naming, and version matrix.
 - Add manual override controls for unmatched placements.

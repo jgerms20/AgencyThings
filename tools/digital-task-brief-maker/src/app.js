@@ -9,16 +9,6 @@ const cardTemplate = document.querySelector('#placement-card-template');
 const copyBriefButton = document.querySelector('#copy-brief');
 const exportJsonButton = document.querySelector('#export-json');
 const printBriefButton = document.querySelector('#print-brief');
-const planFile = document.querySelector('#plan-file');
-const sourceList = document.querySelector('#source-list');
-const sourceCount = document.querySelector('#source-count');
-const workflowScore = document.querySelector('#workflow-score');
-const meters = {
-  ingest: document.querySelector('#meter-ingest'),
-  match: document.querySelector('#meter-match'),
-  verify: document.querySelector('#meter-verify'),
-  brief: document.querySelector('#meter-brief')
-};
 
 const samplePlan = `Platform,Placement,Size,Units,Notes
 Instagram,Feed Static Image,1080x1350,2,Launch post and offer variant
@@ -31,29 +21,18 @@ let placementLibrary = [];
 let currentBrief = [];
 
 async function boot() {
-  placementLibrary = await fetch(new URL('../data/placements.json', import.meta.url)).then((response) => response.json());
+  placementLibrary = await fetch('./data/placements.json').then((response) => response.json());
   loadSampleButton.addEventListener('click', loadSamplePlan);
   generateButton.addEventListener('click', generateBrief);
   clearButton.addEventListener('click', clearWorkspace);
   copyBriefButton.addEventListener('click', copyBriefText);
   exportJsonButton.addEventListener('click', exportBriefJson);
   printBriefButton.addEventListener('click', () => window.print());
-  planFile.addEventListener('change', importPlanFile);
-  resetWorkflowState();
 }
 
 function loadSamplePlan() {
   planInput.value = samplePlan;
   generateBrief();
-}
-
-async function importPlanFile(event) {
-  const [file] = event.target.files;
-  if (!file) return;
-  planInput.value = await file.text();
-  setWorkflowProgress({ ingest: 100, match: 0, verify: 0, brief: 0 });
-  activateWorkflowNode('ingest');
-  showToast(`Loaded ${file.name}`);
 }
 
 function clearWorkspace() {
@@ -63,17 +42,11 @@ function clearWorkspace() {
   reviewList.className = 'review-list empty-state';
   reviewList.innerHTML = 'Paste a media plan and click <strong>Generate brief</strong> to see placement matches.';
   briefOutput.className = 'brief-output empty-state';
-  briefOutput.textContent = 'Your assembled brief will appear here after the workflow runs.';
-  sourceCount.textContent = '0 sources';
-  sourceList.className = 'source-list empty-state';
-  sourceList.textContent = 'Verified platform links, example-search prompts, and visual clipping slots will appear here.';
-  resetWorkflowState();
+  briefOutput.textContent = 'Your generated digital task brief will appear here.';
 }
 
 function generateBrief() {
   const rows = parsePlan(planInput.value);
-  setWorkflowProgress({ ingest: rows.length ? 100 : 0, match: 20, verify: 0, brief: 0 });
-  activateWorkflowNode('match');
   currentBrief = rows.map((row, index) => {
     const match = findBestPlacement(row);
     return {
@@ -85,16 +58,7 @@ function generateBrief() {
     };
   });
 
-  const readiness = calculateReadiness(currentBrief);
-  setWorkflowProgress({
-    ingest: rows.length ? 100 : 0,
-    match: readiness.matchPercent,
-    verify: readiness.verifyPercent,
-    brief: readiness.briefPercent
-  });
-  activateWorkflowNode(readiness.briefPercent === 100 ? 'brief' : 'verify');
   renderReview(currentBrief);
-  renderSources(currentBrief);
   renderBrief(currentBrief);
 }
 
@@ -159,36 +123,6 @@ function scoreTokens(source, candidate) {
   return hits / candidateTokens.size;
 }
 
-function calculateReadiness(items) {
-  if (!items.length) return { matchPercent: 0, verifyPercent: 0, briefPercent: 0 };
-  const matched = items.filter((item) => item.matchedPlacement);
-  const averageConfidence = matched.reduce((sum, item) => sum + item.confidence, 0) / items.length;
-  const matchPercent = Math.round(averageConfidence * 100);
-  const verifyPercent = Math.round((matched.length / items.length) * 100);
-  const briefPercent = Math.round(((matchPercent + verifyPercent) / 2));
-  workflowScore.textContent = `${briefPercent}% ready`;
-  return { matchPercent, verifyPercent, briefPercent };
-}
-
-function setWorkflowProgress(progress) {
-  for (const [key, value] of Object.entries(progress)) {
-    if (meters[key]) meters[key].value = value;
-  }
-}
-
-function resetWorkflowState() {
-  workflowScore.textContent = '0% ready';
-  setWorkflowProgress({ ingest: 0, match: 0, verify: 0, brief: 0 });
-  activateWorkflowNode('ingest');
-}
-
-function activateWorkflowNode(activeNode) {
-  document.querySelectorAll('.workflow-node').forEach((node) => {
-    node.classList.toggle('active', node.dataset.node === activeNode);
-    node.classList.toggle('complete', ['ingest', 'match', 'verify', 'clip', 'brief'].indexOf(node.dataset.node) < ['ingest', 'match', 'verify', 'clip', 'brief'].indexOf(activeNode));
-  });
-}
-
 function renderReview(items) {
   matchCount.textContent = `${items.length} placement${items.length === 1 ? '' : 's'}`;
 
@@ -209,60 +143,6 @@ function renderReview(items) {
       ? `<strong>${escapeHtml(item.raw.platform || item.matchedPlacement.platform)} · ${escapeHtml(item.raw.placement || item.matchedPlacement.placement)}</strong><p>Matched to <b>${escapeHtml(item.matchedPlacement.platform)} ${escapeHtml(item.matchedPlacement.placement)}</b> · <span class="confidence">${confidence}% confidence</span></p>`
       : `<strong>${escapeHtml(item.raw.platform || 'Unknown platform')} · ${escapeHtml(item.raw.placement || 'Unknown placement')}</strong><p>No confident match yet. Add this placement to <code>data/placements.json</code> or edit the pasted row.</p>`;
     reviewList.append(card);
-  }
-}
-
-function renderSources(items) {
-  const matched = items.filter((item) => item.matchedPlacement);
-  const sources = matched.flatMap((item) => item.matchedPlacement.sourceUrls);
-  sourceCount.textContent = `${sources.length} source${sources.length === 1 ? '' : 's'}`;
-
-  if (!items.length) {
-    sourceList.className = 'source-list empty-state';
-    sourceList.textContent = 'Verified platform links, example-search prompts, and visual clipping slots will appear here.';
-    return;
-  }
-
-  sourceList.className = 'source-list';
-  sourceList.innerHTML = '';
-
-  for (const item of items) {
-    const wrapper = document.createElement('article');
-    wrapper.className = `source-card${item.matchedPlacement ? '' : ' source-card-warning'}`;
-
-    if (!item.matchedPlacement) {
-      wrapper.innerHTML = `
-        <div>
-          <strong>${escapeHtml(item.raw.platform || 'Unknown platform')} · ${escapeHtml(item.raw.placement || 'Unknown placement')}</strong>
-          <p>No source package yet. Add a placement spec to unlock verification and clipping prompts.</p>
-        </div>
-        <span class="confidence-chip warning">Needs setup</span>
-      `;
-      sourceList.append(wrapper);
-      continue;
-    }
-
-    const placement = item.matchedPlacement;
-    const confidence = Math.round(item.confidence * 100);
-    const links = placement.sourceUrls
-      .map((url) => `<a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(new URL(url).hostname)}</a>`)
-      .join('');
-    const clips = placement.exampleSearches
-      .map((query) => `<div class="clip-tile"><span>Image clip queue</span><strong>${escapeHtml(query)}</strong></div>`)
-      .join('');
-
-    wrapper.innerHTML = `
-      <div class="source-card-header">
-        <div>
-          <strong>${escapeHtml(placement.platform)} · ${escapeHtml(placement.placement)}</strong>
-          <p>Verification sources and visual example prompts for creative context.</p>
-        </div>
-        <span class="confidence-chip">${confidence}% match</span>
-      </div>
-      <div class="source-links">${links}</div>
-      <div class="clip-grid">${clips}</div>
-    `;
-    sourceList.append(wrapper);
   }
 }
 
