@@ -1,0 +1,63 @@
+name: Deploy Digital Task Brief Maker
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - work
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare static site
+        run: |
+          mkdir -p _site
+          cp -R tools/digital-task-brief-maker/. _site/
+          touch _site/.nojekyll
+          cat > _site/build-info.json <<EOF
+          {"build":"creative-layout-overhaul","date":"2026-06-25","sha":"${GITHUB_SHA}"}
+          EOF
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Write deployment summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          ## Digital Task Brief Maker is deployed
+
+          Open this URL:
+
+          ${{ steps.deployment.outputs.page_url }}
+
+          Expected build badge: `Current build: creative layout overhaul · 2026-06-25`
+
+          If the live page still shows the old purple three-step version, hard refresh or add `?v=2026-06-25` to the URL. If the badge is still missing, Pages is serving an older deployment/branch.
+          SUMMARY
