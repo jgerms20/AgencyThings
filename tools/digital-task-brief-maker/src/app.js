@@ -12,6 +12,8 @@ const printBriefButton = document.querySelector('#print-brief');
 const exportPptButton = document.querySelector('#export-ppt');
 const planFile = document.querySelector('#plan-file');
 const sourceList = document.querySelector('#source-list');
+const sourceUrlInput = document.querySelector('#source-url-input');
+const importUrlButton = document.querySelector('#import-url');
 const sourceCount = document.querySelector('#source-count');
 const workflowScore = document.querySelector('#workflow-score');
 const meters = {
@@ -41,6 +43,7 @@ async function boot() {
   printBriefButton.addEventListener('click', () => window.print());
   exportPptButton.addEventListener('click', exportPowerPointBrief);
   planFile.addEventListener('change', importPlanFile);
+  importUrlButton.addEventListener('click', importSourceUrl);
   resetWorkflowState();
 }
 
@@ -60,6 +63,8 @@ async function importPlanFile(event) {
     planInput.value = await extractPowerPointText(file);
   } else if (extension === 'pdf') {
     planInput.value = await extractPdfText(file);
+  } else if (extension === 'docx') {
+    planInput.value = await extractWordText(file);
   } else {
     planInput.value = await file.text();
   }
@@ -98,6 +103,33 @@ async function extractPdfText(file) {
     pages.push(content.items.map((item) => item.str).join(' '));
   }
   return pages.join('\n');
+}
+
+async function extractWordText(file) {
+  const JSZip = (await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')).default;
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const documentXml = await zip.files['word/document.xml'].async('text');
+  return xmlToText(documentXml);
+}
+
+async function importSourceUrl() {
+  const url = sourceUrlInput.value.trim();
+  if (!url) return showToast('Add a URL first.');
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  const response = await fetch(proxyUrl);
+  const html = await response.text();
+  const text = htmlToText(html);
+  planInput.value = [planInput.value.trim(), text].filter(Boolean).join('\n');
+  setWorkflowProgress({ ingest: 100, match: 0, verify: 0, brief: 0 });
+  activateWorkflowNode('ingest');
+  showToast('Pulled link text into the plan input.');
+}
+
+function htmlToText(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  template.content.querySelectorAll('script, style, noscript, svg').forEach((node) => node.remove());
+  return template.content.textContent.replace(/\s+/g, ' ').trim();
 }
 
 function xmlToText(xml) {

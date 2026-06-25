@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <div class="build-badge">Current build: creative layout overhaul · 2026-06-25</div>
+    <div class="build-badge">Current build: source link + docx ingest · 2026-06-25</div>
     <header class="hero app-hero">
       <nav class="top-nav" aria-label="Tool navigation">
         <a href="#input-title">Upload</a>
@@ -23,7 +23,7 @@
         <p class="eyebrow">Digital task automation</p>
         <h1>Digital Task Brief Maker</h1>
         <p class="lede">
-          Upload an Excel, PDF, PowerPoint, CSV, or deliverables list, review why each placement matched, verify image/example searches, then export the task brief.
+          Upload Excel, PDF, Word, PowerPoint, CSV, paste deliverables, or add source links; then review matches, verify examples, and export the task brief.
         </p>
       </div>
       <div class="hero-card control-card">
@@ -89,10 +89,16 @@
         </div>
 
         <label class="drop-zone" for="plan-file">
-          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf" />
-          <span>Upload XLSX/PDF/PPTX/CSV</span>
+          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf,.docx" />
+          <span>Upload XLSX/PDF/DOCX/PPTX/CSV</span>
           <strong>or paste a deliverables list below</strong>
         </label>
+
+        <label for="source-url-input">Optional source links / plan URLs</label>
+        <div class="url-row">
+          <input id="source-url-input" type="url" placeholder="https://example.com/media-plan-or-brief" />
+          <button id="import-url" type="button" class="secondary">Pull link text</button>
+        </div>
 
         <label for="plan-input">Rows can include Platform, Placement, Size, Units, Notes — or paste a plain deliverables list</label>
         <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>

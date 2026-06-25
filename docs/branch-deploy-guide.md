@@ -7,7 +7,7 @@ If Terminal is giving placeholder or folder errors, use `docs/copy-paste-git-com
 The screenshot showing the purple three-step page means GitHub Pages is still deploying an older branch/commit. The newest app build in this repo should show a top badge that says:
 
 ```text
-Current build: creative layout overhaul · 2026-06-25
+Current build: source link + docx ingest · 2026-06-25
 ```
 
 If that badge is missing, you are not viewing the latest build.
@@ -67,7 +67,7 @@ Then replace `origin` with the remote name shown there, or pass it to the helper
    - **Folder:** `/ (root)`
 4. Save.
 5. Wait for the Pages deployment to finish.
-6. Open the Pages URL and confirm the top badge says `Current build: creative layout overhaul · 2026-06-25`.
+6. Open the Pages URL and confirm the top badge says `Current build: source link + docx ingest · 2026-06-25`.
 
 ## If using GitHub Actions instead
 
@@ -76,3 +76,16 @@ The workflow file is included in the latest branch, so once that branch is pushe
 **Actions → Deploy Digital Task Brief Maker → Run workflow**
 
 Choose the latest versioned branch when GitHub asks which branch to run from.
+
+## Why GitHub says the PR has conflicts
+
+The conflicts are happening because multiple PRs/branches have edited the same core files (`index.html`, `README.md`, workflow YAML, app JS, and CSS). GitHub cannot automatically decide which version of those files should win.
+
+To avoid repeatedly resolving conflicts by hand:
+
+1. Keep one active PR for the latest app build.
+2. Close older PRs that touched the same files once their changes have been superseded.
+3. Deploy from the versioned branch instead of merging several old PRs into `main` one by one.
+4. If you do need to merge into `main`, merge only the latest PR/branch that contains the full app state.
+
+The latest branch should include the visible build badge `Current build: source link + docx ingest · 2026-06-25`.

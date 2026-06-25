@@ -14,7 +14,7 @@ A hosted browser workspace for turning media-plan rows into creative-ready digit
 
 **What it does now:**
 
-- Accepts pasted deliverables lists plus CSV, TSV, TXT, Excel, PDF, or PowerPoint uploads from a media plan.
+- Accepts pasted deliverables lists plus CSV, TSV, TXT, Excel, PDF, Word, URL/link, or PowerPoint uploads from a media plan.
 - Auto-matches common placements against a starter spec library.
 - Generates printable brief cards with specs, copy placeholders, source links, match-confidence details, safe-zone visuals, creative prompts, and example-search starters.
 - Exports brief text to clipboard, JSON, browser PDF/print, or PowerPoint.

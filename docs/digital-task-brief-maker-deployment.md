@@ -121,7 +121,7 @@ Use this checklist:
 2. Go to **Actions → Deploy Digital Task Brief Maker** and confirm the latest run happened after the merge.
 3. Open the latest workflow run and confirm the deployment summary points to the URL you are opening.
 4. Hard refresh the live page with `Shift` + browser refresh, or add `?v=2026-06-25` to the end of the URL.
-5. Look for the badge at the top of the tool that says `Current build: creative layout overhaul · 2026-06-25`. If that badge is missing, you are not on the newest deployed build.
+5. Look for the badge at the top of the tool that says `Current build: source link + docx ingest · 2026-06-25`. If that badge is missing, you are not on the newest deployed build.
 
 The current build should show:
 
