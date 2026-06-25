@@ -3,55 +3,102 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Digital Task Brief Maker</title>
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <header class="hero">
-      <div>
-        <p class="eyebrow">AgencyThings · work tools</p>
+    <div class="build-badge">Current build: upload workflow - 2026-06-25</div>
+
+    <header class="app-header">
+      <nav class="top-nav" aria-label="Tool navigation">
+        <a href="#input-title">Upload</a>
+        <a href="#review-title">Review</a>
+        <a href="#source-title">Verify</a>
+        <a href="#brief-title">Export</a>
+      </nav>
+      <div class="hero-copy">
+        <p class="eyebrow">AgencyThings</p>
         <h1>Digital Task Brief Maker</h1>
-        <p class="lede">
-          Paste a media plan, match placements to reusable ad specs, and generate a printable creative task brief with copy fields, reminders, and source links.
-        </p>
+        <p class="lede">Turn a media plan into a creative-ready task brief with placement matching, source checks, image-search prompts, and exportable outputs.</p>
       </div>
-      <div class="hero-card">
-        <strong>Best MVP workflow</strong>
-        <ol>
-          <li>Paste placement rows from Excel, Google Sheets, or CSV.</li>
-          <li>Review auto-matched specs and fill unmatched items.</li>
-          <li>Print to PDF or copy the generated brief into a deck.</li>
-        </ol>
-      </div>
+      <aside class="status-panel" aria-labelledby="status-title">
+        <strong id="status-title">Workflow status</strong>
+        <div class="status-stack">
+          <label><span>Ingest</span><meter id="meter-ingest" min="0" max="100" value="0"></meter></label>
+          <label><span>Match</span><meter id="meter-match" min="0" max="100" value="0"></meter></label>
+          <label><span>Verify</span><meter id="meter-verify" min="0" max="100" value="0"></meter></label>
+          <label><span>Brief</span><meter id="meter-brief" min="0" max="100" value="0"></meter></label>
+        </div>
+      </aside>
     </header>
 
-    <main class="app-shell">
+    <main id="workspace" class="workspace-shell">
+      <section class="workflow-canvas" aria-labelledby="workflow-title">
+        <div class="section-heading canvas-heading">
+          <div>
+            <p class="eyebrow">Workflow</p>
+            <h2 id="workflow-title">Input to finished task brief</h2>
+          </div>
+          <span id="workflow-score" class="pill">0% ready</span>
+        </div>
+        <div class="node-map" aria-label="Digital task brief workflow">
+          <article class="workflow-node active" data-node="ingest">
+            <span class="node-number">01</span>
+            <h3>Upload or paste</h3>
+            <p>XLSX, PDF, PPTX, CSV, TSV, TXT, or copied rows.</p>
+          </article>
+          <article class="workflow-node" data-node="match">
+            <span class="node-number">02</span>
+            <h3>Review matches</h3>
+            <p>Confidence details show why a placement matched.</p>
+          </article>
+          <article class="workflow-node" data-node="verify">
+            <span class="node-number">03</span>
+            <h3>Verify specs</h3>
+            <p>Source links stay attached to every matched placement.</p>
+          </article>
+          <article class="workflow-node" data-node="clip">
+            <span class="node-number">04</span>
+            <h3>Search examples</h3>
+            <p>Open generated image searches for creative references.</p>
+          </article>
+          <article class="workflow-node" data-node="brief">
+            <span class="node-number">05</span>
+            <h3>Export output</h3>
+            <p>Copy, JSON, PowerPoint, or print to PDF.</p>
+          </article>
+        </div>
+      </section>
+
       <section class="panel input-panel" aria-labelledby="input-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 1</p>
-            <h2 id="input-title">Add the media plan</h2>
+            <h2 id="input-title">Drop in the media plan</h2>
           </div>
-          <button id="load-sample" type="button" class="secondary">Load sample plan</button>
+          <button id="load-sample" type="button" class="secondary">Load sample</button>
         </div>
 
-        <label for="plan-input">Paste rows with columns like Platform, Placement, Size, Units, Notes</label>
+        <label class="drop-zone" for="plan-file" id="drop-zone">
+          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf" />
+          <span>Upload media plan</span>
+          <strong>XLSX, PDF, PPTX, CSV, TSV, TXT</strong>
+          <small id="file-status">No file selected</small>
+        </label>
+
+        <label for="plan-input">Paste rows or a plain deliverables list</label>
         <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
 
         <div class="button-row">
-          <button id="generate" type="button">Generate brief</button>
+          <button id="generate" type="button">Run workflow</button>
           <button id="clear" type="button" class="secondary">Clear</button>
         </div>
-
-        <details class="help-box">
-          <summary>What can I paste?</summary>
-          <p>
-            Comma-separated, tab-separated, or copied spreadsheet rows work. The matcher looks for platform and placement names across each row, so imperfect media plan exports are okay.
-          </p>
-        </details>
       </section>
 
-      <section class="panel" aria-labelledby="review-title">
+      <section class="panel insight-panel" aria-labelledby="review-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 2</p>
@@ -59,26 +106,34 @@
           </div>
           <span id="match-count" class="pill">0 placements</span>
         </div>
-        <div id="review-list" class="review-list empty-state">
-          Paste a media plan and click <strong>Generate brief</strong> to see placement matches.
+        <div id="review-list" class="review-list empty-state">Add a media plan to see match confidence and missing specs.</div>
+      </section>
+
+      <section class="panel source-panel" aria-labelledby="source-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Step 3</p>
+            <h2 id="source-title">Sources and image search</h2>
+          </div>
+          <span id="source-count" class="pill">0 sources</span>
         </div>
+        <div id="source-list" class="source-list empty-state">Source links and visual search prompts will appear here.</div>
       </section>
 
       <section class="panel brief-panel" aria-labelledby="brief-title">
         <div class="section-heading sticky-tools">
           <div>
-            <p class="eyebrow">Step 3</p>
+            <p class="eyebrow">Step 4</p>
             <h2 id="brief-title">Creative task brief</h2>
           </div>
           <div class="button-row compact">
-            <button id="copy-brief" type="button" class="secondary">Copy brief text</button>
+            <button id="copy-brief" type="button" class="secondary">Copy text</button>
             <button id="export-json" type="button" class="secondary">Export JSON</button>
+            <button id="export-ppt" type="button" class="secondary">Export PPTX</button>
             <button id="print-brief" type="button">Print / PDF</button>
           </div>
         </div>
-        <article id="brief-output" class="brief-output empty-state">
-          Your generated digital task brief will appear here.
-        </article>
+        <article id="brief-output" class="brief-output empty-state">Your assembled brief will appear here.</article>
       </section>
     </main>
 
@@ -91,9 +146,10 @@
           </div>
           <span class="asset-type"></span>
         </div>
+        <div class="safe-zone-slot"></div>
         <div class="grid-two">
           <div>
-            <h4>Specs to build against</h4>
+            <h4>Specs</h4>
             <ul class="spec-list"></ul>
           </div>
           <div>
@@ -102,7 +158,7 @@
           </div>
         </div>
         <div>
-          <h4>Creative direction prompts</h4>
+          <h4>Creative prompts</h4>
           <ul class="prompt-list"></ul>
         </div>
         <div class="source-block"></div>
