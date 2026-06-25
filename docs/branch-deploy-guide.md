@@ -1,13 +1,11 @@
 # Versioned Branch Deploy Guide
 
-If Terminal is giving placeholder or folder errors, use `docs/copy-paste-git-commands.md` for exact commands using the visible GitHub owner `jgerms20`.
-
 ## Why the live site still looks old
 
 The screenshot showing the purple three-step page means GitHub Pages is still deploying an older branch/commit. The newest app build in this repo should show a top badge that says:
 
 ```text
-Current build: cache-busted working ingest · 2026-06-25
+Current build: linear upload workflow · 2026-06-24
 ```
 
 If that badge is missing, you are not viewing the latest build.
@@ -23,28 +21,7 @@ Use explicit versioned branches so GitHub Pages can deploy a known build instead
 
 ## How to make the branch appear in GitHub
 
-A branch will not appear in GitHub until it is pushed. The command must be run from inside the cloned `AgencyThings` repository, not from your home folder. If you see `fatal: not a git repository`, you are in the wrong folder. Do not type angle brackets like `<OWNER>` or `<jgerms20>`; those are placeholders and zsh treats them as shell syntax.
-
-First go into the repo folder:
-
-```bash
-cd /path/to/AgencyThings
-```
-
-If the repo is not on your computer yet, clone it first:
-
-```bash
-git clone https://github.com/jgerms20/AgencyThings.git
-cd AgencyThings
-```
-
-Then use the helper script:
-
-```bash
-./scripts/push-latest-branch.sh
-```
-
-Or push manually:
+A branch will not appear in GitHub until it is pushed. After the branch exists locally, push it with:
 
 ```bash
 git push origin version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc
@@ -56,7 +33,7 @@ If the remote is not named `origin`, check the remote name with:
 git remote -v
 ```
 
-Then replace `origin` with the remote name shown there, or pass it to the helper script like `./scripts/push-latest-branch.sh upstream`.
+Then replace `origin` with the remote name shown there.
 
 ## How to deploy the latest versioned branch
 
@@ -67,7 +44,7 @@ Then replace `origin` with the remote name shown there, or pass it to the helper
    - **Folder:** `/ (root)`
 4. Save.
 5. Wait for the Pages deployment to finish.
-6. Open the Pages URL and confirm the top badge says `Current build: cache-busted working ingest · 2026-06-25`.
+6. Open the Pages URL and confirm the top badge says `Current build: linear upload workflow · 2026-06-24`.
 
 ## If using GitHub Actions instead
 
@@ -76,16 +53,3 @@ The workflow file is included in the latest branch, so once that branch is pushe
 **Actions → Deploy Digital Task Brief Maker → Run workflow**
 
 Choose the latest versioned branch when GitHub asks which branch to run from.
-
-## Why GitHub says the PR has conflicts
-
-The conflicts are happening because multiple PRs/branches have edited the same core files (`index.html`, `README.md`, workflow YAML, app JS, and CSS). GitHub cannot automatically decide which version of those files should win.
-
-To avoid repeatedly resolving conflicts by hand:
-
-1. Keep one active PR for the latest app build.
-2. Close older PRs that touched the same files once their changes have been superseded.
-3. Deploy from the versioned branch instead of merging several old PRs into `main` one by one.
-4. If you do need to merge into `main`, merge only the latest PR/branch that contains the full app state.
-
-The latest branch should include the visible build badge `Current build: cache-busted working ingest · 2026-06-25`.

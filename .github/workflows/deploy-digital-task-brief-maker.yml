@@ -30,12 +30,8 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp -R . _site/
-          rm -rf _site/.git
+          cp -R tools/digital-task-brief-maker/. _site/
           touch _site/.nojekyll
-          cat > _site/build-info.json <<EOF
-          {"build":"cache-busted-working-ingest","date":"2026-06-25","sha":"${GITHUB_SHA}"}
-          EOF
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -58,7 +54,5 @@ jobs:
 
           ${{ steps.deployment.outputs.page_url }}
 
-          Expected build badge: `Current build: cache-busted working ingest · 2026-06-25`
-
-          If the live page still shows the old purple three-step version, hard refresh or add `?v=2026-06-25` to the URL. If the badge is still missing, Pages is serving an older deployment/branch.
+          If this is your first deployment, GitHub Pages can take a few minutes to become available.
           SUMMARY

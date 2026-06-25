@@ -7,88 +7,68 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Digital Task Brief Maker</title>
-    <link rel="stylesheet" href="./src/styles.css?v=2026-06-25-ui3" />
-      <style id="critical-build-style">
-      .build-badge {
-        position: sticky;
-        top: 0;
-        z-index: 999;
-        padding: 0.65rem 1rem;
-        color: #111;
-        background: linear-gradient(90deg, #ffd400, #ffe66d);
-        border-bottom: 2px solid #111;
-        font: 950 0.82rem/1.2 system-ui, sans-serif;
-        letter-spacing: 0.04em;
-        text-align: center;
-        text-transform: uppercase;
-      }
-    </style>
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <div class="build-badge">Current build: cache-busted working ingest · 2026-06-25</div>
-    <header class="hero app-hero">
+    <div class="build-badge">Current build: upload workflow - 2026-06-25</div>
+
+    <header class="app-header">
       <nav class="top-nav" aria-label="Tool navigation">
         <a href="#input-title">Upload</a>
         <a href="#review-title">Review</a>
-        <a href="#image-search-title">Image search</a>
-        <a href="#brief-title">Output</a>
+        <a href="#source-title">Verify</a>
+        <a href="#brief-title">Export</a>
       </nav>
-      <div>
-        <p class="eyebrow">Digital task automation</p>
+      <div class="hero-copy">
+        <p class="eyebrow">AgencyThings</p>
         <h1>Digital Task Brief Maker</h1>
-        <p class="lede">
-          Upload Excel, PDF, Word, PowerPoint, CSV, paste deliverables, or add source links; then review matches, verify examples, and export the task brief.
-        </p>
+        <p class="lede">Turn a media plan into a creative-ready task brief with placement matching, source checks, image-search prompts, and exportable outputs.</p>
       </div>
-      <div class="hero-card control-card">
-        <strong>Workflow status</strong>
+      <aside class="status-panel" aria-labelledby="status-title">
+        <strong id="status-title">Workflow status</strong>
         <div class="status-stack">
-          <div><span>Media plan ingest</span><meter id="meter-ingest" min="0" max="100" value="0"></meter></div>
-          <div><span>Spec matching</span><meter id="meter-match" min="0" max="100" value="0"></meter></div>
-          <div><span>Verification</span><meter id="meter-verify" min="0" max="100" value="0"></meter></div>
-          <div><span>Brief assembly</span><meter id="meter-brief" min="0" max="100" value="0"></meter></div>
+          <label><span>Ingest</span><meter id="meter-ingest" min="0" max="100" value="0"></meter></label>
+          <label><span>Match</span><meter id="meter-match" min="0" max="100" value="0"></meter></label>
+          <label><span>Verify</span><meter id="meter-verify" min="0" max="100" value="0"></meter></label>
+          <label><span>Brief</span><meter id="meter-brief" min="0" max="100" value="0"></meter></label>
         </div>
-      </div>
+      </aside>
     </header>
 
     <main id="workspace" class="workspace-shell">
       <section class="workflow-canvas" aria-labelledby="workflow-title">
         <div class="section-heading canvas-heading">
           <div>
-            <p class="eyebrow">Linear workflow</p>
-            <h2 id="workflow-title">Follow the brief from input to output</h2>
+            <p class="eyebrow">Workflow</p>
+            <h2 id="workflow-title">Input to finished task brief</h2>
           </div>
           <span id="workflow-score" class="pill">0% ready</span>
         </div>
-        <div class="node-map linear-steps" aria-label="Digital task brief workflow">
+        <div class="node-map" aria-label="Digital task brief workflow">
           <article class="workflow-node active" data-node="ingest">
             <span class="node-number">01</span>
-            <h3>1. Upload / paste</h3>
-            <p>Add the deliverables list, media plan, Excel file, PDF, or PowerPoint file.</p>
+            <h3>Upload or paste</h3>
+            <p>XLSX, PDF, PPTX, CSV, TSV, TXT, or copied rows.</p>
           </article>
-          <div class="connector"></div>
           <article class="workflow-node" data-node="match">
             <span class="node-number">02</span>
-            <h3>2. Review matches</h3>
-            <p>Confirm the tool matched each deliverable to the right platform placement.</p>
+            <h3>Review matches</h3>
+            <p>Confidence details show why a placement matched.</p>
           </article>
-          <div class="connector"></div>
           <article class="workflow-node" data-node="verify">
             <span class="node-number">03</span>
-            <h3>3. Verify specs</h3>
-            <p>Use platform source links to confirm current specs and restrictions.</p>
+            <h3>Verify specs</h3>
+            <p>Source links stay attached to every matched placement.</p>
           </article>
-          <div class="connector"></div>
           <article class="workflow-node" data-node="clip">
             <span class="node-number">04</span>
-            <h3>4. Search examples</h3>
-            <p>Open visual searches and mark what examples should be clipped.</p>
+            <h3>Search examples</h3>
+            <p>Open generated image searches for creative references.</p>
           </article>
-          <div class="connector"></div>
           <article class="workflow-node" data-node="brief">
             <span class="node-number">05</span>
-            <h3>5. Export output</h3>
-            <p>Generate the final brief as text, JSON, PDF, or PowerPoint.</p>
+            <h3>Export output</h3>
+            <p>Copy, JSON, PowerPoint, or print to PDF.</p>
           </article>
         </div>
       </section>
@@ -99,22 +79,17 @@
             <p class="eyebrow">Step 1</p>
             <h2 id="input-title">Drop in the media plan</h2>
           </div>
-          <button id="load-sample" type="button" class="secondary">Load sample plan</button>
+          <button id="load-sample" type="button" class="secondary">Load sample</button>
         </div>
 
-        <label class="drop-zone" for="plan-file">
-          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf,.docx" />
-          <span>Upload XLSX/PDF/DOCX/PPTX/CSV</span>
-          <strong>or paste a deliverables list below</strong>
+        <label class="drop-zone" for="plan-file" id="drop-zone">
+          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf" />
+          <span>Upload media plan</span>
+          <strong>XLSX, PDF, PPTX, CSV, TSV, TXT</strong>
+          <small id="file-status">No file selected</small>
         </label>
 
-        <label for="source-url-input">Optional source links / plan URLs</label>
-        <div class="url-row">
-          <input id="source-url-input" type="url" placeholder="https://example.com/media-plan-or-brief" />
-          <button id="import-url" type="button" class="secondary">Pull link text</button>
-        </div>
-
-        <label for="plan-input">Rows can include Platform, Placement, Size, Units, Notes — or paste a plain deliverables list</label>
+        <label for="plan-input">Paste rows or a plain deliverables list</label>
         <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
 
         <div class="button-row">
@@ -127,28 +102,22 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 2</p>
-            <h2 id="review-title">Review matches <span class="help-dot" tabindex="0" aria-label="Review matches help">?</span></h2>
-            <p class="step-help">Open each confidence detail to see which alias/tokens drove the match and where to verify it.</p>
+            <h2 id="review-title">Review matches</h2>
           </div>
           <span id="match-count" class="pill">0 placements</span>
         </div>
-        <div id="review-list" class="review-list empty-state">
-          Add a media plan and run the workflow to see match confidence, missing specs, and what needs verification.
-        </div>
+        <div id="review-list" class="review-list empty-state">Add a media plan to see match confidence and missing specs.</div>
       </section>
 
-      <section class="panel source-panel" aria-labelledby="image-search-title">
+      <section class="panel source-panel" aria-labelledby="source-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 3</p>
-            <h2 id="image-search-title">Image search + verification <span class="help-dot" tabindex="0" aria-label="Image search help">?</span></h2>
-            <p class="step-help">Open the generated searches, choose useful examples, and verify they match the placement and spec source.</p>
+            <h2 id="source-title">Sources and image search</h2>
           </div>
           <span id="source-count" class="pill">0 sources</span>
         </div>
-        <div id="source-list" class="source-list empty-state">
-          Image search links, source links, and verification criteria will appear here.
-        </div>
+        <div id="source-list" class="source-list empty-state">Source links and visual search prompts will appear here.</div>
       </section>
 
       <section class="panel brief-panel" aria-labelledby="brief-title">
@@ -158,15 +127,13 @@
             <h2 id="brief-title">Creative task brief</h2>
           </div>
           <div class="button-row compact">
-            <button id="copy-brief" type="button" class="secondary">Copy brief text</button>
+            <button id="copy-brief" type="button" class="secondary">Copy text</button>
             <button id="export-json" type="button" class="secondary">Export JSON</button>
-            <button id="export-ppt" type="button" class="secondary">Export PowerPoint</button>
-            <button id="print-brief" type="button">Export PDF</button>
+            <button id="export-ppt" type="button" class="secondary">Export PPTX</button>
+            <button id="print-brief" type="button">Print / PDF</button>
           </div>
         </div>
-        <article id="brief-output" class="brief-output empty-state">
-          Your assembled brief will appear here after the workflow runs.
-        </article>
+        <article id="brief-output" class="brief-output empty-state">Your assembled brief will appear here.</article>
       </section>
     </main>
 
@@ -182,7 +149,7 @@
         <div class="safe-zone-slot"></div>
         <div class="grid-two">
           <div>
-            <h4>Specs to build against</h4>
+            <h4>Specs</h4>
             <ul class="spec-list"></ul>
           </div>
           <div>
@@ -191,13 +158,13 @@
           </div>
         </div>
         <div>
-          <h4>Creative direction prompts</h4>
+          <h4>Creative prompts</h4>
           <ul class="prompt-list"></ul>
         </div>
         <div class="source-block"></div>
       </section>
     </template>
 
-    <script type="module" src="./src/app.js?v=2026-06-25-ui3"></script>
+    <script type="module" src="./src/app.js"></script>
   </body>
 </html>

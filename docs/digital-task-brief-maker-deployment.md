@@ -110,22 +110,3 @@ Check these in order:
 3. **Branch:** The workflow currently runs on `main`, `master`, and `work`. If your default branch has another name, add it to `.github/workflows/deploy-digital-task-brief-maker.yml`.
 4. **Wait a few minutes:** The first Pages deployment can take a little time after the workflow succeeds.
 5. **Use the trailing slash:** Use `/AgencyThings/`, not `/AgencyThings` if your browser or network is being picky.
-
-## If the live site still shows the old purple three-step version
-
-If the page still says **AgencyThings · Work tools**, shows only **Step 1 / Step 2 / Step 3**, or does not show the **Upload XLSX/PDF/PPTX/CSV** drop zone, GitHub Pages is serving an older deployment.
-
-Use this checklist:
-
-1. Confirm the latest PR containing the creative layout overhaul has been merged into the branch that Pages deploys.
-2. Go to **Actions → Deploy Digital Task Brief Maker** and confirm the latest run happened after the merge.
-3. Open the latest workflow run and confirm the deployment summary points to the URL you are opening.
-4. Hard refresh the live page with `Shift` + browser refresh, or add `?v=2026-06-25` to the end of the URL.
-5. Look for the badge at the top of the tool that says `Current build: cache-busted working ingest · 2026-06-25`. If that badge is missing, you are not on the newest deployed build.
-
-The current build should show:
-
-- A yellow-forward visual treatment.
-- A top build badge.
-- Linear steps for upload, review, verify, image search, and export.
-- An upload drop zone for XLSX, PDF, PPTX, CSV, TSV, TXT, and pasted deliverables lists.
