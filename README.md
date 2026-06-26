@@ -14,10 +14,11 @@ A browser tool for turning media-plan rows and common plan exports into a creati
 
 - Runs as a guided five-step workflow: upload, review, sources, customize, export.
 - Accepts pasted rows plus CSV, TSV, TXT, Excel, PDF, and PowerPoint uploads.
+- Reads inventory-style media plan workbooks as tables, skips instruction/tracking rows, and groups deliverables by campaign bucket such as TVC, POLV, Audio, Social, Programmatic, OOH, or Custom.
 - Collapses raw plan rows into compact platform and placement groups.
 - Lets the reviewer mark each group as Approved, TBD, or Needs fix.
 - Builds a source package with spec links, image-search prompts, example searches, checkboxes, and reference notes.
-- Customizes the task brief with client/campaign details, slide count, slide split, primary/accent colors, safe-zone options, source appendix options, and black mode.
+- Customizes the task brief with client/campaign details, slide count, slide split, primary/accent colors, safe-zone options, source appendix options, and light/dark mode.
 - Exports brief text to clipboard, JSON, PowerPoint, or browser print/PDF.
 
 **Hosted use:**
@@ -25,7 +26,7 @@ A browser tool for turning media-plan rows and common plan exports into a creati
 The GitHub Pages workflow publishes the tool folder directly, so the Pages URL should open the guided workflow at the site root. The visible badge should read:
 
 ```text
-Current build: guided workflow - 2026-06-26
+Current build: guided workflow - 2026-06-26 2:47 PM PT
 ```
 
 If Pages is set to **Deploy from a branch** instead of **GitHub Actions**, choose a branch that includes this update and choose `/ (root)`. The root page redirects to the tool folder.
