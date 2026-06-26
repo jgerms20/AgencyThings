@@ -242,7 +242,7 @@
   if (inventoryRows.length >= 3) {
     const header = ['Platform', 'Placement', 'Size', 'Units', 'Notes'];
     const rows = inventoryRows.map((row) => [
-      `Inventory: ${row.bucket || row.channel || 'MEDIA PLAN'}`,
+      'Inventory: ' + (row.bucket || row.channel || 'MEDIA PLAN'),
       [row.channel, row.partner, row.asset].filter(Boolean).join(' - '),
       [row.assetFormat, row.specs].filter(Boolean).join(' | '),
       row.quantity || '',
@@ -399,7 +399,7 @@ function condenseInventoryText(value, maxLength) {
     .filter(Boolean)
     .filter((piece) => !/^n\/?a$/i.test(piece));
   const unique = [...new Set(pieces)].slice(0, 5).join('; ');
-  return unique.length > maxLength ? `${unique.slice(0, maxLength - 3)}...` : unique;
+  return unique.length > maxLength ? unique.slice(0, maxLength - 3) + '...' : unique;
 }
 
 function cleanInventoryText(value) {
