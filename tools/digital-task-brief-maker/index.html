@@ -247,11 +247,11 @@
       [row.assetFormat, row.specs].filter(Boolean).join(' | '),
       row.quantity || '',
       [
-        row.dueDate ? `Due: ${row.dueDate}` : '',
-        row.flightDates ? `Flight: ${row.flightDates}` : '',
-        row.placement ? `Placement: ${row.placement}` : '',
-        row.copyNeeds ? `Copy: ${row.copyNeeds}` : '',
-        row.notes ? `Links/Notes: ${row.notes}` : ''
+        row.dueDate ? 'Due: ' + row.dueDate : '',
+        row.flightDates ? 'Flight: ' + row.flightDates : '',
+        row.placement ? 'Placement: ' + row.placement : '',
+        row.copyNeeds ? 'Copy: ' + row.copyNeeds : '',
+        row.notes ? 'Links/Notes: ' + row.notes : ''
       ].filter(Boolean).join(' | ')
     ].map(csvEscape).join(','));
     return [header.join(','), ...rows].join('\n');
