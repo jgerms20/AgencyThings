@@ -1,184 +1,205 @@
 <!doctype html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate' />
+    <meta http-equiv='Pragma' content='no-cache' />
+    <meta http-equiv='Expires' content='0' />
     <title>Digital Task Brief Maker</title>
-    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel='stylesheet' href='./src/styles.css' />
   </head>
   <body>
-    <div class="build-badge">Current build: guided workflow - 2026-06-26</div>
+    <div class='build-badge'>Current build: guided workflow - 2026-06-26</div>
 
-    <header class="app-header">
-      <div class="hero-copy">
-        <p class="eyebrow">AgencyThings</p>
+    <header class='app-header'>
+      <div class='hero-copy'>
+        <p class='eyebrow'>AgencyThings</p>
         <h1>Digital Task Brief Maker</h1>
-        <p class="lede">Upload a media plan, confirm the matches, gather sources, tune the brief, and export a cleaner task deck.</p>
+        <p class='lede'>Upload a media plan, confirm the matches, gather sources, tune the brief, and export a cleaner task deck.</p>
       </div>
-      <aside class="status-panel" aria-labelledby="status-title">
-        <div class="status-panel-header">
-          <strong id="status-title">Today&apos;s run</strong>
-          <button id="theme-toggle" type="button" class="icon-button">Black mode</button>
+      <aside class='status-panel' aria-labelledby='status-title'>
+        <div class='status-panel-header'>
+          <strong id='status-title'>Today&apos;s run</strong>
+          <button id='theme-toggle' type='button' class='icon-button'>Black mode</button>
         </div>
-        <div class="status-grid" aria-live="polite">
-          <div><span id="stat-placements">0</span><small>placements</small></div>
-          <div><span id="stat-approved">0</span><small>approved</small></div>
-          <div><span id="stat-tbd">0</span><small>TBD</small></div>
-          <div><span id="stat-sources">0</span><small>sources</small></div>
+        <div class='status-grid' aria-live='polite'>
+          <div><span id='stat-placements'>0</span><small>placements</small></div>
+          <div><span id='stat-approved'>0</span><small>approved</small></div>
+          <div><span id='stat-tbd'>0</span><small>TBD</small></div>
+          <div><span id='stat-sources'>0</span><small>sources</small></div>
         </div>
       </aside>
     </header>
 
-    <main id="workspace" class="workflow-shell">
-      <section class="workflow-canvas" aria-labelledby="workflow-title">
-        <div class="section-heading canvas-heading">
+    <main id='workspace' class='workflow-shell'>
+      <section class='workflow-canvas' aria-labelledby='workflow-title'>
+        <div class='section-heading canvas-heading'>
           <div>
-            <p class="eyebrow">Workflow</p>
-            <h2 id="workflow-title">One step at a time</h2>
+            <p class='eyebrow'>Workflow</p>
+            <h2 id='workflow-title'>One step at a time</h2>
           </div>
-          <span id="workflow-state" class="pill">Step 1 of 5 - Upload</span>
+          <span id='workflow-state' class='pill'>Step 1 of 5 - Upload</span>
         </div>
-        <ol class="stepper" aria-label="Digital task brief workflow">
-          <li><button class="step-button active" type="button" data-step="0"><span>01</span><strong>Upload</strong><small>Add the plan</small></button></li>
-          <li><button class="step-button locked" type="button" data-step="1"><span>02</span><strong>Review</strong><small>Approve matches</small></button></li>
-          <li><button class="step-button locked" type="button" data-step="2"><span>03</span><strong>Sources</strong><small>Verify + search</small></button></li>
-          <li><button class="step-button locked" type="button" data-step="3"><span>04</span><strong>Customize</strong><small>Deck settings</small></button></li>
-          <li><button class="step-button locked" type="button" data-step="4"><span>05</span><strong>Export</strong><small>Brief output</small></button></li>
+        <ol class='stepper' aria-label='Digital task brief workflow'>
+          <li><button class='step-button active' type='button' data-step='0'><span>01</span><strong>Upload</strong><small>Add the plan</small></button></li>
+          <li><button class='step-button locked' type='button' data-step='1'><span>02</span><strong>Review</strong><small>Approve matches</small></button></li>
+          <li><button class='step-button locked' type='button' data-step='2'><span>03</span><strong>Sources</strong><small>Verify + search</small></button></li>
+          <li><button class='step-button locked' type='button' data-step='3'><span>04</span><strong>Customize</strong><small>Deck settings</small></button></li>
+          <li><button class='step-button locked' type='button' data-step='4'><span>05</span><strong>Export</strong><small>Brief output</small></button></li>
         </ol>
       </section>
 
-      <section class="panel step-panel active" data-step-panel="0" aria-labelledby="input-title">
-        <div class="section-heading">
+      <section class='panel step-panel active' data-step-panel='0' aria-labelledby='input-title'>
+        <div class='section-heading'>
           <div>
-            <p class="eyebrow">Step 1</p>
-            <h2 id="input-title">Upload the media plan</h2>
+            <p class='eyebrow'>Step 1</p>
+            <h2 id='input-title'>Upload the media plan</h2>
           </div>
-          <button id="load-sample" type="button" class="text-button">Load sample</button>
+          <button id='load-sample' type='button' class='text-button'>Load sample</button>
         </div>
 
-        <div class="upload-layout">
-          <label class="drop-zone primary-drop" for="plan-file" id="drop-zone">
-            <input id="plan-file" class="file-input" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf" />
-            <span class="drop-kicker">Click here first</span>
+        <div class='upload-layout'>
+          <label class='drop-zone primary-drop' for='plan-file' id='drop-zone'>
+            <input id='plan-file' class='file-input' type='file' accept='.csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf' />
+            <span class='drop-kicker'>Click here first</span>
             <strong>Upload media plan</strong>
             <small>XLSX, PDF, PPTX, CSV, TSV, TXT</small>
-            <em id="file-status">No file selected</em>
+            <em id='file-status'>No file selected</em>
           </label>
 
-          <div class="paste-panel">
-            <label for="plan-input">Or paste rows / a plain deliverables list</label>
-            <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
+          <div class='paste-panel'>
+            <label for='plan-input'>Or paste rows / a plain deliverables list</label>
+            <textarea id='plan-input' spellcheck='false' placeholder='Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video'></textarea>
           </div>
         </div>
 
-        <div class="step-footer">
-          <button id="clear" type="button" class="secondary">Clear</button>
-          <button id="generate" type="button" class="primary-action">Upload</button>
+        <div class='step-footer'>
+          <button id='clear' type='button' class='secondary'>Clear</button>
+          <button id='generate' type='button' class='primary-action'>Upload</button>
         </div>
       </section>
 
-      <section class="panel step-panel" data-step-panel="1" aria-labelledby="review-title">
-        <div class="section-heading">
+      <section class='panel step-panel' data-step-panel='1' aria-labelledby='review-title'>
+        <div class='section-heading'>
           <div>
-            <p class="eyebrow">Step 2</p>
-            <h2 id="review-title">Review grouped matches</h2>
+            <p class='eyebrow'>Step 2</p>
+            <h2 id='review-title'>Review grouped matches</h2>
           </div>
-          <span id="match-count" class="pill">0 groups</span>
+          <span id='match-count' class='pill'>0 groups</span>
         </div>
-        <div class="review-toolbar">
-          <p id="review-summary">Upload a plan to see compact platform and placement groups.</p>
-          <div class="button-row compact">
-            <button id="approve-confident" type="button" class="secondary">Approve high confidence</button>
-            <button id="mark-all-tbd" type="button" class="secondary">Mark all TBD</button>
+        <div class='review-toolbar'>
+          <p id='review-summary'>Upload a plan to see compact platform and placement groups.</p>
+          <div class='button-row compact'>
+            <button id='approve-confident' type='button' class='secondary'>Approve high confidence</button>
+            <button id='mark-all-tbd' type='button' class='secondary'>Mark all TBD</button>
           </div>
         </div>
-        <div id="review-list" class="review-list empty-state">No matches yet.</div>
-        <div class="step-footer">
-          <button type="button" class="secondary" data-prev-step>Back to upload</button>
-          <button type="button" class="primary-action" data-next-step>Continue to sources</button>
+        <div id='review-list' class='review-list empty-state'>No matches yet.</div>
+        <div class='step-footer'>
+          <button type='button' class='secondary' data-prev-step>Back to upload</button>
+          <button type='button' class='primary-action' data-next-step>Continue to sources</button>
         </div>
       </section>
 
-      <section class="panel step-panel" data-step-panel="2" aria-labelledby="source-title">
-        <div class="section-heading">
+      <section class='panel step-panel' data-step-panel='2' aria-labelledby='source-title'>
+        <div class='section-heading'>
           <div>
-            <p class="eyebrow">Step 3</p>
-            <h2 id="source-title">Sources and example search</h2>
+            <p class='eyebrow'>Step 3</p>
+            <h2 id='source-title'>Sources and example search</h2>
           </div>
-          <span id="source-count" class="pill">0 sources</span>
+          <span id='source-count' class='pill'>0 sources</span>
         </div>
-        <div id="source-list" class="source-list empty-state">Approve or mark placements TBD to build the source package.</div>
-        <div class="step-footer">
-          <button type="button" class="secondary" data-prev-step>Back to review</button>
-          <button type="button" class="primary-action" data-next-step>Continue to brief setup</button>
+        <div id='source-list' class='source-list empty-state'>Approve or mark placements TBD to build the source package.</div>
+        <div class='step-footer'>
+          <button type='button' class='secondary' data-prev-step>Back to review</button>
+          <button type='button' class='primary-action' data-next-step>Continue to brief setup</button>
         </div>
       </section>
 
-      <section class="panel step-panel" data-step-panel="3" aria-labelledby="customize-title">
-        <div class="section-heading">
+      <section class='panel step-panel' data-step-panel='3' aria-labelledby='customize-title'>
+        <div class='section-heading'>
           <div>
-            <p class="eyebrow">Step 4</p>
-            <h2 id="customize-title">Customize the creative task brief</h2>
+            <p class='eyebrow'>Step 4</p>
+            <h2 id='customize-title'>Customize the creative task brief</h2>
           </div>
-          <span id="deck-count" class="pill">0 slides planned</span>
+          <span id='deck-count' class='pill'>0 slides planned</span>
         </div>
-        <div class="customize-grid">
-          <form id="brief-options" class="options-panel">
-            <label>Client name<input id="client-name" name="clientName" type="text" placeholder="Client / brand" /></label>
-            <label>Campaign or job<input id="campaign-name" name="campaignName" type="text" placeholder="Campaign name" /></label>
-            <label>Max slides<input id="slide-count" name="slideCount" type="number" min="1" max="40" value="8" /></label>
+        <div class='customize-grid'>
+          <form id='brief-options' class='options-panel'>
+            <label>Client name<input id='client-name' name='clientName' type='text' placeholder='Client / brand' /></label>
+            <label>Campaign or job<input id='campaign-name' name='campaignName' type='text' placeholder='Campaign name' /></label>
+            <label>Max slides<input id='slide-count' name='slideCount' type='number' min='1' max='40' value='8' /></label>
             <label>Slide split
-              <select id="slide-strategy" name="slideStrategy">
-                <option value="placement">One slide per placement</option>
-                <option value="platform">Group by platform</option>
-                <option value="compact">Compact summary</option>
+              <select id='slide-strategy' name='slideStrategy'>
+                <option value='placement'>One slide per placement</option>
+                <option value='platform'>Group by platform</option>
+                <option value='compact'>Compact summary</option>
               </select>
             </label>
-            <label>Primary color<input id="primary-color" name="primaryColor" type="color" value="#ffd400" /></label>
-            <label>Accent color<input id="accent-color" name="accentColor" type="color" value="#00a7a7" /></label>
-            <div class="checkbox-stack">
-              <label><input id="include-safe-zones" type="checkbox" checked /> Include safe-zone reminders</label>
-              <label><input id="include-sources" type="checkbox" checked /> Include source appendix</label>
-              <label><input id="include-searches" type="checkbox" checked /> Include image-search prompts</label>
-              <label><input id="include-review-status" type="checkbox" checked /> Include review status labels</label>
+            <label>Primary color<input id='primary-color' name='primaryColor' type='color' value='#ffd400' /></label>
+            <label>Accent color<input id='accent-color' name='accentColor' type='color' value='#00a7a7' /></label>
+            <div class='checkbox-stack'>
+              <label><input id='include-safe-zones' type='checkbox' checked /> Include safe-zone reminders</label>
+              <label><input id='include-sources' type='checkbox' checked /> Include source appendix</label>
+              <label><input id='include-searches' type='checkbox' checked /> Include image-search prompts</label>
+              <label><input id='include-review-status' type='checkbox' checked /> Include review status labels</label>
             </div>
           </form>
-          <aside class="brand-preview" aria-live="polite">
+          <aside class='brand-preview' aria-live='polite'>
             <span>Preview</span>
-            <strong id="preview-client">Client / brand</strong>
-            <p id="preview-campaign">Campaign name</p>
+            <strong id='preview-client'>Client / brand</strong>
+            <p id='preview-campaign'>Campaign name</p>
           </aside>
         </div>
-        <div id="deck-plan" class="deck-plan empty-state">Upload and review placements to see the deck plan.</div>
-        <div class="step-footer">
-          <button type="button" class="secondary" data-prev-step>Back to sources</button>
-          <button type="button" class="primary-action" data-next-step>Generate brief</button>
+        <div id='deck-plan' class='deck-plan empty-state'>Upload and review placements to see the deck plan.</div>
+        <div class='step-footer'>
+          <button type='button' class='secondary' data-prev-step>Back to sources</button>
+          <button type='button' class='primary-action' data-next-step>Generate brief</button>
         </div>
       </section>
 
-      <section class="panel step-panel" data-step-panel="4" aria-labelledby="brief-title">
-        <div class="section-heading">
+      <section class='panel step-panel' data-step-panel='4' aria-labelledby='brief-title'>
+        <div class='section-heading'>
           <div>
-            <p class="eyebrow">Step 5</p>
-            <h2 id="brief-title">Creative task brief</h2>
+            <p class='eyebrow'>Step 5</p>
+            <h2 id='brief-title'>Creative task brief</h2>
           </div>
-          <div class="button-row compact">
-            <button id="copy-brief" type="button" class="secondary">Copy text</button>
-            <button id="export-json" type="button" class="secondary">Export JSON</button>
-            <button id="export-ppt" type="button" class="secondary">Export PPTX</button>
-            <button id="print-brief" type="button">Print / PDF</button>
+          <div class='button-row compact'>
+            <button id='copy-brief' type='button' class='secondary'>Copy text</button>
+            <button id='export-json' type='button' class='secondary'>Export JSON</button>
+            <button id='export-ppt' type='button' class='secondary'>Export PPTX</button>
+            <button id='print-brief' type='button'>Print / PDF</button>
           </div>
         </div>
-        <article id="brief-output" class="brief-output empty-state">Your assembled brief will appear here.</article>
-        <div class="step-footer">
-          <button type="button" class="secondary" data-prev-step>Back to setup</button>
+        <article id='brief-output' class='brief-output empty-state'>Your assembled brief will appear here.</article>
+        <div class='step-footer'>
+          <button type='button' class='secondary' data-prev-step>Back to setup</button>
         </div>
       </section>
     </main>
 
-    <script type="module" src="./src/app.js"></script>
+    <script>
+      window.fetch = ((nativeFetch) => async (...args) => {
+        const response = await nativeFetch(...args);
+        const target = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+        if (!target.includes('data/placements.json')) return response;
+
+        const placements = await response.clone().json();
+        const adjusted = placements.map((placement) => ({
+          ...placement,
+          assetType: placement.assetType && !placement.assetType.startsWith(placement.platform)
+            ? `${placement.platform} ${placement.assetType}`
+            : placement.assetType
+        }));
+
+        return new Response(JSON.stringify(adjusted), {
+          status: response.status,
+          statusText: response.statusText,
+          headers: { 'content-type': 'application/json' }
+        });
+      })(window.fetch.bind(window));
+    </script>
+    <script type='module' src='./src/app.js'></script>
   </body>
 </html>
