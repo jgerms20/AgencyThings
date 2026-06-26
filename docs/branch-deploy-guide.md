@@ -2,10 +2,10 @@
 
 ## Why the live site still looks old
 
-If the live page shows only the older three-step MVP or yesterday's upload workflow, GitHub Pages is serving an older branch, an older Actions deployment, or a cached copy. The current guided workflow build should show this top badge:
+If the live page shows only the older three-step MVP, yesterday's upload workflow, or a guided workflow without the timestamp, GitHub Pages is serving an older branch, an older Actions deployment, or a cached copy. The current guided workflow build should show this top badge:
 
 ```text
-Current build: guided workflow - 2026-06-26
+Current build: guided workflow - 2026-06-26 2:47 PM PT
 ```
 
 If that badge is missing, you are not viewing the current guided workflow.
@@ -27,7 +27,7 @@ Use an explicit branch so GitHub Pages deploys a known build instead of whicheve
    - **Folder:** `/ (root)`
 3. Save.
 4. Wait for the Pages deployment to finish.
-5. Open the Pages URL and confirm the top badge says `Current build: guided workflow - 2026-06-26`.
+5. Open the Pages URL and confirm the top badge says `Current build: guided workflow - 2026-06-26 2:47 PM PT`.
 
 ## If using GitHub Actions instead
 
@@ -41,5 +41,5 @@ Use an explicit branch so GitHub Pages deploys a known build instead of whicheve
 If the old page still appears after deployment finishes, hard refresh the browser or add this to the end of the URL:
 
 ```text
-?v=2026-06-26-guided-workflow
+?v=2026-06-26-1447-pt-smart-inventory
 ```
