@@ -253,11 +253,15 @@
         row.copyNeeds ? 'Copy: ' + row.copyNeeds : '',
         row.notes ? 'Links/Notes: ' + row.notes : ''
       ].filter(Boolean).join(' | ')
-    ].map(csvEscape).join(','));
-    return [header.join(','), ...rows].join('\n');
+    ].map(inventoryCell).join('\t'));
+    return [header.join('\t'), ...rows].join('\n');
   }
 
   return fallbackRows.join('\n');
+}
+
+function inventoryCell(value) {
+  return String(value || '').replace(/[\t\r\n;•]+/g, ' | ').replace(/\s+/g, ' ').trim();
 }
 
 function applyMergedSpreadsheetCells(sheet, rows) {
