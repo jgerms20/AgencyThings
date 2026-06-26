@@ -33,7 +33,7 @@ jobs:
           cp -R tools/digital-task-brief-maker/. _site/
           touch _site/.nojekyll
           cat > _site/build-info.json <<EOF
-          {"build":"guided-workflow","date":"2026-06-26","sha":"${GITHUB_SHA}"}
+          {"build":"guided-workflow","date":"2026-06-26","time":"14:47 PT","sha":"${GITHUB_SHA}"}
           EOF
 
       - name: Configure Pages
@@ -57,7 +57,7 @@ jobs:
 
           ${{ steps.deployment.outputs.page_url }}
 
-          Expected build badge: `Current build: guided workflow - 2026-06-26`
+          Expected build badge: `Current build: guided workflow - 2026-06-26 2:47 PM PT`
 
-          If the live page still shows an older build, hard refresh the URL or add `?v=2026-06-26-guided-workflow`.
+          If the live page still shows an older build, hard refresh the URL or add `?v=2026-06-26-1447-pt-smart-inventory`.
           SUMMARY
