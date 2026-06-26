@@ -10,120 +10,159 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <div class="build-badge">Current build: upload workflow - 2026-06-25</div>
+    <div class="build-badge">Current build: guided workflow - 2026-06-26</div>
 
     <header class="app-header">
-      <nav class="top-nav" aria-label="Tool navigation">
-        <a href="#input-title">Upload</a>
-        <a href="#review-title">Review</a>
-        <a href="#source-title">Verify</a>
-        <a href="#brief-title">Export</a>
-      </nav>
       <div class="hero-copy">
         <p class="eyebrow">AgencyThings</p>
         <h1>Digital Task Brief Maker</h1>
-        <p class="lede">Turn a media plan into a creative-ready task brief with placement matching, source checks, image-search prompts, and exportable outputs.</p>
+        <p class="lede">Upload a media plan, confirm the matches, gather sources, tune the brief, and export a cleaner task deck.</p>
       </div>
       <aside class="status-panel" aria-labelledby="status-title">
-        <strong id="status-title">Workflow status</strong>
-        <div class="status-stack">
-          <label><span>Ingest</span><meter id="meter-ingest" min="0" max="100" value="0"></meter></label>
-          <label><span>Match</span><meter id="meter-match" min="0" max="100" value="0"></meter></label>
-          <label><span>Verify</span><meter id="meter-verify" min="0" max="100" value="0"></meter></label>
-          <label><span>Brief</span><meter id="meter-brief" min="0" max="100" value="0"></meter></label>
+        <div class="status-panel-header">
+          <strong id="status-title">Today&apos;s run</strong>
+          <button id="theme-toggle" type="button" class="icon-button">Black mode</button>
+        </div>
+        <div class="status-grid" aria-live="polite">
+          <div><span id="stat-placements">0</span><small>placements</small></div>
+          <div><span id="stat-approved">0</span><small>approved</small></div>
+          <div><span id="stat-tbd">0</span><small>TBD</small></div>
+          <div><span id="stat-sources">0</span><small>sources</small></div>
         </div>
       </aside>
     </header>
 
-    <main id="workspace" class="workspace-shell">
+    <main id="workspace" class="workflow-shell">
       <section class="workflow-canvas" aria-labelledby="workflow-title">
         <div class="section-heading canvas-heading">
           <div>
             <p class="eyebrow">Workflow</p>
-            <h2 id="workflow-title">Input to finished task brief</h2>
+            <h2 id="workflow-title">One step at a time</h2>
           </div>
-          <span id="workflow-score" class="pill">0% ready</span>
+          <span id="workflow-state" class="pill">Step 1 of 5 - Upload</span>
         </div>
-        <div class="node-map" aria-label="Digital task brief workflow">
-          <article class="workflow-node active" data-node="ingest">
-            <span class="node-number">01</span>
-            <h3>Upload or paste</h3>
-            <p>XLSX, PDF, PPTX, CSV, TSV, TXT, or copied rows.</p>
-          </article>
-          <article class="workflow-node" data-node="match">
-            <span class="node-number">02</span>
-            <h3>Review matches</h3>
-            <p>Confidence details show why a placement matched.</p>
-          </article>
-          <article class="workflow-node" data-node="verify">
-            <span class="node-number">03</span>
-            <h3>Verify specs</h3>
-            <p>Source links stay attached to every matched placement.</p>
-          </article>
-          <article class="workflow-node" data-node="clip">
-            <span class="node-number">04</span>
-            <h3>Search examples</h3>
-            <p>Open generated image searches for creative references.</p>
-          </article>
-          <article class="workflow-node" data-node="brief">
-            <span class="node-number">05</span>
-            <h3>Export output</h3>
-            <p>Copy, JSON, PowerPoint, or print to PDF.</p>
-          </article>
-        </div>
+        <ol class="stepper" aria-label="Digital task brief workflow">
+          <li><button class="step-button active" type="button" data-step="0"><span>01</span><strong>Upload</strong><small>Add the plan</small></button></li>
+          <li><button class="step-button locked" type="button" data-step="1"><span>02</span><strong>Review</strong><small>Approve matches</small></button></li>
+          <li><button class="step-button locked" type="button" data-step="2"><span>03</span><strong>Sources</strong><small>Verify + search</small></button></li>
+          <li><button class="step-button locked" type="button" data-step="3"><span>04</span><strong>Customize</strong><small>Deck settings</small></button></li>
+          <li><button class="step-button locked" type="button" data-step="4"><span>05</span><strong>Export</strong><small>Brief output</small></button></li>
+        </ol>
       </section>
 
-      <section class="panel input-panel" aria-labelledby="input-title">
+      <section class="panel step-panel active" data-step-panel="0" aria-labelledby="input-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 1</p>
-            <h2 id="input-title">Drop in the media plan</h2>
+            <h2 id="input-title">Upload the media plan</h2>
           </div>
-          <button id="load-sample" type="button" class="secondary">Load sample</button>
+          <button id="load-sample" type="button" class="text-button">Load sample</button>
         </div>
 
-        <label class="drop-zone" for="plan-file" id="drop-zone">
-          <input id="plan-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf" style="position: fixed; left: -100vw; top: 0; width: 1px; height: 1px; opacity: 0;" />
-          <span>Upload media plan</span>
-          <strong>XLSX, PDF, PPTX, CSV, TSV, TXT</strong>
-          <small id="file-status">No file selected</small>
-        </label>
+        <div class="upload-layout">
+          <label class="drop-zone primary-drop" for="plan-file" id="drop-zone">
+            <input id="plan-file" class="file-input" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf" />
+            <span class="drop-kicker">Click here first</span>
+            <strong>Upload media plan</strong>
+            <small>XLSX, PDF, PPTX, CSV, TSV, TXT</small>
+            <em id="file-status">No file selected</em>
+          </label>
 
-        <label for="plan-input">Paste rows or a plain deliverables list</label>
-        <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
+          <div class="paste-panel">
+            <label for="plan-input">Or paste rows / a plain deliverables list</label>
+            <textarea id="plan-input" spellcheck="false" placeholder="Platform,Placement,Size,Units,Notes&#10;Instagram,Feed Static Image,1080x1350,2,Launch creative&#10;TikTok,TopView,9:16,1,Hero video"></textarea>
+          </div>
+        </div>
 
-        <div class="button-row">
-          <button id="generate" type="button">Run workflow</button>
+        <div class="step-footer">
           <button id="clear" type="button" class="secondary">Clear</button>
+          <button id="generate" type="button" class="primary-action">Upload</button>
         </div>
       </section>
 
-      <section class="panel insight-panel" aria-labelledby="review-title">
+      <section class="panel step-panel" data-step-panel="1" aria-labelledby="review-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 2</p>
-            <h2 id="review-title">Review matches</h2>
+            <h2 id="review-title">Review grouped matches</h2>
           </div>
-          <span id="match-count" class="pill">0 placements</span>
+          <span id="match-count" class="pill">0 groups</span>
         </div>
-        <div id="review-list" class="review-list empty-state">Add a media plan to see match confidence and missing specs.</div>
+        <div class="review-toolbar">
+          <p id="review-summary">Upload a plan to see compact platform and placement groups.</p>
+          <div class="button-row compact">
+            <button id="approve-confident" type="button" class="secondary">Approve high confidence</button>
+            <button id="mark-all-tbd" type="button" class="secondary">Mark all TBD</button>
+          </div>
+        </div>
+        <div id="review-list" class="review-list empty-state">No matches yet.</div>
+        <div class="step-footer">
+          <button type="button" class="secondary" data-prev-step>Back to upload</button>
+          <button type="button" class="primary-action" data-next-step>Continue to sources</button>
+        </div>
       </section>
 
-      <section class="panel source-panel" aria-labelledby="source-title">
+      <section class="panel step-panel" data-step-panel="2" aria-labelledby="source-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Step 3</p>
-            <h2 id="source-title">Sources and image search</h2>
+            <h2 id="source-title">Sources and example search</h2>
           </div>
           <span id="source-count" class="pill">0 sources</span>
         </div>
-        <div id="source-list" class="source-list empty-state">Source links and visual search prompts will appear here.</div>
+        <div id="source-list" class="source-list empty-state">Approve or mark placements TBD to build the source package.</div>
+        <div class="step-footer">
+          <button type="button" class="secondary" data-prev-step>Back to review</button>
+          <button type="button" class="primary-action" data-next-step>Continue to brief setup</button>
+        </div>
       </section>
 
-      <section class="panel brief-panel" aria-labelledby="brief-title">
-        <div class="section-heading sticky-tools">
+      <section class="panel step-panel" data-step-panel="3" aria-labelledby="customize-title">
+        <div class="section-heading">
           <div>
             <p class="eyebrow">Step 4</p>
+            <h2 id="customize-title">Customize the creative task brief</h2>
+          </div>
+          <span id="deck-count" class="pill">0 slides planned</span>
+        </div>
+        <div class="customize-grid">
+          <form id="brief-options" class="options-panel">
+            <label>Client name<input id="client-name" name="clientName" type="text" placeholder="Client / brand" /></label>
+            <label>Campaign or job<input id="campaign-name" name="campaignName" type="text" placeholder="Campaign name" /></label>
+            <label>Max slides<input id="slide-count" name="slideCount" type="number" min="1" max="40" value="8" /></label>
+            <label>Slide split
+              <select id="slide-strategy" name="slideStrategy">
+                <option value="placement">One slide per placement</option>
+                <option value="platform">Group by platform</option>
+                <option value="compact">Compact summary</option>
+              </select>
+            </label>
+            <label>Primary color<input id="primary-color" name="primaryColor" type="color" value="#ffd400" /></label>
+            <label>Accent color<input id="accent-color" name="accentColor" type="color" value="#00a7a7" /></label>
+            <div class="checkbox-stack">
+              <label><input id="include-safe-zones" type="checkbox" checked /> Include safe-zone reminders</label>
+              <label><input id="include-sources" type="checkbox" checked /> Include source appendix</label>
+              <label><input id="include-searches" type="checkbox" checked /> Include image-search prompts</label>
+              <label><input id="include-review-status" type="checkbox" checked /> Include review status labels</label>
+            </div>
+          </form>
+          <aside class="brand-preview" aria-live="polite">
+            <span>Preview</span>
+            <strong id="preview-client">Client / brand</strong>
+            <p id="preview-campaign">Campaign name</p>
+          </aside>
+        </div>
+        <div id="deck-plan" class="deck-plan empty-state">Upload and review placements to see the deck plan.</div>
+        <div class="step-footer">
+          <button type="button" class="secondary" data-prev-step>Back to sources</button>
+          <button type="button" class="primary-action" data-next-step>Generate brief</button>
+        </div>
+      </section>
+
+      <section class="panel step-panel" data-step-panel="4" aria-labelledby="brief-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Step 5</p>
             <h2 id="brief-title">Creative task brief</h2>
           </div>
           <div class="button-row compact">
@@ -134,36 +173,11 @@
           </div>
         </div>
         <article id="brief-output" class="brief-output empty-state">Your assembled brief will appear here.</article>
+        <div class="step-footer">
+          <button type="button" class="secondary" data-prev-step>Back to setup</button>
+        </div>
       </section>
     </main>
-
-    <template id="placement-card-template">
-      <section class="brief-card">
-        <div class="brief-card-header">
-          <div>
-            <p class="platform"></p>
-            <h3></h3>
-          </div>
-          <span class="asset-type"></span>
-        </div>
-        <div class="safe-zone-slot"></div>
-        <div class="grid-two">
-          <div>
-            <h4>Specs</h4>
-            <ul class="spec-list"></ul>
-          </div>
-          <div>
-            <h4>Copy needed</h4>
-            <div class="copy-list"></div>
-          </div>
-        </div>
-        <div>
-          <h4>Creative prompts</h4>
-          <ul class="prompt-list"></ul>
-        </div>
-        <div class="source-block"></div>
-      </section>
-    </template>
 
     <script type="module" src="./src/app.js"></script>
   </body>
