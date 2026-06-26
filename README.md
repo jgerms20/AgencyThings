@@ -6,16 +6,26 @@ A repository for practical agency/work tools, templates, and experiments.
 
 ### Digital Task Brief Maker
 
-A local-first browser tool for turning pasted media-plan rows into a creative-ready digital task brief.
+A browser tool for turning media-plan rows and common plan exports into a creative-ready digital task brief.
 
 **Location:** `tools/digital-task-brief-maker/`
 
 **What it does now:**
 
-- Accepts pasted CSV, TSV, or spreadsheet rows from a media plan.
+- Accepts pasted rows plus CSV, TSV, TXT, Excel, PDF, and PowerPoint uploads.
 - Auto-matches common placements against a starter spec library.
-- Generates printable brief cards with specs, copy placeholders, creative prompts, example-search starters, and source links.
-- Exports brief text to clipboard, JSON, or browser print/PDF.
+- Shows match-confidence details, source links, image-search prompts, and safe-zone reminders.
+- Exports brief text to clipboard, JSON, PowerPoint, or browser print/PDF.
+
+**Hosted use:**
+
+The GitHub Pages workflow publishes the tool folder directly, so the Pages URL should open the upload workflow at the site root. The visible badge should read:
+
+```text
+Current build: upload workflow - 2026-06-25
+```
+
+If Pages is set to **Deploy from a branch** instead of **GitHub Actions**, choose a branch that includes this update and choose `/ (root)`. The root page redirects to the tool folder.
 
 **Run locally:**
 
@@ -25,7 +35,7 @@ python3 -m http.server 4173 --directory tools/digital-task-brief-maker
 
 Then open <http://localhost:4173>.
 
-**Why local-first:** media plans can be sensitive, and the MVP does not need a backend to prove the workflow.
+**Why local-first:** media plans can be sensitive, and the MVP processes uploads in the browser without a backend database.
 
 ## Roadmap
 
