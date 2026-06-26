@@ -2,54 +2,44 @@
 
 ## Why the live site still looks old
 
-The screenshot showing the purple three-step page means GitHub Pages is still deploying an older branch/commit. The newest app build in this repo should show a top badge that says:
+If the live page shows only the older three-step MVP, GitHub Pages is serving an older branch, an older Actions deployment, or a cached copy. The restored app build should show this top badge:
 
 ```text
-Current build: linear upload workflow · 2026-06-24
+Current build: upload workflow - 2026-06-25
 ```
 
-If that badge is missing, you are not viewing the latest build.
+If that badge is missing, you are not viewing the restored upload workflow.
 
 ## Branches to use
 
-Use explicit versioned branches so GitHub Pages can deploy a known build instead of whichever branch happened to be selected before.
+Use an explicit branch so GitHub Pages deploys a known build instead of whichever branch was selected before.
 
 | Branch | What it is for |
 | --- | --- |
-| `version-1-initial-2026-06-25-0000-utc` | Original repo baseline before the brief maker. |
-| `version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc` | Latest Digital Task Brief Maker build with upload workflow, PDF/XLSX/PPTX import, image search verification, match-confidence details, yellow visual system, and deployment build badge. |
+| `main` | Recommended when Pages is set to GitHub Actions. The workflow publishes `tools/digital-task-brief-maker/` directly. |
+| `version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc` | Use this if Pages is set to Deploy from a branch. This branch should point to the restored upload workflow build. |
 
-## How to make the branch appear in GitHub
+## How to deploy from a branch
 
-A branch will not appear in GitHub until it is pushed. After the branch exists locally, push it with:
-
-```bash
-git push origin version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc
-```
-
-If the remote is not named `origin`, check the remote name with:
-
-```bash
-git remote -v
-```
-
-Then replace `origin` with the remote name shown there.
-
-## How to deploy the latest versioned branch
-
-1. Push `version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc` to GitHub.
-2. In GitHub, go to **Settings → Pages**.
-3. If using **Deploy from a branch**, choose:
+1. In GitHub, go to **Settings > Pages**.
+2. If using **Deploy from a branch**, choose:
    - **Branch:** `version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc`
    - **Folder:** `/ (root)`
-4. Save.
-5. Wait for the Pages deployment to finish.
-6. Open the Pages URL and confirm the top badge says `Current build: linear upload workflow · 2026-06-24`.
+3. Save.
+4. Wait for the Pages deployment to finish.
+5. Open the Pages URL and confirm the top badge says `Current build: upload workflow - 2026-06-25`.
 
 ## If using GitHub Actions instead
 
-The workflow file is included in the latest branch, so once that branch is pushed you can also run:
+1. In **Settings > Pages**, set **Source** to **GitHub Actions**.
+2. Go to **Actions > Deploy Digital Task Brief Maker**.
+3. Run the workflow from `main`, or wait for the next push to `main`.
+4. Open the workflow summary URL and confirm the same build badge.
 
-**Actions → Deploy Digital Task Brief Maker → Run workflow**
+## Cache check
 
-Choose the latest versioned branch when GitHub asks which branch to run from.
+If the old page still appears after deployment finishes, hard refresh the browser or add this to the end of the URL:
+
+```text
+?v=2026-06-25
+```
