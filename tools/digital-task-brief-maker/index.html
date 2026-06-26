@@ -8,20 +8,26 @@
     <meta http-equiv='Expires' content='0' />
     <title>Digital Task Brief Maker</title>
     <link rel='stylesheet' href='./src/styles.css' />
+    <style>
+      .site-controls { display: flex; gap: 0.65rem; align-items: center; margin-top: 1rem; }
+      .status-panel-header { margin-bottom: 0.9rem; }
+      .drop-kicker { display: none; }
+    </style>
   </head>
   <body>
-    <div class='build-badge'>Current build: guided workflow - 2026-06-26</div>
+    <div class='build-badge'>Current build: guided workflow - 2026-06-26 2:47 PM PT</div>
 
     <header class='app-header'>
       <div class='hero-copy'>
-        <p class='eyebrow'>AgencyThings</p>
         <h1>Digital Task Brief Maker</h1>
         <p class='lede'>Upload a media plan, confirm the matches, gather sources, tune the brief, and export a cleaner task deck.</p>
+        <div class='site-controls'>
+          <button id='theme-toggle' type='button' class='icon-button'>Dark mode</button>
+        </div>
       </div>
       <aside class='status-panel' aria-labelledby='status-title'>
         <div class='status-panel-header'>
-          <strong id='status-title'>Today&apos;s run</strong>
-          <button id='theme-toggle' type='button' class='icon-button'>Black mode</button>
+          <strong id='status-title'>Today's run</strong>
         </div>
         <div class='status-grid' aria-live='polite'>
           <div><span id='stat-placements'>0</span><small>placements</small></div>
@@ -62,7 +68,6 @@
         <div class='upload-layout'>
           <label class='drop-zone primary-drop' for='plan-file' id='drop-zone'>
             <input id='plan-file' class='file-input' type='file' accept='.csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf' />
-            <span class='drop-kicker'>Click here first</span>
             <strong>Upload media plan</strong>
             <small>XLSX, PDF, PPTX, CSV, TSV, TXT</small>
             <em id='file-status'>No file selected</em>
@@ -200,6 +205,237 @@
         });
       })(window.fetch.bind(window));
     </script>
-    <script type='module' src='./src/app.js'></script>
+
+    <script type='module'>
+      const appResponse = await fetch('./src/app.js?v=2026-06-26-1447-pt-smart-inventory');
+      let appSource = await appResponse.text();
+
+      function replaceBlock(source, startMarker, endMarker, replacement) {
+        const start = source.indexOf(startMarker);
+        const end = source.indexOf(endMarker, start);
+        if (start < 0 || end < 0) throw new Error(`Could not patch ${startMarker}`);
+        return source.slice(0, start) + replacement + '\n\n' + source.slice(end);
+      }
+
+      const spreadsheetPatch = String.raw`async function readSpreadsheet(file) {
+  const XLSX = await loadXlsx();
+  const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', raw: false, cellDates: true });
+  const extractedSheets = [];
+  const fallbackRows = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    const sheetRows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+    applyMergedSpreadsheetCells(sheet, sheetRows);
+
+    const inventoryRows = extractInventoryTableRows(sheetRows, sheetName);
+    if (inventoryRows.length) extractedSheets.push({ sheetName, rows: inventoryRows });
+
+    for (const row of sheetRows) {
+      if (row.some((cell) => String(cell).trim())) fallbackRows.push(row.map(csvEscape).join(','));
+    }
+  }
+
+  const preferredSheets = extractedSheets.filter((sheet) => !/master/i.test(sheet.sheetName) && sheet.rows.length >= 3);
+  const inventoryRows = dedupeInventoryRows((preferredSheets.length ? preferredSheets : extractedSheets).flatMap((sheet) => sheet.rows));
+
+  if (inventoryRows.length >= 3) {
+    const header = ['Platform', 'Placement', 'Size', 'Units', 'Notes'];
+    const rows = inventoryRows.map((row) => [
+      `Inventory: ${row.bucket || row.channel || 'MEDIA PLAN'}`,
+      [row.channel, row.partner, row.asset].filter(Boolean).join(' - '),
+      [row.assetFormat, row.specs].filter(Boolean).join(' | '),
+      row.quantity || '',
+      [
+        row.dueDate ? `Due: ${row.dueDate}` : '',
+        row.flightDates ? `Flight: ${row.flightDates}` : '',
+        row.placement ? `Placement: ${row.placement}` : '',
+        row.copyNeeds ? `Copy: ${row.copyNeeds}` : '',
+        row.notes ? `Links/Notes: ${row.notes}` : ''
+      ].filter(Boolean).join(' | ')
+    ].map(csvEscape).join(','));
+    return [header.join(','), ...rows].join('\n');
+  }
+
+  return fallbackRows.join('\n');
+}
+
+function applyMergedSpreadsheetCells(sheet, rows) {
+  for (const merge of sheet['!merges'] || []) {
+    const value = rows[merge.s.r]?.[merge.s.c];
+    if (!String(value || '').trim()) continue;
+    for (let rowIndex = merge.s.r; rowIndex <= merge.e.r; rowIndex += 1) {
+      rows[rowIndex] ||= [];
+      for (let colIndex = merge.s.c; colIndex <= merge.e.c; colIndex += 1) {
+        if (!String(rows[rowIndex][colIndex] || '').trim()) rows[rowIndex][colIndex] = value;
+      }
+    }
+  }
+}
+
+function extractInventoryTableRows(rows, sheetName) {
+  const output = [];
+  let headerMap = null;
+  let activeBucket = '';
+  let carry = { channel: '', partner: '' };
+
+  for (const row of rows) {
+    const header = findInventoryHeaderMap(row);
+    if (header) {
+      headerMap = header;
+      activeBucket = '';
+      carry = { channel: '', partner: '' };
+      continue;
+    }
+    if (!headerMap) continue;
+
+    const item = readInventoryRow(row, headerMap);
+    if (isInventorySectionRow(item)) {
+      activeBucket = normalizeInventoryBucket(item.channel);
+      carry = { channel: '', partner: '' };
+      continue;
+    }
+
+    item.channel ||= carry.channel;
+    item.partner ||= carry.partner;
+    if (item.channel) carry.channel = item.channel;
+    if (item.partner) carry.partner = item.partner;
+
+    if (!isUsableInventoryRow(item)) continue;
+    output.push({
+      bucket: activeBucket || classifyInventoryBucket(item.channel),
+      channel: cleanInventoryText(item.channel),
+      partner: cleanInventoryText(item.partner),
+      asset: cleanInventoryText(item.asset),
+      assetFormat: cleanInventoryText(item.assetFormat),
+      specs: cleanInventoryText(condenseInventoryText(item.specs, 190)),
+      placement: cleanInventoryText(item.placement),
+      dueDate: cleanInventoryText(item.dueDate),
+      flightDates: cleanInventoryText(item.flightDates),
+      quantity: cleanInventoryText(item.quantity),
+      copyNeeds: cleanInventoryText(condenseInventoryText(item.copyNeeds, 170)),
+      notes: cleanInventoryText(condenseInventoryText(item.notes, 220)),
+      sheetName
+    });
+  }
+  return output;
+}
+
+function findInventoryHeaderMap(row) {
+  const map = {};
+  row.forEach((value, index) => {
+    const text = normalizeInventoryHeader(value);
+    if (!text) return;
+    if (text.includes('format specs')) map.specs = index;
+    else if (text.includes('asset format')) map.assetFormat = index;
+    else if (text.includes('placements') || text.includes('ad copy needs')) map.placement = index;
+    else if (text.includes('materials due') || text.includes('asset materials due')) map.dueDate = index;
+    else if (text.includes('flight date')) map.flightDates = index;
+    else if (text.includes('asset quantity') || text === 'quantity' || text === 'qty') map.quantity = index;
+    else if (text.includes('copy needs')) map.copyNeeds = index;
+    else if (text.includes('helpful') || text.includes('link') || text.includes('notes')) map.notes = index;
+    else if (text === 'channel' || text === 'platform') map.channel = index;
+    else if (text === 'partner' || text === 'publisher' || text === 'vendor') map.partner = index;
+    else if (text === 'asset' || text === 'deliverable') map.asset = index;
+  });
+  const hits = ['channel', 'partner', 'asset', 'assetFormat', 'specs'].filter((key) => Number.isInteger(map[key])).length;
+  return hits >= 4 ? map : null;
+}
+
+function readInventoryRow(row, map) {
+  return {
+    channel: getInventoryCell(row, map.channel),
+    partner: getInventoryCell(row, map.partner),
+    asset: getInventoryCell(row, map.asset),
+    assetFormat: getInventoryCell(row, map.assetFormat),
+    specs: getInventoryCell(row, map.specs),
+    placement: getInventoryCell(row, map.placement),
+    dueDate: getInventoryCell(row, map.dueDate),
+    flightDates: getInventoryCell(row, map.flightDates),
+    quantity: getInventoryCell(row, map.quantity),
+    copyNeeds: getInventoryCell(row, map.copyNeeds),
+    notes: getInventoryCell(row, map.notes)
+  };
+}
+
+function getInventoryCell(row, index) {
+  return Number.isInteger(index) ? String(row[index] || '').trim() : '';
+}
+
+function isInventorySectionRow(item) {
+  if (!item.channel) return false;
+  const detailValues = [item.partner, item.asset, item.assetFormat, item.specs, item.placement, item.dueDate, item.flightDates, item.quantity, item.copyNeeds, item.notes];
+  return detailValues.every((value) => !String(value || '').trim());
+}
+
+function isUsableInventoryRow(item) {
+  if (/responsible agency|asset tracking|these sections/i.test(Object.values(item).join(' '))) return false;
+  if (!item.partner && !item.asset && !item.specs && !item.assetFormat) return false;
+  if (/^n\/?a$/i.test(item.partner) && /^n\/?a$/i.test(item.asset)) return false;
+  return Boolean(item.channel || item.partner || item.asset);
+}
+
+function normalizeInventoryBucket(value) {
+  const text = normalizeInventoryHeader(value);
+  if (/linear|tvc|television|tv commercial/.test(text)) return 'TVC';
+  if (/polv|programmatic olv|online video/.test(text)) return 'POLV';
+  if (/audio|podcast/.test(text)) return 'AUDIO';
+  if (/social/.test(text)) return 'SOCIAL';
+  if (/programmatic|display inventory|video inventory|display/.test(text)) return 'PROGRAMMATIC';
+  if (/ooh|out of home|gstv/.test(text)) return 'OOH';
+  if (/custom|roku|lg|home screen|marquee/.test(text)) return 'CUSTOM';
+  return cleanInventoryText(value).toUpperCase();
+}
+
+function classifyInventoryBucket(channel) {
+  return normalizeInventoryBucket(channel || 'MEDIA PLAN');
+}
+
+function condenseInventoryText(value, maxLength) {
+  const pieces = String(value || '')
+    .replace(/\r/g, '\n')
+    .split(/\n|•|\t/)
+    .map((piece) => piece.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .filter((piece) => !/^n\/?a$/i.test(piece));
+  const unique = [...new Set(pieces)].slice(0, 5).join('; ');
+  return unique.length > maxLength ? `${unique.slice(0, maxLength - 3)}...` : unique;
+}
+
+function cleanInventoryText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeInventoryHeader(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function dedupeInventoryRows(rows) {
+  const seen = new Set();
+  return rows.filter((row) => {
+    const key = normalizeInventoryHeader([row.bucket, row.channel, row.partner, row.asset, row.assetFormat, row.specs].join(' '));
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}`;
+
+      appSource = replaceBlock(appSource, 'async function readSpreadsheet(file) {', 'async function readPdf(file) {', spreadsheetPatch);
+      appSource = appSource.replace(
+        "  const searchText = normalize(`${row.platform} ${row.placement} ${row.size} ${row.notes}`);\n  let best = { placement: null, confidence: 0, searchText, signals: [] };",
+        "  const searchText = normalize(`${row.platform} ${row.placement} ${row.size} ${row.notes}`);\n  if (/^Inventory:\\s*/.test(String(row.platform || ''))) return { placement: null, confidence: 0.9, searchText, signals: [{ original: 'Structured inventory row', score: 0.9, tokens: [] }] };\n  let best = { placement: null, confidence: 0, searchText, signals: [] };"
+      );
+      appSource = appSource.replace(
+        "    const platform = placement?.platform || item.raw.platform || 'Needs setup';",
+        "    const platform = stripInventoryPrefix(placement?.platform || item.raw.platform || 'Needs setup');"
+      );
+      appSource = appSource.replace(
+        "function normalize(value) {",
+        "function stripInventoryPrefix(value) {\n  return String(value || '').replace(/^Inventory:\\s*/, '');\n}\n\nfunction normalize(value) {"
+      );
+      appSource = appSource.replaceAll("isDark ? 'Light mode' : 'Black mode'", "isDark ? 'Light mode' : 'Dark mode'");
+
+      await import(URL.createObjectURL(new Blob([appSource], { type: 'text/javascript' })));
+    </script>
   </body>
 </html>
