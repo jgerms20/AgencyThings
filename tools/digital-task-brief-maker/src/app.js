@@ -1,3 +1,5 @@
+import * as BriefCore from './mediaPlan.js';
+
 const planInput = document.querySelector('#plan-input');
 const planFileInput = document.querySelector('#plan-file');
 const dropZone = document.querySelector('#drop-zone');
@@ -156,18 +158,23 @@ async function readPlanFile(file) {
 
 async function readSpreadsheet(file) {
   const XLSX = await loadXlsx();
-  const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
-  const rows = [];
+  const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', raw: false, cellDates: true });
+  const sheets = [];
+  const fallbackRows = [];
 
   for (const sheetName of workbook.SheetNames) {
     const sheet = workbook.Sheets[sheetName];
     const sheetRows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+    BriefCore.applyMergedSpreadsheetCells(sheet, sheetRows);
+    sheets.push({ sheetName, rows: sheetRows });
     for (const row of sheetRows) {
-      if (row.some((cell) => String(cell).trim())) rows.push(row.map(csvEscape).join(','));
+      if (row.some((cell) => String(cell).trim())) fallbackRows.push(row.map(csvEscape).join(','));
     }
   }
 
-  return rows.join('\n');
+  const inventoryRows = BriefCore.extractInventoryWorkbookSheets(sheets);
+  if (inventoryRows.length >= 3) return BriefCore.inventoryRowsToPlanText(inventoryRows);
+  return fallbackRows.join('\n');
 }
 
 async function readPdf(file) {
@@ -275,16 +282,7 @@ function generateBrief({ goToReview = false } = {}) {
 }
 
 function parsePlan(input) {
-  const lines = toCandidateLines(input);
-  if (!lines.length) return [];
-
-  const parsedRows = lines.map(splitRow).filter((cells) => cells.some(Boolean));
-  const headerMap = getHeaderMap(parsedRows[0]);
-  const dataRows = headerMap ? parsedRows.slice(1) : parsedRows;
-
-  return dataRows
-    .map((cells) => rowFromCells(cells, headerMap))
-    .filter((row) => row.platform || row.placement || row.notes);
+  return BriefCore.parsePlan(input, placementLibrary);
 }
 
 function toCandidateLines(input) {
@@ -421,22 +419,7 @@ function detectSize(text) {
 }
 
 function findBestPlacement(row) {
-  const searchText = normalize(`${row.platform} ${row.placement} ${row.size} ${row.notes}`);
-  let best = { placement: null, confidence: 0, searchText, signals: [] };
-
-  for (const placement of placementLibrary) {
-    const candidates = [placement.platform, placement.placement, placement.assetType, ...(placement.aliases || [])].filter(Boolean);
-    const signals = candidates.map((candidate) => scoreCandidate(searchText, candidate)).sort((a, b) => b.score - a.score);
-    const platformBonus = searchText.includes(normalize(placement.platform)) ? 0.08 : 0;
-    const topScore = Math.min(1, (signals[0]?.score || 0) + platformBonus);
-
-    if (topScore > best.confidence) {
-      best = { placement, confidence: topScore, searchText, signals: signals.slice(0, 3) };
-    }
-  }
-
-  if (best.confidence < 0.36) best.placement = null;
-  return best;
+  return BriefCore.findBestPlacement(row, placementLibrary);
 }
 
 function scoreCandidate(source, candidate) {
@@ -451,40 +434,7 @@ function scoreCandidate(source, candidate) {
 }
 
 function buildGroups(items) {
-  const grouped = new Map();
-
-  for (const item of items) {
-    const placement = item.matchedPlacement;
-    const platform = placement?.platform || item.raw.platform || 'Needs setup';
-    const placementName = placement?.placement || item.raw.placement || 'Unknown placement';
-    const key = normalize(`${platform} ${placementName}`) || `group-${item.index}`;
-
-    if (!grouped.has(key)) {
-      grouped.set(key, {
-        key,
-        platform,
-        placementName,
-        matchedPlacement: placement,
-        confidence: item.confidence,
-        rows: [],
-        sizes: new Set(),
-        units: 0,
-        unitLabel: '',
-        notes: []
-      });
-    }
-
-    const group = grouped.get(key);
-    group.rows.push(item);
-    group.confidence = Math.max(group.confidence, item.confidence);
-    if (item.raw.size) group.sizes.add(item.raw.size);
-    const unitNumber = Number(String(item.raw.units || '').replace(/[^0-9.]/g, ''));
-    if (Number.isFinite(unitNumber) && unitNumber > 0) group.units += unitNumber;
-    if (item.raw.units && !group.unitLabel) group.unitLabel = item.raw.units;
-    if (item.raw.notes) group.notes.push(item.raw.notes);
-  }
-
-  return [...grouped.values()].sort((a, b) => `${a.platform} ${a.placementName}`.localeCompare(`${b.platform} ${b.placementName}`));
+  return BriefCore.buildGroups(items);
 }
 
 function seedReviewDecisions() {
@@ -560,14 +510,14 @@ function updateStats() {
   const approved = state.groups.filter((group) => state.decisions[group.key] === 'approved').length;
   const rejected = state.groups.filter((group) => state.decisions[group.key] === 'rejected').length;
   const tbd = Math.max(0, state.groups.length - approved - rejected);
-  const sources = state.groups.reduce((count, group) => count + (state.decisions[group.key] === 'rejected' ? 0 : group.matchedPlacement?.sourceUrls?.length || 0), 0);
+  const sources = state.groups.filter((group) => state.decisions[group.key] !== 'rejected').length;
 
   statPlacements.textContent = state.groups.length;
   statApproved.textContent = approved;
   statTbd.textContent = tbd;
   statSources.textContent = sources;
   matchCount.textContent = `${state.groups.length} group${state.groups.length === 1 ? '' : 's'}`;
-  sourceCount.textContent = `${sources} source${sources === 1 ? '' : 's'}`;
+  sourceCount.textContent = `${sources} source pack${sources === 1 ? '' : 's'}`;
 }
 
 function renderReview() {
@@ -600,8 +550,14 @@ function buildReviewCard(group) {
   const status = state.decisions[group.key] || 'tbd';
   const card = document.createElement('article');
   card.className = `review-item status-${status}`;
-  const specs = specSummary(group.matchedPlacement).map((spec) => `<span>${escapeHtml(spec)}</span>`).join('');
-  const sizeList = [...group.sizes].slice(0, 3).map((size) => `<span>${escapeHtml(size)}</span>`).join('');
+  const specs = group.specNotes.slice(0, 2).map((spec) => `<span>Specs: ${escapeHtml(spec)}</span>`).join('')
+    || specSummary(group.matchedPlacement, 2).map((spec) => `<span>${escapeHtml(spec)}</span>`).join('');
+  const planFacts = [
+    ...(group.channels || []).slice(0, 1).map((channel) => `Channel: ${channel}`),
+    ...(group.partners || []).slice(0, 2).map((partner) => `Partner: ${partner}`),
+    ...(group.formats || []).slice(0, 1).map((format) => `Format: ${format}`)
+  ].map((fact) => `<span>${escapeHtml(fact)}</span>`).join('');
+  const sizeList = group.specNotes.length ? '' : [...group.sizes].slice(0, 2).map((size) => `<span>${escapeHtml(size)}</span>`).join('');
   const units = group.units || group.rows.length;
   const confidence = Math.round(group.confidence * 100);
   const notes = conciseText(group.notes.filter(Boolean).join(' | '), 120);
@@ -610,16 +566,16 @@ function buildReviewCard(group) {
     <div class="review-main">
       <div>
         <strong>${escapeHtml(group.placementName)}</strong>
-        <p>${escapeHtml(group.matchedPlacement?.assetType || 'Needs spec setup')} - ${confidence}% match - ${group.rows.length} row${group.rows.length === 1 ? '' : 's'} - ${units} unit${units === 1 ? '' : 's'}</p>
+        <p>${escapeHtml(group.matchedPlacement?.assetType || 'Needs spec setup')} - ${confidence}% confidence - ${group.rows.length} row${group.rows.length === 1 ? '' : 's'} - ${units} unit${units === 1 ? '' : 's'}</p>
       </div>
       <span class="status-chip">${statusLabel(status)}</span>
     </div>
-    <div class="chip-row">${sizeList || '<span>No size detected</span>'}${specs}</div>
+    <div class="chip-row">${planFacts}${sizeList}${specs || '<span>Confirm specs manually</span>'}</div>
     ${notes ? `<p class="review-note">${escapeHtml(notes)}</p>` : ''}
     <div class="review-actions" role="group" aria-label="Review ${escapeAttribute(group.placementName)}">
-      <button type="button" class="choice ${status === 'approved' ? 'selected' : ''}" data-group-key="${escapeAttribute(group.key)}" data-review-action="approved">Approve</button>
-      <button type="button" class="choice ${status === 'tbd' ? 'selected' : ''}" data-group-key="${escapeAttribute(group.key)}" data-review-action="tbd">TBD</button>
-      <button type="button" class="choice danger ${status === 'rejected' ? 'selected' : ''}" data-group-key="${escapeAttribute(group.key)}" data-review-action="rejected">Needs fix</button>
+      <button type="button" class="choice ${status === 'approved' ? 'selected' : ''}" data-group-key="${escapeAttribute(group.key)}" data-review-action="approved">OK Approve</button>
+      <button type="button" class="choice ${status === 'tbd' ? 'selected' : ''}" data-group-key="${escapeAttribute(group.key)}" data-review-action="tbd">? TBD</button>
+      <button type="button" class="choice danger ${status === 'rejected' ? 'selected' : ''}" data-group-key="${escapeAttribute(group.key)}" data-review-action="rejected">X Needs fix</button>
     </div>
   `;
   return card;
@@ -666,15 +622,7 @@ function renderSources() {
 }
 
 function buildSearchPack(group) {
-  const placement = group.matchedPlacement;
-  const base = `${group.platform} ${group.placementName}`;
-  const examples = placement?.exampleSearches?.length ? placement.exampleSearches.slice(0, 2) : [`${base} ad examples`];
-  return [
-    { label: 'Image examples', query: examples[0], type: 'image' },
-    { label: 'Spec search', query: `${base} creative specs`, type: 'web' },
-    { label: 'Competitive examples', query: `${base} best ad examples`, type: 'image' },
-    { label: 'Alt reference', query: examples[1] || `${base} inspiration`, type: 'image' }
-  ];
+  return BriefCore.buildSearchPack(group, state.options);
 }
 
 function toSourceLink(url) {
@@ -698,8 +646,8 @@ function collectOptions() {
   state.options = {
     clientName: document.querySelector('#client-name')?.value.trim() || 'Client / brand',
     campaignName: document.querySelector('#campaign-name')?.value.trim() || 'Campaign name',
-    slideCount: Math.max(1, Number(document.querySelector('#slide-count')?.value || 8)),
-    slideStrategy: document.querySelector('#slide-strategy')?.value || 'placement',
+    slideCount: Math.max(1, Number(document.querySelector('#slide-count')?.value || 12)),
+    slideStrategy: document.querySelector('#slide-strategy')?.value || 'platform',
     primaryColor: document.querySelector('#primary-color')?.value || '#ffd400',
     accentColor: document.querySelector('#accent-color')?.value || '#00a7a7',
     includeSafeZones: Boolean(document.querySelector('#include-safe-zones')?.checked),
@@ -717,8 +665,8 @@ function defaultOptions() {
   return {
     clientName: 'Client / brand',
     campaignName: 'Campaign name',
-    slideCount: 8,
-    slideStrategy: 'placement',
+    slideCount: 12,
+    slideStrategy: 'platform',
     primaryColor: '#ffd400',
     accentColor: '#00a7a7',
     includeSafeZones: true,
@@ -730,8 +678,10 @@ function defaultOptions() {
 
 function renderDeckPlan() {
   const slides = buildSlidePlan();
-  const appendixCount = state.options.includeSources && outputGroups().length ? 1 : 0;
-  deckCount.textContent = `${slides.length + appendixCount} slide${slides.length + appendixCount === 1 ? '' : 's'} planned`;
+  const appendixCount = state.options.includeSources && outputGroups().length ? Math.ceil(outputGroups().length / 10) : 0;
+  const titleCount = slides.length ? 1 : 0;
+  const totalSlides = titleCount + slides.length + appendixCount;
+  deckCount.textContent = `${totalSlides} slide${totalSlides === 1 ? '' : 's'} planned`;
 
   if (!slides.length) {
     deckPlan.className = 'deck-plan empty-state';
@@ -740,30 +690,32 @@ function renderDeckPlan() {
   }
 
   deckPlan.className = 'deck-plan';
-  deckPlan.innerHTML = slides.map((slide, index) => `
+  const titleCard = `
     <article>
-      <span>Slide ${index + 1}</span>
+      <span>Slide 1</span>
+      <strong>Title</strong>
+      <p>${escapeHtml(state.options.clientName)} - ${escapeHtml(state.options.campaignName)}</p>
+    </article>
+  `;
+  const contentCards = slides.map((slide, index) => `
+    <article>
+      <span>Slide ${index + 2}</span>
       <strong>${escapeHtml(slide.title)}</strong>
       <p>${slide.groups.map((group) => `${group.platform} - ${group.placementName}`).map(escapeHtml).join(' | ')}</p>
     </article>
-  `).join('') + (appendixCount ? '<article><span>Appendix</span><strong>Sources and searches</strong><p>Verification links, example searches, and notes.</p></article>' : '');
+  `).join('');
+  const appendixCards = Array.from({ length: appendixCount }, (_, index) => `
+    <article>
+      <span>Slide ${slides.length + index + 2}</span>
+      <strong>Sources and searches ${index + 1}/${appendixCount}</strong>
+      <p>Verification links, official-search prompts, image searches, and notes.</p>
+    </article>
+  `).join('');
+  deckPlan.innerHTML = titleCard + contentCards + appendixCards;
 }
 
 function buildSlidePlan() {
-  const groups = outputGroups();
-  const max = state.options.slideCount;
-  if (!groups.length) return [];
-
-  let slides;
-  if (state.options.slideStrategy === 'platform') {
-    slides = [...groupBy(groups, (group) => group.platform)].map(([platform, platformGroups]) => ({ title: platform, groups: platformGroups }));
-  } else if (state.options.slideStrategy === 'compact') {
-    slides = chunk(groups, 3).map((chunkGroups, index) => ({ title: `Summary ${index + 1}`, groups: chunkGroups }));
-  } else {
-    slides = groups.map((group) => ({ title: `${group.platform} - ${group.placementName}`, groups: [group] }));
-  }
-
-  return slides.slice(0, max);
+  return BriefCore.buildSlidePlan(outputGroups(), state.options);
 }
 
 function renderBrief() {
@@ -897,7 +849,7 @@ function exportBriefJson() {
       specs: specSummary(group.matchedPlacement, 10)
     }))
   };
-  downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `digital-task-brief-${dateStamp()}.json`);
+  downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `digital-task-brief-${dateStamp(true)}.json`);
   showToast('JSON exported.');
 }
 
@@ -909,7 +861,7 @@ async function exportPowerPointBrief() {
   const PptxGenJS = imported.default || imported;
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
-  pptx.author = 'AgencyThings';
+  pptx.author = 'Digital Task Brief Maker';
   pptx.subject = 'Digital Task Brief';
   pptx.title = `${state.options.clientName} Digital Task Brief`;
 
@@ -918,6 +870,7 @@ async function exportPowerPointBrief() {
   titleSlide.addText(state.options.clientName, { x: 0.55, y: 0.55, w: 12, h: 0.55, fontSize: 30, bold: true, color: document.body.classList.contains('dark-mode') ? 'FFFFFF' : '111111' });
   titleSlide.addText(state.options.campaignName, { x: 0.55, y: 1.22, w: 11.5, h: 0.38, fontSize: 17, color: document.body.classList.contains('dark-mode') ? 'FFD400' : '333333' });
   titleSlide.addText(`${outputGroups().length} placement groups`, { x: 0.55, y: 2.0, w: 8, h: 0.35, fontSize: 13, color: document.body.classList.contains('dark-mode') ? 'EEEEEE' : '333333' });
+  titleSlide.addText(`Generated ${new Date().toLocaleString()}`, { x: 0.55, y: 6.65, w: 8, h: 0.25, fontSize: 8, color: document.body.classList.contains('dark-mode') ? 'CCCCCC' : '555555' });
 
   for (const [index, slidePlan] of slides.entries()) {
     const slide = pptx.addSlide();
@@ -925,25 +878,33 @@ async function exportPowerPointBrief() {
     slide.addText(`Slide ${index + 1}: ${slidePlan.title}`, { x: 0.45, y: 0.38, w: 12.2, h: 0.4, fontSize: 20, bold: true, color: '111111' });
 
     let y = 1.05;
-    for (const group of slidePlan.groups.slice(0, 3)) {
+    for (const group of slidePlan.groups) {
       const placement = group.matchedPlacement;
       slide.addText(`${group.platform} - ${group.placementName}`, { x: 0.55, y, w: 5.9, h: 0.28, fontSize: 13, bold: true, color: '111111' });
       slide.addText(`Status: ${statusLabel(state.decisions[group.key] || 'tbd')} | Confidence: ${Math.round(group.confidence * 100)}%`, { x: 6.8, y, w: 5.5, h: 0.25, fontSize: 9, color: '555555' });
-      y += 0.38;
-      slide.addText(`Specs: ${specSummary(placement, 4).join(' | ') || 'Confirm manually'}`, { x: 0.55, y, w: 12, h: 0.48, fontSize: 8.5, color: '222222', breakLine: false });
-      y += 0.58;
-      slide.addText(`Copy: ${(placement?.copyFields || []).slice(0, 3).map((field) => `${field.label} (${field.limit})`).join(' | ') || 'Confirm manually'}`, { x: 0.55, y, w: 12, h: 0.45, fontSize: 8.5, color: '222222', breakLine: false });
-      y += 0.7;
+      y += 0.32;
+      slide.addText(`Specs: ${specSummary(placement, 4).join(' | ') || 'Confirm manually'}`, { x: 0.55, y, w: 12, h: 0.38, fontSize: 7.8, color: '222222', breakLine: false });
+      y += 0.46;
+      slide.addText(`Copy: ${(placement?.copyFields || []).slice(0, 3).map((field) => `${field.label} (${field.limit})`).join(' | ') || 'Confirm manually'}`, { x: 0.55, y, w: 12, h: 0.35, fontSize: 7.8, color: '222222', breakLine: false });
+      y += 0.56;
     }
   }
 
   if (state.options.includeSources) {
-    const sourceSlide = pptx.addSlide();
-    sourceSlide.addText('Sources and searches', { x: 0.45, y: 0.35, w: 12, h: 0.45, fontSize: 22, bold: true, color: '111111' });
-    sourceSlide.addText(outputGroups().map((group) => `${group.platform} - ${group.placementName}: ${(group.matchedPlacement?.sourceUrls || []).join(' | ')}`).join('\n'), { x: 0.55, y: 1.0, w: 12, h: 5.7, fontSize: 8, color: '222222' });
+    const sourceRows = outputGroups().map((group) => {
+      const urls = (group.matchedPlacement?.sourceUrls || []).join(' | ');
+      const searches = buildSearchPack(group).slice(0, 2).map((item) => `${item.label}: ${item.query}`).join(' | ');
+      const note = state.sourceNotes[group.key] ? `Notes: ${state.sourceNotes[group.key]}` : '';
+      return `${group.platform} - ${group.placementName}: ${[urls, searches, note].filter(Boolean).join(' | ')}`;
+    });
+    for (const [index, rows] of chunk(sourceRows, 10).entries()) {
+      const sourceSlide = pptx.addSlide();
+      sourceSlide.addText(`Sources and searches ${index + 1}/${Math.ceil(sourceRows.length / 10)}`, { x: 0.45, y: 0.35, w: 12, h: 0.45, fontSize: 22, bold: true, color: '111111' });
+      sourceSlide.addText(rows.join('\n'), { x: 0.55, y: 1.0, w: 12, h: 5.7, fontSize: 7.4, color: '222222', breakLine: false });
+    }
   }
 
-  await pptx.writeFile({ fileName: `digital-task-brief-${dateStamp()}.pptx` });
+  await pptx.writeFile({ fileName: `digital-task-brief-${dateStamp(true)}.pptx` });
   showToast('PowerPoint exported.');
 }
 
@@ -997,8 +958,11 @@ function hexForPpt(value) {
   return String(value || '#111111').replace('#', '').toUpperCase();
 }
 
-function dateStamp() {
-  return new Date().toISOString().slice(0, 10);
+function dateStamp(includeTime = false) {
+  const now = new Date();
+  if (!includeTime) return now.toISOString().slice(0, 10);
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16).replace('T', '-').replace(':', '');
 }
 
 function downloadBlob(blob, filename) {
@@ -1015,14 +979,14 @@ function downloadBlob(blob, filename) {
 function toggleTheme() {
   document.body.classList.toggle('dark-mode');
   const isDark = document.body.classList.contains('dark-mode');
-  themeToggle.textContent = isDark ? 'Light mode' : 'Black mode';
+  themeToggle.textContent = isDark ? 'Light mode' : 'Dark mode';
   localStorage.setItem('brief-maker-theme', isDark ? 'dark' : 'light');
 }
 
 function restoreTheme() {
   const isDark = localStorage.getItem('brief-maker-theme') === 'dark';
   document.body.classList.toggle('dark-mode', isDark);
-  themeToggle.textContent = isDark ? 'Light mode' : 'Black mode';
+  themeToggle.textContent = isDark ? 'Light mode' : 'Dark mode';
 }
 
 function showToast(message) {

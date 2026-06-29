@@ -15,7 +15,7 @@
     </style>
   </head>
   <body>
-    <div class='build-badge'>Current build: guided workflow - 2026-06-26 2:47 PM PT</div>
+    <div class='build-badge'>Current build: tool upgrades - 2026-06-29 3:49 PM PT</div>
 
     <header class='app-header'>
       <div class='hero-copy'>
@@ -27,13 +27,13 @@
       </div>
       <aside class='status-panel' aria-labelledby='status-title'>
         <div class='status-panel-header'>
-          <strong id='status-title'>Today's run</strong>
+          <strong id='status-title'>Run summary</strong>
         </div>
         <div class='status-grid' aria-live='polite'>
           <div><span id='stat-placements'>0</span><small>placements</small></div>
           <div><span id='stat-approved'>0</span><small>approved</small></div>
           <div><span id='stat-tbd'>0</span><small>TBD</small></div>
-          <div><span id='stat-sources'>0</span><small>sources</small></div>
+          <div><span id='stat-sources'>0</span><small>source packs</small></div>
         </div>
       </aside>
     </header>
@@ -49,7 +49,7 @@
         </div>
         <ol class='stepper' aria-label='Digital task brief workflow'>
           <li><button class='step-button active' type='button' data-step='0'><span>01</span><strong>Upload</strong><small>Add the plan</small></button></li>
-          <li><button class='step-button locked' type='button' data-step='1'><span>02</span><strong>Review</strong><small>Approve matches</small></button></li>
+          <li><button class='step-button locked' type='button' data-step='1'><span>02</span><strong>Review</strong><small>Channel groups</small></button></li>
           <li><button class='step-button locked' type='button' data-step='2'><span>03</span><strong>Sources</strong><small>Verify + search</small></button></li>
           <li><button class='step-button locked' type='button' data-step='3'><span>04</span><strong>Customize</strong><small>Deck settings</small></button></li>
           <li><button class='step-button locked' type='button' data-step='4'><span>05</span><strong>Export</strong><small>Brief output</small></button></li>
@@ -89,14 +89,14 @@
         <div class='section-heading'>
           <div>
             <p class='eyebrow'>Step 2</p>
-            <h2 id='review-title'>Review grouped matches</h2>
+            <h2 id='review-title'>Review by channel and partner</h2>
           </div>
           <span id='match-count' class='pill'>0 groups</span>
         </div>
         <div class='review-toolbar'>
           <p id='review-summary'>Upload a plan to see compact platform and placement groups.</p>
           <div class='button-row compact'>
-            <button id='approve-confident' type='button' class='secondary'>Approve high confidence</button>
+            <button id='approve-confident' type='button' class='secondary'>Approve confident matches</button>
             <button id='mark-all-tbd' type='button' class='secondary'>Mark all TBD</button>
           </div>
         </div>
@@ -111,7 +111,7 @@
         <div class='section-heading'>
           <div>
             <p class='eyebrow'>Step 3</p>
-            <h2 id='source-title'>Sources and example search</h2>
+            <h2 id='source-title'>Sources and examples</h2>
           </div>
           <span id='source-count' class='pill'>0 sources</span>
         </div>
@@ -134,16 +134,16 @@
           <form id='brief-options' class='options-panel'>
             <label>Client name<input id='client-name' name='clientName' type='text' placeholder='Client / brand' /></label>
             <label>Campaign or job<input id='campaign-name' name='campaignName' type='text' placeholder='Campaign name' /></label>
-            <label>Max slides<input id='slide-count' name='slideCount' type='number' min='1' max='40' value='8' /></label>
-            <label>Slide split
+            <label>Slides planned<input id='slide-count' name='slideCount' type='number' min='1' max='40' value='12' /></label>
+            <label>Slide strategy
               <select id='slide-strategy' name='slideStrategy'>
+                <option value='platform' selected>Group by channel / platform</option>
                 <option value='placement'>One slide per placement</option>
-                <option value='platform'>Group by platform</option>
                 <option value='compact'>Compact summary</option>
               </select>
             </label>
-            <label>Primary color<input id='primary-color' name='primaryColor' type='color' value='#ffd400' /></label>
-            <label>Accent color<input id='accent-color' name='accentColor' type='color' value='#00a7a7' /></label>
+            <label>Primary brand color<input id='primary-color' name='primaryColor' type='color' value='#ffd400' /></label>
+            <label>Accent brand color<input id='accent-color' name='accentColor' type='color' value='#00a7a7' /></label>
             <div class='checkbox-stack'>
               <label><input id='include-safe-zones' type='checkbox' checked /> Include safe-zone reminders</label>
               <label><input id='include-sources' type='checkbox' checked /> Include source appendix</label>
@@ -173,7 +173,7 @@
           <div class='button-row compact'>
             <button id='copy-brief' type='button' class='secondary'>Copy text</button>
             <button id='export-json' type='button' class='secondary'>Export JSON</button>
-            <button id='export-ppt' type='button' class='secondary'>Export PPTX</button>
+            <button id='export-ppt' type='button' class='secondary'>Download PPTX</button>
             <button id='print-brief' type='button'>Print / PDF</button>
           </div>
         </div>
@@ -185,6 +185,7 @@
     </main>
 
     <script>
+      if (false) {
       window.fetch = ((nativeFetch) => async (...args) => {
         const response = await nativeFetch(...args);
         const target = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
@@ -204,9 +205,13 @@
           headers: { 'content-type': 'application/json' }
         });
       })(window.fetch.bind(window));
+      }
     </script>
 
     <script type='module'>
+      if (true) {
+        await import('./src/app.js?v=2026-06-29-1549-pt-tool-upgrades');
+      } else {
       const appResponse = await fetch('./src/app.js?v=2026-06-26-1447-pt-smart-inventory');
       let appSource = await appResponse.text();
 
@@ -440,6 +445,7 @@ function dedupeInventoryRows(rows) {
       appSource = appSource.replaceAll("isDark ? 'Light mode' : 'Black mode'", "isDark ? 'Light mode' : 'Dark mode'");
 
       await import(URL.createObjectURL(new Blob([appSource], { type: 'text/javascript' })));
+      }
     </script>
   </body>
 </html>

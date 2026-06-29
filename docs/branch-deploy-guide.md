@@ -2,13 +2,13 @@
 
 ## Why the live site still looks old
 
-If the live page shows only the older three-step MVP, yesterday's upload workflow, or a guided workflow without the timestamp, GitHub Pages is serving an older branch, an older Actions deployment, or a cached copy. The current guided workflow build should show this top badge:
+If the live page shows only the older three-step MVP, yesterday's upload workflow, or a guided workflow without the timestamp, GitHub Pages is serving an older branch, an older Actions deployment, or a cached copy. The current tool-upgrade build should show this top badge:
 
 ```text
-Current build: guided workflow - 2026-06-26 2:47 PM PT
+Current build: tool upgrades - 2026-06-29 3:49 PM PT
 ```
 
-If that badge is missing, you are not viewing the current guided workflow.
+If that badge is missing, you are not viewing the current tool-upgrade workflow.
 
 ## Branches to use
 
@@ -17,7 +17,7 @@ Use an explicit branch so GitHub Pages deploys a known build instead of whicheve
 | Branch | What it is for |
 | --- | --- |
 | `main` | Recommended when Pages is set to GitHub Actions. The workflow publishes `tools/digital-task-brief-maker/` directly. |
-| `version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc` | Use this if Pages is set to Deploy from a branch. This branch should point to the current guided workflow build. |
+| `version-2-latest-digital-task-brief-maker-2026-06-25-0001-utc` | Use this if Pages is set to Deploy from a branch. This branch should point to the current tool-upgrade build. |
 
 ## How to deploy from a branch
 
@@ -27,7 +27,7 @@ Use an explicit branch so GitHub Pages deploys a known build instead of whicheve
    - **Folder:** `/ (root)`
 3. Save.
 4. Wait for the Pages deployment to finish.
-5. Open the Pages URL and confirm the top badge says `Current build: guided workflow - 2026-06-26 2:47 PM PT`.
+5. Open the Pages URL and confirm the top badge says `Current build: tool upgrades - 2026-06-29 3:49 PM PT`.
 
 ## If using GitHub Actions instead
 
@@ -41,5 +41,5 @@ Use an explicit branch so GitHub Pages deploys a known build instead of whicheve
 If the old page still appears after deployment finishes, hard refresh the browser or add this to the end of the URL:
 
 ```text
-?v=2026-06-26-1447-pt-smart-inventory
+?v=2026-06-29-1549-pt-tool-upgrades
 ```
