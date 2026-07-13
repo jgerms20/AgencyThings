@@ -1,8 +1,41 @@
-# AgencyThings
+# Joshua's AgencyThings
 
-A repository for practical agency/work tools, templates, and experiments.
+Joshua's internal agency workspace: one home for practical tools, strategy labs, living research, templates, and experiments. The repository is organized as a small monorepo, but the live AgencyThings desktop presents every project as part of one working environment.
 
-## Tools
+## Live Workspace
+
+The GitHub Pages root is the AgencyThings desktop. It launches three active worlds:
+
+| Thing | Purpose | Destination |
+| --- | --- | --- |
+| Digital Task Brief Maker | Media-plan to creative-task workflow | `tools/digital-task-brief-maker/` on GitHub Pages |
+| Problem Wall Lab | Strategy signal, scoring, and review workspace | <https://agencythings-problem-wall.vercel.app> |
+| Gen Alpha Intelligence Lab | Living research and interview environment | <https://agencythings-gen-alpha.vercel.app> |
+
+Each app keeps its own visual language and interaction model. The desktop provides orientation and launch behavior without flattening the projects into one template.
+
+## Repository Structure
+
+```text
+AgencyThings/
+├── index.html                         # AgencyThings desktop
+├── assets/                            # Hub styles, behavior, and previews
+├── tools/
+│   └── digital-task-brief-maker/      # Static GitHub Pages tool
+└── apps/
+    ├── problem-wall-lab/              # Independent Next.js/Vercel app
+    └── gen-alpha-lab/                 # Independent Next.js/Vercel app
+```
+
+## Local Hub Preview
+
+```bash
+python3 -m http.server 4173
+```
+
+Then open <http://localhost:4173>. The Task Brief runs under the same local server. The other two launch their Vercel deployments.
+
+## Projects
 
 ### Gen Alpha Intelligence Lab
 
@@ -20,15 +53,13 @@ A Vercel-ready internal agency research site for mapping Gen Alpha signals, Gen 
 - Runs immediately in browser demo mode with local storage.
 - Uses Supabase records and storage when Vercel environment variables are configured.
 
-**Deploy separately on Vercel:**
-
-Create a Vercel project from this repo and set the project root directory to:
+**Vercel project root:**
 
 ```text
 apps/gen-alpha-lab
 ```
 
-This keeps the GitHub Pages root pointed at the Digital Task Brief Maker while giving the Gen Alpha lab its own URL.
+Production: <https://agencythings-gen-alpha.vercel.app>
 
 **Run locally:**
 
@@ -55,15 +86,13 @@ An internal strategy tool for generating, scoring, reviewing, and exporting week
 - Lets strategists approve/reject candidates and export deck-ready copy or workflow JSON.
 - Includes a Vercel cron endpoint for Monday weekly refreshes.
 
-**Deploy separately on Vercel:**
-
-Create a Vercel project from this repo and set the project root directory to:
+**Vercel project root:**
 
 ```text
 apps/problem-wall-lab
 ```
 
-This gives the Problem Wall Lab its own Vercel URL while keeping the existing GitHub Pages tool and sibling apps separate.
+Production: <https://agencythings-problem-wall.vercel.app>
 
 **Run locally:**
 
@@ -95,21 +124,15 @@ A browser tool for turning media-plan rows and common plan exports into a creati
 
 **Hosted use:**
 
-The GitHub Pages workflow publishes the tool folder directly, so the Pages URL should open the guided workflow at the site root. The visible badge should read:
-
-```text
-Current build: tool upgrades - 2026-06-29 3:49 PM PT
-```
-
-If Pages is set to **Deploy from a branch** instead of **GitHub Actions**, choose a branch that includes this update and choose `/ (root)`. The root page redirects to the tool folder.
+The GitHub Pages workflow publishes the AgencyThings desktop at the site root and preserves this tool at `/tools/digital-task-brief-maker/`.
 
 **Run locally:**
 
 ```bash
-python3 -m http.server 4173 --directory tools/digital-task-brief-maker
+python3 -m http.server 4173
 ```
 
-Then open <http://localhost:4173>.
+Then open <http://localhost:4173/tools/digital-task-brief-maker/>.
 
 **Why local-first:** media plans can be sensitive, and the MVP processes uploads in the browser without a backend database.
 
