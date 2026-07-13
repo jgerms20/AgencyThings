@@ -11,27 +11,11 @@
     <link rel='stylesheet' href='./src/upgrade-styles.css?v=2026-07-01-1432-pt-direct-publish' />
   </head>
   <body>
-    <div class='build-badge'>Current build: template + source upgrades - 2026-07-01 2:32 PM PT</div>
-
     <header class='app-header'>
-      <div class='hero-copy'>
+      <div class='tool-header'>
         <h1>Digital Task Brief Maker</h1>
-        <p class='lede'>Upload a media plan, review the grouped matches, gather sources, tune the brief, and export a cleaner task deck.</p>
-        <div class='site-controls'>
-          <button id='theme-toggle' type='button' class='icon-button'>Dark mode</button>
-        </div>
+        <button id='theme-toggle' type='button' class='icon-button'>Dark mode</button>
       </div>
-      <aside class='status-panel' aria-labelledby='status-title'>
-        <div class='status-panel-header'>
-          <strong id='status-title'>Run summary</strong>
-        </div>
-        <div class='status-grid' aria-live='polite'>
-          <div><span id='stat-placements'>0</span><small>placements</small></div>
-          <div><span id='stat-approved'>0</span><small>approved</small></div>
-          <div><span id='stat-tbd'>0</span><small>TBD</small></div>
-          <div><span id='stat-sources'>0</span><small>source packs</small></div>
-        </div>
-      </aside>
     </header>
 
     <main id='workspace' class='workflow-shell'>
@@ -41,7 +25,7 @@
             <p class='eyebrow'>Workflow</p>
             <h2 id='workflow-title'>One step at a time</h2>
           </div>
-          <span id='workflow-state' class='pill'>Step 1 of 5 - Upload</span>
+          <span class='pill'>Workflow</span>
         </div>
         <ol class='stepper' aria-label='Digital task brief workflow'>
           <li><button class='step-button active' type='button' data-step='0'><span>01</span><strong>Upload</strong><small>Add the plan</small></button></li>
@@ -61,21 +45,35 @@
           <button id='load-sample' type='button' class='text-button'>Load sample</button>
         </div>
 
-        <div class='upload-layout'>
-          <label class='drop-zone primary-drop' for='plan-file' id='drop-zone'>
-            <input id='plan-file' class='file-input' type='file' accept='.csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf' />
-            <strong>Upload media plan</strong>
-            <small>XLSX, PDF, PPTX, CSV, TSV, TXT</small>
-            <em id='file-status'>No file selected</em>
-          </label>
+        <div class='upload-workspace'>
+          <div class='upload-layout'>
+            <label class='drop-zone primary-drop' for='plan-file' id='drop-zone'>
+              <input id='plan-file' class='file-input' type='file' accept='.csv,.tsv,.txt,.xlsx,.xls,.pptx,.pdf' />
+              <strong>Upload media plan</strong>
+              <small>XLSX, PDF, PPTX, CSV, TSV, TXT</small>
+              <em id='file-status'>No file selected</em>
+            </label>
 
-          <div class='paste-panel'>
-            <div class='paste-panel-header'>
-              <label for='plan-input'>Paste table rows instead</label>
-              <small>Use this only when you do not have a file. Keep columns separated by tabs or commas.</small>
+            <div class='paste-panel'>
+              <div class='paste-panel-header'>
+                <label for='plan-input'>Paste table rows instead</label>
+                <small>Use this only when you do not have a file. Keep columns separated by tabs or commas.</small>
+              </div>
+              <textarea id='plan-input' spellcheck='false' wrap='off' placeholder='Bucket,Channel,Partner,Asset,Format,Specs,Quantity&#10;SOCIAL,Social Video,Meta,:06s / :15s / :30s,mp4,4x5 / 9x16 / 1x1,3&#10;AUDIO,Streaming Audio,Spotify,:15s / :30s Audio Spot,Audio File,:15s / :30s,1'></textarea>
             </div>
-            <textarea id='plan-input' spellcheck='false' wrap='off' placeholder='Bucket,Channel,Partner,Asset,Format,Specs,Quantity&#10;SOCIAL,Social Video,Meta,:06s / :15s / :30s,mp4,4x5 / 9x16 / 1x1,3&#10;AUDIO,Streaming Audio,Spotify,:15s / :30s Audio Spot,Audio File,:15s / :30s,1'></textarea>
           </div>
+          <aside class='status-panel' aria-labelledby='status-title'>
+            <div class='status-panel-header'>
+              <strong id='status-title'>Run summary</strong>
+              <span id='workflow-state' class='pill'>Step 1 of 5 - Upload</span>
+            </div>
+            <div class='status-grid' aria-live='polite'>
+              <div><small>Placements</small><span id='stat-placements'>0</span></div>
+              <div><small>Approved</small><span id='stat-approved'>0</span></div>
+              <div><small>Needs review</small><span id='stat-tbd'>0</span></div>
+              <div><small>Source packs</small><span id='stat-sources'>0</span></div>
+            </div>
+          </aside>
         </div>
 
         <div class='step-footer'>
@@ -151,6 +149,8 @@
                 <option value='high-contrast'>High contrast</option>
               </select>
             </label>
+            <input id='primary-color' type='hidden' value='#ffd400' />
+            <input id='accent-color' type='hidden' value='#00a7a7' />
             <label class='template-upload' for='template-file'>
               <input id='template-file' class='file-input' type='file' accept='.pptx,.potx' />
               <span>Add brand template</span>

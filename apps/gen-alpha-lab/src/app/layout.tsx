@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Gen Alpha Intelligence Lab",
   description:
-    "A living agency research lab for Gen Alpha signals, interviews, sources, and strategic comparisons to Gen Z.",
+    "A findings-first cultural field guide to Gen Alpha, with direct evidence, owned media, and interview intake.",
   icons: {
     icon: "/favicon.svg"
   }
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

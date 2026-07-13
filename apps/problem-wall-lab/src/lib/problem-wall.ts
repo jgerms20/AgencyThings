@@ -1,185 +1,87 @@
-import type { BurstDimension, BurstScore, ClientBrief, ProblemCandidate, SourceSignal, WeeklyWallInput } from "./types";
+import type { BurstDimension, BurstScore, ProblemCandidate, SourceSignal, WeeklyWallInput } from "./types";
 
-const STAT_PATTERN = /(\d+%|\d+\s?in\s?\d+|\d+\.\d+|million|billion|trillion|x\b|double|half|majority)/i;
-const WEAK_WORDS = /\b(people|things|stuff|better|more|help|important|everyone|issue|problem)\b/gi;
+const STAT_PATTERN = /(\$?[\d,.]+%?|\d+\s?in\s?\d+|million|billion|hours?|days?|weeks?|double|half|majority)/i;
+const DIMENSIONS: BurstDimension[] = ["biggerReason", "unexpectedness", "relevancy", "specificity", "targetedCause"];
 
-export function scoreProblemCandidate(candidate: ProblemCandidate): BurstScore {
-  const combined = `${candidate.problem} ${candidate.opportunity} ${candidate.details}`;
+export function scoreProblemCandidate(candidate: ProblemCandidate, now = new Date()): BurstScore {
   const sources = candidate.sources ?? [];
-  const hasStat = STAT_PATTERN.test(combined) || sources.some((source) => Boolean(source.stat && STAT_PATTERN.test(source.stat)));
-  const hasUrgency = sources.some((source) => Boolean(source.urgency)) || /\b(now|new|surge|rising|increasing|today|heat|policy|weekly)\b/i.test(combined);
-  const hasWhy = sources.some((source) => Boolean(source.whyItMatters)) || /\b(because|cost|risk|death|safety|care|career|money|health|trust)\b/i.test(combined);
-  const hasFreshAngle = /\b(unnoticed|hidden|quietly|unexpected|instead of|versus|not just|while|until|but)\b/i.test(combined);
-  const hasSpecificAudience = candidate.audience.split(/\s+/).length > 1 && !/^people$/i.test(candidate.audience);
-  const hasCause = /\bbecause\b/i.test(candidate.problem) || /\bkeeps?|prevents?|stops?|miss|avoid|fear|struggle|default\b/i.test(combined);
-  const weakWordCount = (candidate.problem.match(WEAK_WORDS) ?? []).length;
+  const combined = `${candidate.problem} ${candidate.biggerReason} ${candidate.rootCause} ${candidate.details}`;
+  const validEvidence = sources.filter((source) => /^https?:\/\//.test(source.url) && Number.isFinite(Date.parse(source.publishedAt)));
+  const freshEvidence = validEvidence.filter((source) => now.getTime() - Date.parse(source.publishedAt) <= 21 * 86_400_000);
+  const hasStat = STAT_PATTERN.test(combined) || validEvidence.some((source) => STAT_PATTERN.test(source.stat ?? ""));
+  const hasSpecificAudience = candidate.audience.trim().split(/\s+/).length > 1 && !/people closest/i.test(candidate.audience);
+  const hasConsequence = candidate.biggerReason.length >= 36;
+  const hasCause = candidate.rootCause.length >= 30 && !/unknown|unclear/i.test(candidate.rootCause);
+  const surprising = /but|while|despite|instead|hidden|quiet|unexpected|even though/i.test(combined) || Boolean(hasStat);
 
   const breakdown: Record<BurstDimension, number> = {
-    biggerReason: clampScore((hasWhy ? 3 : 1) + (candidate.details.length > 120 ? 1 : 0) + (sources.length > 0 ? 1 : 0)),
-    unexpectedness: clampScore((hasFreshAngle ? 3 : 1) + (hasCause ? 1 : 0) + (weakWordCount <= 1 ? 1 : 0)),
-    relevancy: clampScore((hasUrgency ? 3 : 1) + (recentSourceCount(sources) > 0 ? 1 : 0) + (sources.length > 0 ? 1 : 0)),
-    specificity: clampScore((hasStat ? 3 : 1) + (hasSpecificAudience ? 1 : 0) + (candidate.problem.length > 70 ? 1 : 0)),
-    targetedCause: clampScore((hasCause ? 3 : 1) + (candidate.opportunity.length > 35 ? 1 : 0) + (hasSpecificAudience ? 1 : 0))
+    biggerReason: clamp(1 + (hasConsequence ? 2 : 0) + (validEvidence.length ? 1 : 0) + (/health|money|trust|safety|time|work|learning/i.test(candidate.biggerReason) ? 1 : 0)),
+    unexpectedness: clamp(1 + (surprising ? 2 : 0) + (hasCause ? 1 : 0) + (validEvidence.length > 1 ? 1 : 0)),
+    relevancy: clamp(1 + (freshEvidence.length ? 3 : 0) + (candidate.sources.some((source) => Boolean(source.urgency)) ? 1 : 0)),
+    specificity: clamp(1 + (hasStat ? 2 : 0) + (hasSpecificAudience ? 1 : 0) + (validEvidence.length ? 1 : 0)),
+    targetedCause: clamp(1 + (hasCause ? 3 : 0) + (hasSpecificAudience ? 1 : 0))
   };
 
-  const total = Object.values(breakdown).reduce((sum, value) => sum + value, 0);
-  const notes = buildScoreNotes(breakdown);
-
-  return {
-    breakdown,
-    total,
-    grade: total >= 21 ? "wall ready" : total >= 16 ? "promising" : "needs work",
-    notes
+  const reasons: Record<BurstDimension, string> = {
+    biggerReason: hasConsequence ? "Names a consequence beyond the immediate annoyance." : "The downstream consequence needs sharper proof.",
+    unexpectedness: surprising ? "The evidence reveals a tension or non-obvious scale." : "The framing is familiar and needs a fresher angle.",
+    relevancy: freshEvidence.length ? `${freshEvidence.length} source${freshEvidence.length === 1 ? "" : "s"} fall inside the 21-day window.` : "No source falls inside the current discovery window.",
+    specificity: hasStat && hasSpecificAudience ? "Uses a defined audience and measurable detail." : "Needs a more specific audience or measurable detail.",
+    targetedCause: hasCause ? "Identifies a bounded system or behavior causing the friction." : "The root cause is not yet concrete enough to attack."
   };
+
+  let total = DIMENSIONS.reduce((sum, dimension) => sum + breakdown[dimension], 0);
+  const evidenceCapped = validEvidence.length === 0;
+  if (evidenceCapped) total = Math.min(total, 15);
+  const rawGrade = total >= 21 ? "wall ready" : total >= 16 ? "promising" : "needs work";
+  const grade = evidenceCapped && rawGrade === "wall ready" ? "promising" : rawGrade;
+
+  return { breakdown, reasons, total, grade, evidenceCapped, notes: DIMENSIONS.map((dimension) => reasons[dimension]) };
 }
 
-export function buildProblemFromSignal(signal: SourceSignal, client: ClientBrief, weekOf: string): ProblemCandidate {
-  const behavior = trimSentence(signal.behavior);
-  const tension = trimSentence(signal.tension);
-  const audience = sentenceCase(signal.audience);
-  const consequence = inferConsequence(signal, client);
-  const problem = `${audience} are ${consequence} because they ${behavior}.`.toUpperCase();
-  const verb = client.opportunityVerbs[0] ?? "help";
-  const opportunity = `HOW COULD ${client.name.toUpperCase()} ${verb.toUpperCase()} ${audience.toUpperCase()} ${opportunityTail(signal, client)}?`;
-  const details = [signal.stat, signal.urgency, signal.whyItMatters, tension ? `The root tension: ${tension}.` : ""]
-    .filter(Boolean)
-    .join(" ");
-
-  const candidate: ProblemCandidate = {
-    id: `${weekOf}-${client.id}-${signal.id}`,
+export function buildProblemFromSignal(signal: SourceSignal, weekOf: string, now = new Date()): ProblemCandidate {
+  const audience = capitalize(signal.audience);
+  const subject = trimTitle(signal.title);
+  const problem = `${capitalize(subject)}. The burden is landing on ${signal.audience} without systems built for it.`;
+  const biggerReason = sentenceCase(signal.whyItMatters || `The burden compounds across time, access, trust, or money for ${signal.audience}.`);
+  const rootCause = sentenceCase(signal.tension);
+  const details = [signal.stat, signal.urgency, `Reported by ${signal.source} on ${signal.publishedAt}.`].filter(Boolean).join(" ");
+  const base: ProblemCandidate = {
+    id: `${weekOf}-${signal.id}`,
     weekOf,
-    clientId: client.id,
-    clientName: client.name,
-    strategist: client.strategist,
-    email: client.email,
     problem,
-    opportunity,
+    biggerReason,
+    rootCause,
     details,
     audience: signal.audience,
     sources: [signal],
-    status: "draft",
-    imagePrompt: buildImagePrompt(signal, client)
+    status: "new",
+    notes: "",
+    score: {} as BurstScore
   };
-
-  return {
-    ...candidate,
-    score: scoreProblemCandidate(candidate)
-  };
+  return { ...base, score: scoreProblemCandidate(base, now) };
 }
 
 export function generateWeeklyWall(input: WeeklyWallInput): ProblemCandidate[] {
-  const limit = input.limit ?? 12;
-  const candidates = input.signals.flatMap((signal) =>
-    input.clients
-      .filter((client) => clientFit(client, signal) > 0)
-      .map((client) => {
-        const candidate = buildProblemFromSignal(signal, client, input.weekOf);
-        return {
-          ...candidate,
-          score: {
-            ...candidate.score!,
-            total: candidate.score!.total + clientFit(client, signal)
-          }
-        };
-      })
-  );
-
-  return uniqueBy(candidates, (candidate) => candidate.id)
-    .sort((a, b) => (b.score?.total ?? 0) - (a.score?.total ?? 0))
-    .slice(0, limit);
+  const now = new Date(input.now ?? Date.now());
+  const candidates = input.signals.map((signal) => buildProblemFromSignal(signal, input.weekOf, now));
+  return uniqueBy(candidates, (candidate) => candidate.sources[0]?.url ?? candidate.id)
+    .sort((a, b) => b.score.total - a.score.total)
+    .slice(0, input.limit ?? 16);
 }
 
-export function formatProblemSlideText(candidate: ProblemCandidate): string {
-  return [
-    "DETAILS",
-    candidate.details,
-    "",
-    "STRATEGIST TO REACH OUT TO",
-    `${candidate.strategist}`,
-    `${candidate.email}`,
-    "",
-    "PROBLEM",
-    candidate.problem,
-    "",
-    "OPPORTUNITY",
-    candidate.opportunity
-  ].join("\n");
+export function buildWeeklySummary(candidates: ProblemCandidate[]): string {
+  const shortlist = candidates.filter((candidate) => candidate.status === "shortlisted");
+  if (!shortlist.length) return "No problems were shortlisted this week.";
+  const lines = shortlist
+    .sort((a, b) => b.score.total - a.score.total)
+    .map((candidate, index) => `${index + 1}. ${candidate.problem} (${candidate.score.total}/25)\nWhy it matters: ${candidate.biggerReason}${candidate.notes ? `\nNotes: ${candidate.notes}` : ""}`);
+  return `${shortlist.length} problem${shortlist.length === 1 ? "" : "s"} shortlisted this week.\n\n${lines.join("\n\n")}`;
 }
 
-function clientFit(client: ClientBrief, signal: SourceSignal): number {
-  const haystack = `${signal.title} ${signal.audience} ${signal.behavior} ${signal.tension} ${signal.tags.join(" ")}`.toLowerCase();
-  const terms = [...client.audiences, ...client.problemTerritories].flatMap((term) => term.toLowerCase().split(/[^a-z0-9]+/)).filter((term) => term.length > 3);
-  const hits = new Set(terms.filter((term) => haystack.includes(term)));
-  return Math.min(4, hits.size);
-}
-
-function inferConsequence(signal: SourceSignal, client: ClientBrief): string {
-  const text = `${signal.title} ${signal.behavior} ${signal.tension} ${signal.tags.join(" ")}`.toLowerCase();
-  if (text.includes("hydrat") || client.id === "gatorade") return "getting dehydrated";
-  if (text.includes("stream") || text.includes("tv")) return "losing the plot after great TV ends";
-  if (text.includes("chocolate")) return "being tricked by chocolate that is only chocolatey";
-  if (text.includes("ai") && text.includes("small")) return "stuck using AI they are afraid customers will judge";
-  if (text.includes("developer") || text.includes("chip")) return "defaulting to closed AI stacks before open options get a fair shot";
-  if (text.includes("simulation")) return "missing the invisible technology behind the breakthroughs they celebrate";
-  return `facing ${signal.tension}`;
-}
-
-function opportunityTail(signal: SourceSignal, client: ClientBrief): string {
-  const text = `${signal.title} ${signal.tension} ${signal.tags.join(" ")}`.toLowerCase();
-  if (text.includes("hydrat")) return "SCAN FOR HYDRATION BEFORE THEIR BODY SENDS THE BILL";
-  if (text.includes("heat")) return "MAKE WATER, REST, AND SHADE FEEL LIKE BUSINESS INFRASTRUCTURE";
-  if (text.includes("stream") || text.includes("tv")) return "PICK UP THE SPIRITS OF DIRECTIONLESS STREAMERS";
-  if (text.includes("chocolate")) return "BECOME THE OFFICIAL AUTHENTICATOR OF REAL CHOCOLATE";
-  if (text.includes("ai") && client.id === "constant-contact") return "MAKE AI FEEL LIKE BACKUP, NOT A BRAND LIABILITY";
-  if (text.includes("developer") || text.includes("chip")) return "MAKE OPEN AI INFRASTRUCTURE THE EASY FIRST CHOICE";
-  if (text.includes("simulation")) return "SHOW THE WORLD WHAT SIMULATION MAKES POSSIBLE";
-  return `SOLVE THIS IN A WAY ONLY ${client.name.toUpperCase()} CAN`;
-}
-
-function buildImagePrompt(signal: SourceSignal, client: ClientBrief): string {
-  return `Dark documentary photograph for a Problem Wall card: ${signal.audience} experiencing ${signal.tension}. Brand fit: ${client.name}. No logos, no text, cinematic but realistic.`;
-}
-
-function recentSourceCount(sources: SourceSignal[]): number {
-  const now = Date.parse("2026-07-09T12:00:00.000Z");
-  return sources.filter((source) => {
-    const age = now - Date.parse(source.publishedAt);
-    return Number.isFinite(age) && age <= 1000 * 60 * 60 * 24 * 14;
-  }).length;
-}
-
-function buildScoreNotes(breakdown: Record<BurstDimension, number>): string[] {
-  return Object.entries(breakdown).map(([key, score]) => `${labelDimension(key as BurstDimension)}: ${score}/5`);
-}
-
-function labelDimension(dimension: BurstDimension): string {
-  return {
-    biggerReason: "Bigger reason to care",
-    unexpectedness: "Unexpectedness",
-    relevancy: "Relevancy/urgency",
-    specificity: "Specificity",
-    targetedCause: "Targeted, solvable cause"
-  }[dimension];
-}
-
-function clampScore(value: number): number {
-  return Math.max(1, Math.min(5, value));
-}
-
-function sentenceCase(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function trimSentence(value: string): string {
-  return value.trim().replace(/[.?!]$/, "");
-}
-
-function uniqueBy<T>(items: T[], getKey: (item: T) => string): T[] {
-  const seen = new Set<string>();
-  return items.filter((item) => {
-    const key = getKey(item);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
+function clamp(value: number): number { return Math.max(1, Math.min(5, value)); }
+function trim(value: string): string { return value.trim().replace(/[.?!]$/, "").replace(/^are\s+/i, ""); }
+function trimTitle(value: string): string { const clean = value.trim().replace(/[.?!]$/, ""); return clean ? clean[0]!.toLowerCase() + clean.slice(1) : "a newly documented friction"; }
+function sentenceCase(value: string): string { const clean = value.trim(); return clean ? clean[0]!.toUpperCase() + clean.slice(1).replace(/[.?!]?$/, ".") : ""; }
+function capitalize(value: string): string { const clean = value.trim().replace(/[.?!]$/, ""); return clean ? clean[0]!.toUpperCase() + clean.slice(1) : ""; }
+function uniqueBy<T>(items: T[], key: (item: T) => string): T[] { const seen = new Set<string>(); return items.filter((item) => { const value = key(item); if (seen.has(value)) return false; seen.add(value); return true; }); }

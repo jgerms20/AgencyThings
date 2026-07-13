@@ -39,13 +39,16 @@ export async function GET() {
 export async function POST(request: Request) {
   const payload = await request.json();
   const record = buildRecordFromUpload({
+    id: payload.id,
     title: payload.title,
     kind: payload.kind,
     source: payload.source,
     tags: payload.tags,
     transcript: payload.transcript,
     url: payload.url,
-    fileName: payload.fileName
+    fileName: payload.fileName,
+    sourceClass: payload.sourceClass,
+    now: payload.createdAt ?? payload.now
   });
   const supabase = createSupabaseServerClient();
 

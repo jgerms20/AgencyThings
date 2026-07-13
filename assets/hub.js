@@ -3,14 +3,16 @@ export const projects = [
     id: "task-brief",
     name: "Digital Task Brief Maker",
     type: "Workflow",
+    mode: "make",
     purpose: "Turn media plans into clear, creative-ready task briefs.",
-    href: "./tools/digital-task-brief-maker/",
-    external: false,
+    href: "https://agencythings-task-brief.vercel.app",
+    external: true,
   },
   {
     id: "problem-wall",
     name: "Problem Wall Lab",
     type: "Strategy Lab",
+    mode: "think",
     purpose: "Collect signals, score tensions, and shape stronger problems.",
     href: "https://agencythings-problem-wall.vercel.app",
     external: true,
@@ -19,8 +21,27 @@ export const projects = [
     id: "gen-alpha",
     name: "Gen Alpha Intelligence Lab",
     type: "Living Research",
+    mode: "learn",
     purpose: "Map the media, behaviors, and cultural signals defining Gen Alpha.",
     href: "https://agencythings-gen-alpha.vercel.app",
+    external: true,
+  },
+  {
+    id: "memento",
+    name: "Memento",
+    type: "Cultural Planning",
+    mode: "think",
+    purpose: "Find verified cultural moments and turn them into useful brand opportunities.",
+    href: "https://agencythings-memento.vercel.app",
+    external: true,
+  },
+  {
+    id: "lunch-learn",
+    name: "Lunch & Learn",
+    type: "Programming Desk",
+    mode: "learn",
+    purpose: "Plan sessions, move partner outreach, and keep agency learning alive.",
+    href: "https://agencythings-lunch-learn.vercel.app",
     external: true,
   },
 ];
@@ -28,12 +49,10 @@ export const projects = [
 export function filterProjects(query = "") {
   const normalizedQuery = query.trim().toLowerCase();
 
-  if (!normalizedQuery) {
-    return projects;
-  }
+  if (!normalizedQuery) return projects;
 
   return projects.filter((project) =>
-    [project.name, project.type, project.purpose]
+    [project.name, project.type, project.mode, project.purpose]
       .join(" ")
       .toLowerCase()
       .includes(normalizedQuery),
@@ -49,7 +68,7 @@ export function formatCurrentDate(date = new Date()) {
 }
 
 export function viewTargetSelector(view) {
-  return view === "home" ? "#top" : `[data-view="${view}"]`;
+  return view === "home" ? "#top" : `[data-mode="${view}"]`;
 }
 
 export function getStoredValue(storage, key) {
@@ -69,49 +88,43 @@ export function setStoredValue(storage, key, value) {
   }
 }
 
-export function activateView(view, root = document) {
+export function activateView(view, root = document, query = "") {
+  const visibleIds = new Set(
+    filterProjects(query)
+      .filter((project) => view === "home" || project.mode === view)
+      .map(({ id }) => id),
+  );
+
   root.querySelectorAll("[data-nav-target]").forEach((control) => {
     const isActive = control.dataset.navTarget === view;
     control.classList.toggle("is-active", isActive);
     control.setAttribute("aria-current", isActive ? "page" : "false");
   });
 
-  root.querySelectorAll("[data-view]").forEach((section) => {
-    const isVisible = view === "home" || section.dataset.view === view;
-    section.hidden = !isVisible;
+  root.querySelectorAll("[data-project], [data-directory-project]").forEach((element) => {
+    const projectId = element.dataset.project ?? element.dataset.directoryProject;
+    element.hidden = !visibleIds.has(projectId);
   });
+
+  root.querySelector("[data-empty-state]")?.toggleAttribute("hidden", visibleIds.size !== 0);
 }
 
 export function initHub(root = document) {
   const search = root.querySelector("[data-project-search]");
-  const projectElements = Array.from(
-    root.querySelectorAll("[data-project], [data-directory-project]"),
-  );
-  const emptyState = root.querySelector("[data-empty-state]");
   const currentDate = root.querySelector("[data-current-date]");
+  let activeView = "home";
 
-  if (currentDate) {
-    currentDate.textContent = formatCurrentDate();
-  }
+  if (currentDate) currentDate.textContent = formatCurrentDate();
 
   search?.addEventListener("input", () => {
-    const visibleIds = new Set(filterProjects(search.value).map(({ id }) => id));
-
-    projectElements.forEach((element) => {
-      const projectId = element.dataset.project ?? element.dataset.directoryProject;
-      element.hidden = !visibleIds.has(projectId);
-    });
-
-    if (emptyState) {
-      emptyState.hidden = visibleIds.size !== 0;
-    }
+    activateView(activeView, root, search.value);
   });
 
   root.querySelectorAll("[data-nav-target]").forEach((control) => {
     control.addEventListener("click", () => {
-      const target = control.dataset.navTarget;
-      activateView(target, root);
-      root.querySelector(viewTargetSelector(target))?.scrollIntoView({ behavior: "smooth" });
+      activeView = control.dataset.navTarget;
+      activateView(activeView, root, search?.value);
+      root.querySelector(viewTargetSelector(activeView))?.scrollIntoView({ behavior: "smooth" });
     });
   });
 
@@ -130,10 +143,11 @@ export function initHub(root = document) {
 
   const lastOpened = getStoredValue(globalThis.localStorage, "agencythings:last-opened");
   if (lastOpened) {
-    root.querySelector(`[data-project="${lastOpened}"]`)?.classList.add("was-recent");
+    const recentProject = root.querySelector(`[data-project="${lastOpened}"]`);
+    recentProject?.classList.add("was-recent");
+    const recentStatus = recentProject?.querySelector("[data-recent-status]");
+    if (recentStatus) recentStatus.hidden = false;
   }
 }
 
-if (typeof document !== "undefined") {
-  initHub();
-}
+if (typeof document !== "undefined") initHub();

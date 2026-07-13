@@ -99,6 +99,31 @@ describe("buildRecordFromUpload", () => {
     expect(record.summary).toContain("Roblox");
     expect(record.id).toMatch(/^interview-/);
   });
+
+  it("uses collision-resistant IDs for same-title records created at the same instant", () => {
+    const input = {
+      title: "Cousin interview: screen habits",
+      kind: "interview" as const,
+      source: "Joshua interview",
+      tags: "AI, Roblox",
+      now: "2026-07-09T15:00:00.000Z"
+    };
+
+    expect(buildRecordFromUpload(input).id).not.toBe(buildRecordFromUpload(input).id);
+  });
+
+  it("retains a supplied record identity for client-to-server persistence", () => {
+    expect(
+      buildRecordFromUpload({
+        title: "Cousin interview: screen habits",
+        kind: "interview",
+        source: "Joshua interview",
+        tags: "AI, Roblox",
+        id: "interview-stable-client-id",
+        now: "2026-07-09T15:00:00.000Z"
+      }).id
+    ).toBe("interview-stable-client-id");
+  });
 });
 
 describe("summarizeLibrary", () => {

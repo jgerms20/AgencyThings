@@ -3,141 +3,154 @@
 import {
   ArrowUpRight,
   BookOpen,
-  Brain,
-  Database,
-  Filter,
+  ChevronRight,
+  ExternalLink,
+  FileText,
+  Headphones,
+  ImageUp,
   MessageSquareText,
-  Plus,
-  Search,
   Upload
 } from "lucide-react";
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import {
-  buildRecordFromUpload,
-  filterRecords,
-  normalizeTags,
-  summarizeLibrary
-} from "@/lib/research-records";
-import { statusLabels, type Signal } from "@/lib/seed-data";
-import type { FilterState, ResearchKind, ResearchRecord, ReviewStatus } from "@/lib/types";
+import { findings, findingTopics, getSupportingRecords } from "@/lib/findings";
+import { getBrowserStorage, readStoredRecords, writeStoredRecords } from "@/lib/local-records";
+import { buildRecordFromUpload, normalizeTags } from "@/lib/research-records";
+import type { ResearchRecord, SourceClass } from "@/lib/types";
 
 type LabWorkspaceProps = {
   initialRecords: ResearchRecord[];
-  signals: Signal[];
 };
 
-type IntakeState = {
+type InterviewIntake = {
   title: string;
-  kind: ResearchKind;
   source: string;
   tags: string;
   transcript: string;
-  url: string;
 };
 
-const kindLabels: Record<ResearchKind, string> = {
-  report: "Report",
-  article: "Article",
-  podcast: "Podcast",
-  interview: "Interview",
-  "field-note": "Field note"
+const sourceClasses: SourceClass[] = [
+  "primary research",
+  "peer reviewed",
+  "journalism",
+  "video",
+  "community",
+  "owned"
+];
+
+const blankIntake: InterviewIntake = {
+  title: "",
+  source: "",
+  tags: "interview, media diary",
+  transcript: ""
 };
 
-const blankIntake: IntakeState = {
-  title: "Interview slot: cousin media diary",
-  kind: "interview",
-  source: "Field interview",
-  tags: "interview, media diary, family",
-  transcript: "",
-  url: ""
-};
-
-const localStorageKey = "gen-alpha-lab-records";
-
-export default function LabWorkspace({ initialRecords, signals }: LabWorkspaceProps) {
+export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
   const [customRecords, setCustomRecords] = useState<ResearchRecord[]>([]);
-  const [filters, setFilters] = useState<FilterState>({ kind: "all", status: "all", tag: "all" });
-  const [intake, setIntake] = useState<IntakeState>(blankIntake);
+  const [isStorageHydrated, setIsStorageHydrated] = useState(false);
+  const [intake, setIntake] = useState<InterviewIntake>(blankIntake);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [mode, setMode] = useState<"demo" | "supabase">("demo");
-  const formRef = useRef<HTMLDivElement>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [savedMessage, setSavedMessage] = useState("");
+  const [activeSourceClass, setActiveSourceClass] = useState<SourceClass | "all">("all");
+  const intakeRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(localStorageKey);
-    if (stored) {
-      setCustomRecords(JSON.parse(stored));
-    }
+    let isCurrent = true;
+    setCustomRecords(readStoredRecords(getBrowserStorage()));
+    setIsStorageHydrated(true);
+
+    void fetch("/api/lab-records")
+      .then(async (response) => {
+        if (!response.ok) return [];
+        const payload: { records?: ResearchRecord[] } = await response.json();
+        return Array.isArray(payload.records)
+          ? payload.records.filter((record) => record.kind === "interview")
+          : [];
+      })
+      .then((persistentInterviews) => {
+        if (!isCurrent || persistentInterviews.length === 0) return;
+        setCustomRecords((current) => mergeRecords(current, persistentInterviews));
+      })
+      .catch(() => {
+        // Local records remain available when the shared collection cannot be reached.
+      });
+
+    return () => {
+      isCurrent = false;
+    };
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(localStorageKey, JSON.stringify(customRecords));
-  }, [customRecords]);
+    if (!isStorageHydrated) return;
+    writeStoredRecords(getBrowserStorage(), customRecords);
+  }, [customRecords, isStorageHydrated]);
 
   const records = useMemo(
-    () => [...customRecords, ...initialRecords],
+    () => mergeRecords(initialRecords, customRecords),
     [customRecords, initialRecords]
   );
-  const summary = useMemo(() => summarizeLibrary(records), [records]);
-  const allTags = useMemo(
-    () => Array.from(new Set(records.flatMap((record) => record.tags))).sort(),
+  const interviewRecords = useMemo(
+    () => records.filter((record) => record.kind === "interview"),
     [records]
   );
-  const filteredRecords = useMemo(() => filterRecords(records, filters), [records, filters]);
-  const interviewRecords = useMemo(
-    () => filterRecords(records, { kind: "interview" }),
+  const featuredFindings = useMemo(() => findings.filter((finding) => finding.featured), []);
+  const podcast = useMemo(
+    () => records.find((record) => record.id === "owned-podcast-093"),
     [records]
+  );
+  const sourcebookRecords = useMemo(
+    () =>
+      records.filter(
+        (record) =>
+          record.kind !== "interview" &&
+          (activeSourceClass === "all" || record.sourceClass === activeSourceClass)
+      ),
+    [activeSourceClass, records]
   );
 
-  function openForm() {
-    setIsFormOpen(true);
+  function openUpload() {
+    setIsUploadOpen(true);
     window.setTimeout(() => {
-      if (typeof formRef.current?.scrollIntoView === "function") {
-        formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (typeof intakeRef.current?.scrollIntoView === "function") {
+        intakeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    }, 50);
+    }, 0);
   }
 
-  async function submitRecord(event: FormEvent<HTMLFormElement>) {
+  async function submitInterview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const uploadedTranscript = await readTranscriptPreview(selectedFile);
-    const record = buildRecordFromUpload({
+    const submission = {
       title: intake.title,
-      kind: intake.kind,
+      kind: "interview" as const,
       source: intake.source,
       tags: intake.tags,
       transcript: intake.transcript || uploadedTranscript,
-      url: intake.url,
       fileName: selectedFile?.name
-    });
+    };
+    const record = buildRecordFromUpload({ ...submission, sourceClass: "owned" });
 
     setCustomRecords((current) => [record, ...current]);
     setIntake(blankIntake);
     setSelectedFile(null);
     setFileInputKey((current) => current + 1);
-    setIsFormOpen(false);
+    setSavedMessage("Interview saved to this field guide.");
 
     try {
       const response = selectedFile
-        ? await fetch("/api/uploads", {
-            method: "POST",
-            body: createUploadFormData(intake, selectedFile)
-          })
+        ? await fetch("/api/uploads", { method: "POST", body: createUploadFormData(record, selectedFile) })
         : await fetch("/api/lab-records", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...record,
-              tags: normalizeTags(record.tags)
-            })
+            body: JSON.stringify({ ...record, tags: normalizeTags(record.tags) })
           });
-      const payload = await response.json();
-      if (payload.mode === "supabase") {
-        setMode("supabase");
+      if (!response.ok) {
+        setSavedMessage("Interview saved in this browser. The shared copy could not be reached.");
       }
     } catch {
-      setMode("demo");
+      setSavedMessage("Interview saved in this browser. The shared copy could not be reached.");
     }
   }
 
@@ -145,250 +158,174 @@ export default function LabWorkspace({ initialRecords, signals }: LabWorkspacePr
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Gen Alpha Intelligence Lab home">
-          <span className="brand-mark">GA</span>
-          <span>Gen Alpha Intelligence Lab</span>
+          Gen Alpha Intelligence Lab
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#signals">Signals</a>
-          <a href="#evidence">Evidence</a>
-          <a href="#interviews">Interviews</a>
-          <a href="#lab">Lab</a>
+          {findingTopics.map((topic) => (
+            <a href={`#${topic.id}`} key={topic.id}>
+              {topic.label}
+            </a>
+          ))}
         </nav>
-        <button className="button primary" type="button" onClick={openForm}>
-          <Plus aria-hidden="true" size={18} />
-          Add source
+        <button className="button upload-button" type="button" onClick={openUpload}>
+          Upload interview
+          <Upload aria-hidden="true" size={17} />
         </button>
       </header>
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <h1>The first AI-native youth culture is already here.</h1>
+          <h1>Understanding the first AI-native childhood.</h1>
           <p>
-            A living agency research lab for mapping how Gen Alpha spends time,
-            learns, shops, creates, and differs from Gen Z.
+            Real conversations and direct evidence reveal how Gen Alpha connects, consumes,
+            learns, plays, creates, and navigates a world shaped by AI.
           </p>
-          <div className="hero-actions">
-            <a className="button primary" href="#signals">
-              Map signals
-              <ArrowUpRight aria-hidden="true" size={18} />
-            </a>
-            <button className="button ghost" type="button" onClick={openForm}>
-              <Upload aria-hidden="true" size={18} />
-              Upload interview
-            </button>
-          </div>
-          <dl className="stat-strip" aria-label="Research library summary">
-            <div>
-              <dt>{summary.total}</dt>
-              <dd>records</dd>
-            </div>
-            <div>
-              <dt>{summary.reviewed}</dt>
-              <dd>reviewed</dd>
-            </div>
-            <div>
-              <dt>{summary.interviews}</dt>
-              <dd>interviews</dd>
-            </div>
-          </dl>
         </div>
+        <div className="featured-grid" aria-label="Featured findings">
+          {featuredFindings.map((finding) => (
+            <article className="featured-finding" key={finding.id}>
+              {finding.heroImage ? <img src={finding.heroImage} alt={finding.heroAlt} /> : null}
+              <span>{findingTopics.find((topic) => topic.id === finding.topicId)?.label}</span>
+              <h2>{finding.title}</h2>
+              <p>{finding.summary}</p>
+              <Link href={`/findings/${finding.id}`} aria-label={`Read ${finding.title} in full`}>
+                Read finding <ArrowUpRight aria-hidden="true" size={15} />
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        <div className="evidence-wall" aria-label="Current signal wall">
-          <div className="wall-header">
-            <span>Live signal map</span>
-            <span className={`mode-chip ${mode}`}>{mode === "supabase" ? "Persistent" : "Demo mode"}</span>
+      <section className="world-map" aria-labelledby="world-map-heading">
+        <div className="section-intro">
+          <h2 id="world-map-heading">How their world fits together</h2>
+          <p>Seven themes. One interconnected system.</p>
+        </div>
+        <div className="map-layout">
+          <div className="map-lenses" aria-label="Gen Alpha cultural lenses">
+            {findingTopics.map((topic) => (
+              <a href={`#${topic.id}`} key={topic.id}>
+                <strong>{topic.label}</strong>
+                <span>{topic.description}</span>
+                <ChevronRight aria-hidden="true" size={16} />
+              </a>
+            ))}
           </div>
-          <figure className="culture-frame">
-            <img
-              src="/gen-alpha-culture-map.png"
-              alt=""
-              aria-hidden="true"
-            />
-            <figcaption>AI, games, video, creators, family influence</figcaption>
+          <figure className="culture-map">
+            <img src="/gen-alpha-culture-map.png" alt="Collage illustrating Gen Alpha culture around gaming, AI, video, creators, and family." />
           </figure>
-          <div className="signal-grid-mini">
-            {signals.slice(0, 6).map((signal) => (
-              <article className="signal-node" key={signal.id}>
-                <span className={`confidence ${signal.confidence}`}>{signal.confidence}</span>
-                <h2>{signal.title}</h2>
-                <p>{signal.summary}</p>
-              </article>
+        </div>
+      </section>
+
+      <section className="findings-section" aria-labelledby="findings-heading">
+        <div className="section-intro">
+          <h2 id="findings-heading">More findings from real conversations.</h2>
+          <p>Explore what the evidence suggests, then inspect the records behind each claim.</p>
+        </div>
+        {findingTopics.map((topic) => (
+          <section className="topic-band" id={topic.id} key={topic.id}>
+            <div className="topic-heading">
+              <p>{topic.label}</p>
+              <h3>{topic.description}</h3>
+            </div>
+            <div className="topic-findings">
+              {findings
+                .filter((finding) => finding.topicId === topic.id)
+                .map((finding) => {
+                  const support = getSupportingRecords(finding, records);
+                  return (
+                    <article className="finding-story" key={finding.id}>
+                      <div>
+                        <h4>{finding.title}</h4>
+                        <p>{finding.summary}</p>
+                        <p className="interpretation">{finding.interpretation}</p>
+                        <Link className="finding-detail-link" href={`/findings/${finding.id}`}>
+                          Open editorial finding <ArrowUpRight aria-hidden="true" size={15} />
+                        </Link>
+                      </div>
+                      <div className="finding-support">
+                        <span>Evidence behind this finding</span>
+                        {support.map((record) => (
+                          <a href={record.url} target="_blank" rel="noreferrer" key={record.id}>
+                            <small>{record.sourceClass}</small>
+                            <strong>{record.title}</strong>
+                            <ExternalLink aria-hidden="true" size={16} />
+                          </a>
+                        ))}
+                      </div>
+                    </article>
+                  );
+                })}
+            </div>
+          </section>
+        ))}
+      </section>
+
+      {podcast ? (
+        <section className="owned-media" aria-labelledby="owned-media-heading">
+          <div>
+            <Headphones aria-hidden="true" size={24} />
+            <p>Owned media</p>
+            <h2 id="owned-media-heading">{podcast.title}</h2>
+            <p>{podcast.summary}</p>
+          </div>
+          <div className="podcast-action">
+            <span>{podcast.synthesisStatus}</span>
+            <a className="button light" href={podcast.url} target="_blank" rel="noreferrer">
+              Open Spotify <ArrowUpRight aria-hidden="true" size={17} />
+            </a>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="sourcebook" id="sourcebook" aria-labelledby="sourcebook-heading">
+        <div className="section-intro sourcebook-intro">
+          <div>
+            <h2 id="sourcebook-heading">Sourcebook</h2>
+            <p>Direct records grouped by what they are, not dressed up as one kind of evidence.</p>
+          </div>
+          <div className="source-filters" aria-label="Filter sourcebook">
+            <button type="button" aria-pressed={activeSourceClass === "all"} className={activeSourceClass === "all" ? "active" : ""} onClick={() => setActiveSourceClass("all")}>All</button>
+            {sourceClasses.map((sourceClass) => (
+              <button
+                type="button"
+                aria-pressed={activeSourceClass === sourceClass}
+                className={activeSourceClass === sourceClass ? "active" : ""}
+                onClick={() => setActiveSourceClass(sourceClass)}
+                key={sourceClass}
+              >
+                {sourceClass}
+              </button>
             ))}
           </div>
         </div>
-
-        <aside className="queue-panel" aria-label="Research queue">
-          <div className="panel-title">
-            <Database aria-hidden="true" size={18} />
-            Research queue
-          </div>
-          {records.slice(0, 4).map((record) => (
-            <article className="queue-item" key={record.id}>
-              <span>{kindLabels[record.kind]}</span>
-              <strong>{record.title}</strong>
-            </article>
-          ))}
-        </aside>
-      </section>
-
-      <section className="section signal-section" id="signals">
-        <div className="section-heading">
-          <h2>Signal map</h2>
-          <p>Working hypotheses for where Gen Alpha is already distinct from Gen Z.</p>
-        </div>
-        <div className="signal-map">
-          {signals.map((signal) => (
-            <article className="signal-card" key={signal.id}>
-              <div className="card-topline">
-                <span className={`confidence ${signal.confidence}`}>{signal.confidence}</span>
-                <span>{signal.evidenceIds.length} sources</span>
-              </div>
-              <h3>{signal.title}</h3>
-              <p>{signal.summary}</p>
-              <div className="comparison">
-                <div>
-                  <strong>Gen Alpha read</strong>
-                  <span>{signal.genAlphaRead}</span>
-                </div>
-                <div>
-                  <strong>Gen Z contrast</strong>
-                  <span>{signal.genZContrast}</span>
-                </div>
-              </div>
-              <div className="tag-row">
-                {signal.tags.map((tag) => (
-                  <button
-                    className="tag"
-                    type="button"
-                    key={tag}
-                    onClick={() => setFilters((current) => ({ ...current, tag }))}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section evidence-section" id="evidence">
-        <div className="section-heading split">
-          <div>
-            <h2>Evidence library</h2>
-            <p>Reports, articles, podcasts, and field notes with status and confidence attached.</p>
-          </div>
-          <button className="button primary" type="button" onClick={openForm}>
-            <Plus aria-hidden="true" size={18} />
-            Add source
-          </button>
-        </div>
-
-        <div className="filters" aria-label="Evidence filters">
-          <label className="search-box">
-            <Search aria-hidden="true" size={18} />
-            <span className="sr-only">Search records</span>
-            <input
-              placeholder="Search sources, tags, notes"
-              value={filters.query ?? ""}
-              onChange={(event) =>
-                setFilters((current) => ({ ...current, query: event.target.value }))
-              }
-            />
-          </label>
-          <label>
-            <Filter aria-hidden="true" size={16} />
-            Evidence type
-            <select
-              value={filters.kind ?? "all"}
-              onChange={(event) =>
-                setFilters((current) => ({
-                  ...current,
-                  kind: event.target.value as FilterState["kind"]
-                }))
-              }
-            >
-              <option value="all">All</option>
-              {Object.entries(kindLabels).map(([value, label]) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Status
-            <select
-              value={filters.status ?? "all"}
-              onChange={(event) =>
-                setFilters((current) => ({
-                  ...current,
-                  status: event.target.value as ReviewStatus | "all"
-                }))
-              }
-            >
-              <option value="all">All</option>
-              {Object.entries(statusLabels).map(([value, label]) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Tag
-            <select
-              value={filters.tag ?? "all"}
-              onChange={(event) => setFilters((current) => ({ ...current, tag: event.target.value }))}
-            >
-              <option value="all">All</option>
-              {allTags.map((tag) => (
-                <option value={tag} key={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="record-list">
-          {filteredRecords.map((record) => (
-            <article className="record-row" key={record.id}>
-              <div className="record-kind">{kindLabels[record.kind]}</div>
-              <div className="record-main">
+        <div className="sourcebook-list">
+          {sourcebookRecords.map((record) => (
+            <article className="sourcebook-row" key={record.id}>
+              <span>{record.sourceClass}</span>
+              <div>
                 <h3>{record.title}</h3>
                 <p>{record.summary}</p>
-                <div className="tag-row">
-                  {record.tags.map((tag) => (
-                    <span className="tag passive" key={tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
               </div>
-              <div className="record-meta">
-                <span className={`status ${record.status}`}>{statusLabels[record.status]}</span>
-                <span className={`confidence ${record.confidence}`}>{record.confidence}</span>
-                {record.url ? (
-                  <a href={record.url} target="_blank" rel="noreferrer">
-                    Open
-                    <ArrowUpRight aria-hidden="true" size={15} />
-                  </a>
-                ) : null}
-              </div>
+              <p>{record.source}</p>
+              {record.url ? (
+                <a aria-label={`Open ${record.title}`} href={record.url} target="_blank" rel="noreferrer">
+                  <ExternalLink aria-hidden="true" size={18} />
+                </a>
+              ) : null}
             </article>
           ))}
         </div>
       </section>
 
-      <section className="section interview-section" id="interviews">
-        <div className="section-heading">
-          <h2>Interview archive</h2>
-          <p>Use this as the home for cousin interviews, notes, transcripts, and patterns.</p>
+      <section className="interview-section" id="interviews" aria-labelledby="interviews-heading">
+        <div className="section-intro">
+          <h2 id="interviews-heading">Interview archive</h2>
+          <p>Private working material that can later become qualified qualitative support.</p>
         </div>
         <div className="interview-grid">
           {interviewRecords.map((record) => (
-            <article className="interview-card" key={record.id}>
+            <article key={record.id}>
               <MessageSquareText aria-hidden="true" size={22} />
               <h3>{record.title}</h3>
               <p>{record.summary}</p>
@@ -398,97 +335,39 @@ export default function LabWorkspace({ initialRecords, signals }: LabWorkspacePr
         </div>
       </section>
 
-      <section className="section lab-section" id="lab" ref={formRef}>
-        <div className="lab-copy">
-          <BookOpen aria-hidden="true" size={24} />
-          <h2>Lab intake</h2>
-          <p>
-            Add interviews, source links, podcast leads, or field notes. When Supabase is configured on
-            Vercel, these records persist for the shared team app.
-          </p>
+      <section className={`intake-section ${isUploadOpen ? "open" : ""}`} ref={intakeRef} aria-labelledby="upload-heading">
+        <div className="intake-copy">
+          <ImageUp aria-hidden="true" size={26} />
+          <h2 id="upload-heading">Upload interview</h2>
+          <p>Keep names private. Add an alias, context, notes or transcript, and an optional recording or document.</p>
         </div>
-
-        <form className={`intake-form ${isFormOpen ? "open" : ""}`} onSubmit={submitRecord}>
+        <form className="intake-form" onSubmit={submitInterview}>
           <div className="form-grid">
             <label>
-              Record title
-              <input
-                value={intake.title}
-                onChange={(event) => setIntake((current) => ({ ...current, title: event.target.value }))}
-                required
-              />
+              Interview title
+              <input value={intake.title} onChange={(event) => setIntake((current) => ({ ...current, title: event.target.value }))} required />
             </label>
             <label>
-              Record type
-              <select
-                value={intake.kind}
-                onChange={(event) =>
-                  setIntake((current) => ({ ...current, kind: event.target.value as ResearchKind }))
-                }
-              >
-                {Object.entries(kindLabels).map(([value, label]) => (
-                  <option value={value} key={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Source name
-              <input
-                value={intake.source}
-                onChange={(event) => setIntake((current) => ({ ...current, source: event.target.value }))}
-              />
-            </label>
-            <label>
-              Source tags
-              <input
-                value={intake.tags}
-                onChange={(event) => setIntake((current) => ({ ...current, tags: event.target.value }))}
-                placeholder="AI, Roblox, family"
-              />
+              Participant alias
+              <input value={intake.source} onChange={(event) => setIntake((current) => ({ ...current, source: event.target.value }))} placeholder="Optional alias" />
             </label>
           </div>
           <label>
-            URL
-            <input
-              value={intake.url}
-              onChange={(event) => setIntake((current) => ({ ...current, url: event.target.value }))}
-              placeholder="https://"
-            />
+            Relationship or context
+            <input value={intake.tags} onChange={(event) => setIntake((current) => ({ ...current, tags: event.target.value }))} placeholder="Cousin, neighbor, school, gaming group" />
           </label>
-          <label className="file-control">
+          <label>
             Interview file
-            <input
-              key={fileInputKey}
-              type="file"
-              accept=".txt,.md,.csv,.json,.pdf,.doc,.docx,.mp3,.m4a,.wav,.mp4"
-              onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
-            />
-            <span>
-              {selectedFile
-                ? `${selectedFile.name} ready`
-                : "Attach a transcript, note file, audio, video, or source document."}
-            </span>
+            <input key={fileInputKey} type="file" accept=".txt,.md,.csv,.json,.pdf,.doc,.docx,.mp3,.m4a,.wav,.mp4" onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} />
+            <small>{selectedFile ? `${selectedFile.name} ready to attach` : "Optional transcript, notes, audio, video, or document."}</small>
           </label>
           <label>
             Notes or transcript
-            <textarea
-              value={intake.transcript}
-              onChange={(event) =>
-                setIntake((current) => ({ ...current, transcript: event.target.value }))
-              }
-              placeholder="Paste interview notes, a transcript excerpt, or a source summary."
-            />
+            <textarea value={intake.transcript} onChange={(event) => setIntake((current) => ({ ...current, transcript: event.target.value }))} placeholder="What did they say, show, or make?" />
           </label>
           <div className="form-actions">
-            <div className="privacy-note">
-              <Brain aria-hidden="true" size={16} />
-              Private-by-default lab data; do not paste sensitive client material into public demos.
-            </div>
-            <button className="button primary" type="submit">
-              Save to lab
-            </button>
+            <p aria-live="polite">{savedMessage}</p>
+            <button className="button upload-button" type="submit">Save interview <FileText aria-hidden="true" size={17} /></button>
           </div>
         </form>
       </section>
@@ -496,29 +375,31 @@ export default function LabWorkspace({ initialRecords, signals }: LabWorkspacePr
   );
 }
 
-function createUploadFormData(intake: IntakeState, file: File) {
+function createUploadFormData(record: ResearchRecord, file: File) {
   const formData = new FormData();
-  formData.set("title", intake.title);
-  formData.set("kind", intake.kind);
-  formData.set("source", intake.source);
-  formData.set("tags", intake.tags);
-  formData.set("url", intake.url);
-  formData.set("transcript", intake.transcript);
+  formData.set("id", record.id);
+  formData.set("createdAt", record.createdAt);
+  formData.set("title", record.title);
+  formData.set("kind", record.kind);
+  formData.set("source", record.source);
+  formData.set("tags", record.tags.join(","));
+  formData.set("transcript", record.transcript ?? "");
   formData.set("file", file);
   return formData;
 }
 
+function mergeRecords(
+  baseRecords: ResearchRecord[],
+  additionalRecords: ResearchRecord[]
+): ResearchRecord[] {
+  const recordsById = new Map(baseRecords.map((record) => [record.id, record]));
+  for (const record of additionalRecords) recordsById.set(record.id, record);
+  return Array.from(recordsById.values());
+}
+
 async function readTranscriptPreview(file: File | null) {
-  if (!file || file.size > 1_000_000) {
-    return "";
-  }
-
-  const readableTextFile = file.type.startsWith("text/") || /\.(txt|md|csv|json)$/i.test(file.name);
-
-  if (!readableTextFile) {
-    return "";
-  }
-
+  if (!file || file.size > 1_000_000) return "";
+  if (!file.type.startsWith("text/") && !/\.(txt|md|csv|json)$/i.test(file.name)) return "";
   try {
     return await file.text();
   } catch {

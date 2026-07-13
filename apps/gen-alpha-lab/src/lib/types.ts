@@ -4,6 +4,14 @@ export type ReviewStatus = "new" | "queued" | "reviewed";
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 
+export type SourceClass =
+  | "primary research"
+  | "peer reviewed"
+  | "journalism"
+  | "video"
+  | "community"
+  | "owned";
+
 export type ResearchRecord = {
   id: string;
   kind: ResearchKind;
@@ -20,6 +28,8 @@ export type ResearchRecord = {
   transcript?: string;
   fileName?: string;
   storagePath?: string;
+  sourceClass?: SourceClass;
+  synthesisStatus?: string;
 };
 
 export type FilterState = {
@@ -30,12 +40,14 @@ export type FilterState = {
 };
 
 export type UploadRecordInput = {
+  id?: string;
   title: string;
   kind: ResearchKind;
   source: string;
   tags: string | string[];
   transcript?: string;
   fileName?: string;
+  sourceClass?: SourceClass;
   url?: string;
   now?: string;
 };
