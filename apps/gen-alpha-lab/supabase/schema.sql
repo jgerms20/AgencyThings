@@ -13,8 +13,12 @@ create table if not exists public.gen_alpha_lab_records (
   transcript text,
   file_name text,
   storage_path text,
+  source_class text check (source_class in ('primary research', 'peer reviewed', 'journalism', 'video', 'community', 'owned')),
   created_at timestamptz not null default now()
 );
+
+alter table public.gen_alpha_lab_records
+  add column if not exists source_class text;
 
 create index if not exists gen_alpha_lab_records_kind_idx
   on public.gen_alpha_lab_records (kind);

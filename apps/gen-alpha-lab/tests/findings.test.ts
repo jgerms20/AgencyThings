@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   findingTopics,
   findings,
+  getFindingById,
   getSupportingRecords,
   validateFindings
 } from "../src/lib/findings";
@@ -20,6 +21,14 @@ describe("Gen Alpha field-guide findings", () => {
     ]);
   });
 
+  it("looks up a finding for a navigable editorial detail page", () => {
+    expect(getFindingById("learning-is-assembled")).toMatchObject({
+      id: "learning-is-assembled",
+      title: "They learn by doing, with help on demand."
+    });
+    expect(getFindingById("missing-finding")).toBeUndefined();
+  });
+
   it("gives every published finding two valid records including non-community evidence", () => {
     expect(validateFindings(findings, seedRecords)).toEqual([]);
 
@@ -34,6 +43,33 @@ describe("Gen Alpha field-guide findings", () => {
         )
       ).toBe(true);
     }
+  });
+
+  it("rejects duplicate support IDs and support without direct, qualifying evidence", () => {
+    const finding = {
+      ...findings[0],
+      id: "invalid-support",
+      supportIds: ["pwc-alpha-2026", "pwc-alpha-2026", "field-cousin-placeholder"]
+    };
+    const invalidRecords = seedRecords.map((record) => {
+      if (record.id === "pwc-alpha-2026") {
+        return { ...record, url: "not-a-url", confidence: "low" as const };
+      }
+      if (record.id === "field-cousin-placeholder") {
+        return { ...record, sourceClass: undefined };
+      }
+      return record;
+    });
+
+    expect(validateFindings([finding], invalidRecords)).toEqual(
+      expect.arrayContaining([
+        "invalid-support has duplicate supporting record IDs.",
+        "invalid-support support pwc-alpha-2026 requires a valid direct URL.",
+        "invalid-support support pwc-alpha-2026 requires medium or high confidence.",
+        "invalid-support support field-cousin-placeholder must be a report, article, or podcast.",
+        "invalid-support support field-cousin-placeholder requires an explicit non-community source class."
+      ])
+    );
   });
 
   it("keeps the owned Spotify episode as material to synthesize", () => {

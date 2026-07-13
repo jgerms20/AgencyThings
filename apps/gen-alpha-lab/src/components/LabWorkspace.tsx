@@ -11,8 +11,10 @@ import {
   MessageSquareText,
   Upload
 } from "lucide-react";
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { findings, findingTopics, getSupportingRecords } from "@/lib/findings";
+import { getBrowserStorage, readStoredRecords, writeStoredRecords } from "@/lib/local-records";
 import { buildRecordFromUpload, normalizeTags } from "@/lib/research-records";
 import type { ResearchRecord, SourceClass } from "@/lib/types";
 
@@ -43,10 +45,9 @@ const blankIntake: InterviewIntake = {
   transcript: ""
 };
 
-const localStorageKey = "gen-alpha-lab-records";
-
 export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
   const [customRecords, setCustomRecords] = useState<ResearchRecord[]>([]);
+  const [isStorageHydrated, setIsStorageHydrated] = useState(false);
   const [intake, setIntake] = useState<InterviewIntake>(blankIntake);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -56,28 +57,40 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
   const intakeRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(localStorageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setCustomRecords(parsed);
-        }
-      }
-    } catch {
-      window.localStorage.removeItem(localStorageKey);
-    }
+    let isCurrent = true;
+    setCustomRecords(readStoredRecords(getBrowserStorage()));
+    setIsStorageHydrated(true);
+
+    void fetch("/api/lab-records")
+      .then(async (response) => {
+        if (!response.ok) return [];
+        const payload: { records?: ResearchRecord[] } = await response.json();
+        return Array.isArray(payload.records)
+          ? payload.records.filter((record) => record.kind === "interview")
+          : [];
+      })
+      .then((persistentInterviews) => {
+        if (!isCurrent || persistentInterviews.length === 0) return;
+        setCustomRecords((current) => mergeRecords(current, persistentInterviews));
+      })
+      .catch(() => {
+        // Local records remain available when the shared collection cannot be reached.
+      });
+
+    return () => {
+      isCurrent = false;
+    };
   }, []);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(localStorageKey, JSON.stringify(customRecords));
-    } catch {
-      // The API still receives the record when browser storage is unavailable.
-    }
-  }, [customRecords]);
+    if (!isStorageHydrated) return;
+    writeStoredRecords(getBrowserStorage(), customRecords);
+  }, [customRecords, isStorageHydrated]);
 
-  const records = useMemo(() => [...customRecords, ...initialRecords], [customRecords, initialRecords]);
+  const records = useMemo(
+    () => mergeRecords(initialRecords, customRecords),
+    [customRecords, initialRecords]
+  );
   const interviewRecords = useMemo(
     () => records.filter((record) => record.kind === "interview"),
     [records]
@@ -117,9 +130,9 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
       transcript: intake.transcript || uploadedTranscript,
       fileName: selectedFile?.name
     };
-    const record = buildRecordFromUpload(submission);
+    const record = buildRecordFromUpload({ ...submission, sourceClass: "owned" });
 
-    setCustomRecords((current) => [{ ...record, sourceClass: "owned" }, ...current]);
+    setCustomRecords((current) => [record, ...current]);
     setIntake(blankIntake);
     setSelectedFile(null);
     setFileInputKey((current) => current + 1);
@@ -127,7 +140,7 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
 
     try {
       const response = selectedFile
-        ? await fetch("/api/uploads", { method: "POST", body: createUploadFormData(submission, selectedFile) })
+        ? await fetch("/api/uploads", { method: "POST", body: createUploadFormData(record, selectedFile) })
         : await fetch("/api/lab-records", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -171,12 +184,13 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
         <div className="featured-grid" aria-label="Featured findings">
           {featuredFindings.map((finding) => (
             <article className="featured-finding" key={finding.id}>
+              {finding.heroImage ? <img src={finding.heroImage} alt={finding.heroAlt} /> : null}
               <span>{findingTopics.find((topic) => topic.id === finding.topicId)?.label}</span>
               <h2>{finding.title}</h2>
               <p>{finding.summary}</p>
-              <a href={`#${finding.topicId}`}>
+              <Link href={`/findings/${finding.id}`} aria-label={`Read ${finding.title} in full`}>
                 Read finding <ArrowUpRight aria-hidden="true" size={15} />
-              </a>
+              </Link>
             </article>
           ))}
         </div>
@@ -225,6 +239,9 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
                         <h4>{finding.title}</h4>
                         <p>{finding.summary}</p>
                         <p className="interpretation">{finding.interpretation}</p>
+                        <Link className="finding-detail-link" href={`/findings/${finding.id}`}>
+                          Open editorial finding <ArrowUpRight aria-hidden="true" size={15} />
+                        </Link>
                       </div>
                       <div className="finding-support">
                         <span>Evidence behind this finding</span>
@@ -268,10 +285,11 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
             <p>Direct records grouped by what they are, not dressed up as one kind of evidence.</p>
           </div>
           <div className="source-filters" aria-label="Filter sourcebook">
-            <button type="button" className={activeSourceClass === "all" ? "active" : ""} onClick={() => setActiveSourceClass("all")}>All</button>
+            <button type="button" aria-pressed={activeSourceClass === "all"} className={activeSourceClass === "all" ? "active" : ""} onClick={() => setActiveSourceClass("all")}>All</button>
             {sourceClasses.map((sourceClass) => (
               <button
                 type="button"
+                aria-pressed={activeSourceClass === sourceClass}
                 className={activeSourceClass === sourceClass ? "active" : ""}
                 onClick={() => setActiveSourceClass(sourceClass)}
                 key={sourceClass}
@@ -357,15 +375,26 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
   );
 }
 
-function createUploadFormData(intake: InterviewIntake & { kind: "interview"; fileName?: string }, file: File) {
+function createUploadFormData(record: ResearchRecord, file: File) {
   const formData = new FormData();
-  formData.set("title", intake.title);
-  formData.set("kind", intake.kind);
-  formData.set("source", intake.source);
-  formData.set("tags", intake.tags);
-  formData.set("transcript", intake.transcript);
+  formData.set("id", record.id);
+  formData.set("createdAt", record.createdAt);
+  formData.set("title", record.title);
+  formData.set("kind", record.kind);
+  formData.set("source", record.source);
+  formData.set("tags", record.tags.join(","));
+  formData.set("transcript", record.transcript ?? "");
   formData.set("file", file);
   return formData;
+}
+
+function mergeRecords(
+  baseRecords: ResearchRecord[],
+  additionalRecords: ResearchRecord[]
+): ResearchRecord[] {
+  const recordsById = new Map(baseRecords.map((record) => [record.id, record]));
+  for (const record of additionalRecords) recordsById.set(record.id, record);
+  return Array.from(recordsById.values());
 }
 
 async function readTranscriptPreview(file: File | null) {

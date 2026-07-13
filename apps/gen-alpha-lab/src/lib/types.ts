@@ -40,12 +40,14 @@ export type FilterState = {
 };
 
 export type UploadRecordInput = {
+  id?: string;
   title: string;
   kind: ResearchKind;
   source: string;
   tags: string | string[];
   transcript?: string;
   fileName?: string;
+  sourceClass?: SourceClass;
   url?: string;
   now?: string;
 };

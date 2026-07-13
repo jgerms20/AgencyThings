@@ -59,7 +59,7 @@ export function buildRecordFromUpload(input: UploadRecordInput): ResearchRecord 
   const transcript = input.transcript?.trim();
 
   return {
-    id: `${input.kind}-${slugify(title)}-${createdAt.slice(0, 10)}`,
+    id: input.id ?? createRecordId(input.kind, title, createdAt),
     kind: input.kind,
     title,
     source,
@@ -70,8 +70,16 @@ export function buildRecordFromUpload(input: UploadRecordInput): ResearchRecord 
     summary: summarizeTranscript(transcript, title),
     transcript,
     fileName: input.fileName,
+    sourceClass: input.sourceClass,
     createdAt
   };
+}
+
+function createRecordId(kind: string, title: string, createdAt: string): string {
+  const entropy = globalThis.crypto?.randomUUID?.().replace(/-/g, "").slice(0, 12) ??
+    Math.random().toString(36).slice(2, 14);
+
+  return `${kind}-${slugify(title)}-${createdAt.slice(0, 10)}-${entropy}`;
 }
 
 export function summarizeLibrary(records: ResearchRecord[]): LibrarySummary {

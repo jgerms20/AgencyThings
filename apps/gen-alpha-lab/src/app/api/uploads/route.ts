@@ -19,6 +19,8 @@ export async function POST(request: Request) {
   const tags = String(formData.get("tags") ?? "");
   const url = String(formData.get("url") ?? "");
   const transcript = String(formData.get("transcript") ?? "");
+  const id = String(formData.get("id") ?? "") || undefined;
+  const now = String(formData.get("createdAt") ?? "") || undefined;
 
   if (!title.trim()) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
@@ -39,13 +41,16 @@ export async function POST(request: Request) {
   const supabase = createSupabaseServerClient();
   const config = getSupabaseConfig();
   const record = buildRecordFromUpload({
+    id,
     title,
     kind,
     source,
     tags,
     url,
     fileName,
-    transcript: fileText
+    transcript: fileText,
+    sourceClass: "owned",
+    now
   });
 
   if (supabase && file instanceof File && file.size > 0) {

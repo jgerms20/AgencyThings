@@ -17,6 +17,7 @@ type SupabaseRecordRow = {
   transcript: string | null;
   file_name: string | null;
   storage_path: string | null;
+  source_class: Exclude<ResearchRecord["sourceClass"], undefined> | null;
 };
 
 export function getSupabaseConfig() {
@@ -62,7 +63,8 @@ export function toSupabaseRow(record: ResearchRecord): SupabaseRecordRow {
     published_at: record.publishedAt ?? null,
     transcript: record.transcript ?? null,
     file_name: record.fileName ?? null,
-    storage_path: record.storagePath ?? null
+    storage_path: record.storagePath ?? null,
+    source_class: record.sourceClass ?? null
   };
 }
 
@@ -82,6 +84,7 @@ export function fromSupabaseRow(row: SupabaseRecordRow): ResearchRecord {
     publishedAt: row.published_at ?? undefined,
     transcript: row.transcript ?? undefined,
     fileName: row.file_name ?? undefined,
-    storagePath: row.storage_path ?? undefined
+    storagePath: row.storage_path ?? undefined,
+    sourceClass: row.source_class ?? undefined
   };
 }
