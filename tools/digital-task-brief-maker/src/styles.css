@@ -4,11 +4,11 @@
   --muted: #626a73;
   --line: #d8dde4;
   --panel: #ffffff;
-  --paper: #f5f7f9;
-  --soft: #eef2f5;
-  --client-primary: #ffd400;
-  --client-accent: #00a7a7;
-  --accent-pink: #e83e8c;
+  --paper: #ffffff;
+  --soft: #f5f6f8;
+  --client-primary: #0b59ff;
+  --client-accent: #0b59ff;
+  --accent-pink: #ff4141;
   --danger: #b42318;
   --shadow: 0 16px 44px rgba(22, 22, 22, 0.08);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -52,7 +52,7 @@ button {
   border: 0;
   border-radius: 6px;
   padding: 0.72rem 1rem;
-  color: #111111;
+  color: #ffffff;
   background: var(--client-primary);
   cursor: pointer;
   font-weight: 850;

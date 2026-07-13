@@ -3,174 +3,104 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f4f4f1" />
+    <meta name="theme-color" content="#ffffff" />
     <meta
       name="description"
-      content="Joshua's internal workspace for agency tools, research, and experiments."
+      content="Joshua's internal workbench for agency tools, research, and experiments."
     />
     <title>Joshua's AgencyThings</title>
     <link rel="stylesheet" href="./assets/hub.css" />
     <script type="module" src="./assets/hub.js"></script>
   </head>
   <body>
-    <div class="desktop-shell">
-      <aside class="side-rail" aria-label="AgencyThings navigation">
-        <a class="brand-lockup" href="#top" aria-label="Joshua's AgencyThings home">
-          <span>Agency</span>
-          <span>Things</span>
-        </a>
+    <header class="top-bar" id="top">
+      <a class="brand-lockup" href="#top" aria-label="Joshua's AgencyThings home">Joshua's AgencyThings</a>
+      <nav class="desk-nav" aria-label="Workspace views">
+        <button class="desk-link is-active" type="button" data-nav-target="home" aria-current="page">Home</button>
+        <button class="desk-link" type="button" data-nav-target="make" aria-current="false">Make</button>
+        <button class="desk-link" type="button" data-nav-target="think" aria-current="false">Think</button>
+        <button class="desk-link" type="button" data-nav-target="learn" aria-current="false">Learn</button>
+      </nav>
+      <p class="date-line" data-current-date>Sunday, July 12</p>
+    </header>
 
-        <nav class="rail-nav" aria-label="Workspace views">
-          <button class="rail-link is-active" type="button" data-nav-target="home" aria-current="page">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-6v-6H9v6H3Z" /></svg>
-            <span>Home</span>
-          </button>
-          <button class="rail-link" type="button" data-nav-target="current" aria-current="false">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 5h6M9 3h6v4H9zM7 5H5v16h14V5h-2M8 11h8M8 15h8" /></svg>
-            <span>Current</span>
-          </button>
-          <button class="rail-link" type="button" data-nav-target="all" aria-current="false">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            <span>All things</span>
-          </button>
-        </nav>
-
-        <div class="workspace-owner">
-          <span class="owner-copy">Joshua's<br />workspace</span>
-          <span class="owner-mark" aria-hidden="true">JG</span>
+    <main class="working-desk">
+      <header class="desk-intro">
+        <div>
+          <h1>Your working desk.</h1>
+          <p>Where I make, think, and learn on my terms.</p>
+          <p>Tools for doing the work that matters.</p>
         </div>
-      </aside>
+        <div class="mode-guide" aria-label="Action modes">
+          <p><span class="mode-mark make"></span><strong>Make</strong><span>Ship work. Execute with clarity.</span></p>
+          <p><span class="mode-mark think"></span><strong>Think</strong><span>Solve problems. Sharpen perspective.</span></p>
+          <p><span class="mode-mark learn"></span><strong>Learn</strong><span>Stay curious. Build edge.</span></p>
+        </div>
+      </header>
 
-      <main class="workspace" id="top">
-        <header class="workspace-header">
-          <div>
-            <p class="date-line" data-current-date>Sunday, July 12</p>
-            <h1>Joshua's AgencyThings</h1>
-            <p class="welcome-line">Welcome back, Joshua. Let's move things forward.</p>
+      <label class="search-control">
+        <span class="sr-only">Search AgencyThings</span>
+        <input type="search" placeholder="Search tools" data-project-search />
+        <kbd>/</kbd>
+      </label>
+
+      <section class="project-stack" aria-label="AgencyThings tools">
+        <article class="project-row" data-project="task-brief" data-mode="make" style="--accent: #0b59ff">
+          <div class="project-symbol" aria-hidden="true">01</div>
+          <div class="project-copy">
+            <span class="project-mode">Make</span>
+            <h2>Digital Task Brief Maker</h2>
+            <p>Create sharp, actionable briefs that get work moving.</p>
           </div>
-
-          <label class="search-control">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
-            <span class="sr-only">Search AgencyThings</span>
-            <input type="search" placeholder="Search AgencyThings" data-project-search />
-            <kbd>/</kbd>
-          </label>
-        </header>
-
-        <section class="workspace-section current-work" data-view="current" aria-labelledby="current-title">
-          <div class="section-heading">
-            <div>
-              <span class="section-index">01</span>
-              <h2 id="current-title">Current work</h2>
-            </div>
-            <span class="section-note">Three active worlds</span>
-          </div>
-
-          <div class="project-stack">
-            <article class="project-row project-row-featured project-task" data-project="task-brief">
-              <div class="project-copy">
-                <div class="project-number">01</div>
-                <div>
-                  <span class="project-type">Workflow</span>
-                  <h3>Digital Task Brief Maker</h3>
-                  <p>Turn media plans into clear, creative-ready task briefs.</p>
-                </div>
-                <div class="project-footer">
-                  <span class="project-state"><i></i> Active</span>
-                  <a class="launch-link" href="./tools/digital-task-brief-maker/" data-launch-project="task-brief">
-                    Launch
-                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9" /></svg>
-                  </a>
-                </div>
-              </div>
-              <a class="project-preview" href="./tools/digital-task-brief-maker/" tabindex="-1" aria-hidden="true">
-                <img src="./assets/previews/task-brief.png" alt="" />
-              </a>
-            </article>
-
-            <article class="project-row project-problem" data-project="problem-wall">
-              <div class="project-copy compact-copy">
-                <div class="project-number">02</div>
-                <div>
-                  <span class="project-type">Strategy Lab</span>
-                  <h3>Problem Wall Lab</h3>
-                  <p>Collect signals, score tensions, and shape stronger problems.</p>
-                </div>
-                <div class="project-footer">
-                  <span class="project-state"><i></i> Active</span>
-                  <a class="launch-link" href="https://agencythings-problem-wall.vercel.app" target="_blank" rel="noreferrer" data-launch-project="problem-wall">
-                    Launch
-                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9" /></svg>
-                  </a>
-                </div>
-              </div>
-              <a class="project-preview" href="https://agencythings-problem-wall.vercel.app" target="_blank" rel="noreferrer" tabindex="-1" aria-hidden="true">
-                <img src="./assets/previews/problem-wall.png" alt="" />
-              </a>
-            </article>
-
-            <article class="project-row project-alpha" data-project="gen-alpha">
-              <div class="project-copy compact-copy">
-                <div class="project-number">03</div>
-                <div>
-                  <span class="project-type">Living Research</span>
-                  <h3>Gen Alpha Intelligence Lab</h3>
-                  <p>Map the media, behaviors, and cultural signals defining Gen Alpha.</p>
-                </div>
-                <div class="project-footer">
-                  <span class="project-state"><i></i> Active</span>
-                  <a class="launch-link" href="https://agencythings-gen-alpha.vercel.app" target="_blank" rel="noreferrer" data-launch-project="gen-alpha">
-                    Launch
-                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9" /></svg>
-                  </a>
-                </div>
-              </div>
-              <a class="project-preview" href="https://agencythings-gen-alpha.vercel.app" target="_blank" rel="noreferrer" tabindex="-1" aria-hidden="true">
-                <img src="./assets/previews/gen-alpha.png" alt="" />
-              </a>
-            </article>
-          </div>
-
-          <p class="empty-state" data-empty-state hidden>No things match that search.</p>
-        </section>
-
-        <section class="workspace-section all-things" data-view="all" aria-labelledby="all-title">
-          <div class="section-heading">
-            <div>
-              <span class="section-index">02</span>
-              <h2 id="all-title">All things</h2>
-            </div>
-            <span class="section-note">A home for what comes next</span>
-          </div>
-
-          <div class="thing-directory">
-            <a href="./tools/digital-task-brief-maker/" data-directory-project="task-brief">
-              <span class="directory-mark blue">DT</span>
-              <span><strong>Briefs &amp; docs</strong><small>Digital Task Brief Maker</small></span>
-              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+          <div class="project-action">
+            <span>Brief workflow</span>
+            <a class="launch-link" href="https://agencythings-task-brief.vercel.app" target="_blank" rel="noreferrer" data-launch-project="task-brief">
+              <span class="sr-only">Launch Digital Task Brief Maker</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" /></svg>
             </a>
-            <a href="https://agencythings-problem-wall.vercel.app" target="_blank" rel="noreferrer" data-directory-project="problem-wall">
-              <span class="directory-mark red">PW</span>
-              <span><strong>Strategy &amp; thinking</strong><small>Problem Wall Lab</small></span>
-              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
-            </a>
-            <a href="https://agencythings-gen-alpha.vercel.app" target="_blank" rel="noreferrer" data-directory-project="gen-alpha">
-              <span class="directory-mark green">GA</span>
-              <span><strong>Research &amp; insights</strong><small>Gen Alpha Intelligence Lab</small></span>
-              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
-            </a>
-            <div class="directory-future">
-              <span class="directory-mark neutral">+</span>
-              <span><strong>Next agency thing</strong><small>This space is ready when the work is.</small></span>
-            </div>
           </div>
-        </section>
+        </article>
 
-        <footer class="workspace-footer">
-          <span>AgencyThings</span>
-          <span>Built around the work, not the other way around.</span>
-        </footer>
-      </main>
-    </div>
+        <article class="project-row" data-project="problem-wall" data-mode="think" style="--accent: #ff4141">
+          <div class="project-symbol" aria-hidden="true">02</div>
+          <div class="project-copy">
+            <span class="project-mode">Think</span>
+            <h2>Problem Wall Lab</h2>
+            <p>Capture, organize, and attack the right problems.</p>
+          </div>
+          <div class="project-action">
+            <span>Strategy lab</span>
+            <a class="launch-link" href="https://agencythings-problem-wall.vercel.app" target="_blank" rel="noreferrer" data-launch-project="problem-wall">
+              <span class="sr-only">Launch Problem Wall Lab</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" /></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="project-row" data-project="gen-alpha" data-mode="learn" style="--accent: #94bd00">
+          <div class="project-symbol" aria-hidden="true">03</div>
+          <div class="project-copy">
+            <span class="project-mode">Learn</span>
+            <h2>Gen Alpha Intelligence Lab</h2>
+            <p>Track signals, synthesize insights, and spot what is next.</p>
+          </div>
+          <div class="project-action">
+            <span>Research lab</span>
+            <a class="launch-link" href="https://agencythings-gen-alpha.vercel.app" target="_blank" rel="noreferrer" data-launch-project="gen-alpha">
+              <span class="sr-only">Launch Gen Alpha Intelligence Lab</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" /></svg>
+            </a>
+          </div>
+        </article>
+      </section>
+
+      <p class="empty-state" data-empty-state hidden>No tools match that search.</p>
+
+      <section class="desk-shelves" aria-label="Desk shelves">
+        <a href="https://agencythings-task-brief.vercel.app" target="_blank" rel="noreferrer" data-directory-project="task-brief">Briefs</a>
+        <a href="https://agencythings-problem-wall.vercel.app" target="_blank" rel="noreferrer" data-directory-project="problem-wall">Problem Wall</a>
+        <a href="https://agencythings-gen-alpha.vercel.app" target="_blank" rel="noreferrer" data-directory-project="gen-alpha">Research queue</a>
+      </section>
+    </main>
   </body>
 </html>
