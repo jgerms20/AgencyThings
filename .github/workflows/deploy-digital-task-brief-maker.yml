@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - master
-      - work
   workflow_dispatch:
 
 permissions:
@@ -28,15 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Prepare AgencyThings site
-        run: |
-          mkdir -p _site/tools
-          cp index.html _site/index.html
-          cp -R assets _site/assets
-          cp -R tools/digital-task-brief-maker _site/tools/digital-task-brief-maker
-          touch _site/.nojekyll
-          cat > _site/build-info.json <<EOF
-          {"build":"agencythings-desktop","date":"2026-07-12","sha":"${GITHUB_SHA}"}
-          EOF
+        run: node scripts/build-pages-site.mjs _site
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

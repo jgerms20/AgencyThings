@@ -40,6 +40,35 @@ export function filterProjects(query = "") {
   );
 }
 
+export function formatCurrentDate(date = new Date()) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+export function viewTargetSelector(view) {
+  return view === "home" ? "#top" : `[data-view="${view}"]`;
+}
+
+export function getStoredValue(storage, key) {
+  try {
+    return storage?.getItem(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredValue(storage, key, value) {
+  try {
+    storage?.setItem(key, value);
+    return Boolean(storage);
+  } catch {
+    return false;
+  }
+}
+
 export function activateView(view, root = document) {
   root.querySelectorAll("[data-nav-target]").forEach((control) => {
     const isActive = control.dataset.navTarget === view;
@@ -55,14 +84,22 @@ export function activateView(view, root = document) {
 
 export function initHub(root = document) {
   const search = root.querySelector("[data-project-search]");
-  const projectElements = Array.from(root.querySelectorAll("[data-project]"));
+  const projectElements = Array.from(
+    root.querySelectorAll("[data-project], [data-directory-project]"),
+  );
   const emptyState = root.querySelector("[data-empty-state]");
+  const currentDate = root.querySelector("[data-current-date]");
+
+  if (currentDate) {
+    currentDate.textContent = formatCurrentDate();
+  }
 
   search?.addEventListener("input", () => {
     const visibleIds = new Set(filterProjects(search.value).map(({ id }) => id));
 
     projectElements.forEach((element) => {
-      element.hidden = !visibleIds.has(element.dataset.project);
+      const projectId = element.dataset.project ?? element.dataset.directoryProject;
+      element.hidden = !visibleIds.has(projectId);
     });
 
     if (emptyState) {
@@ -74,17 +111,24 @@ export function initHub(root = document) {
     control.addEventListener("click", () => {
       const target = control.dataset.navTarget;
       activateView(target, root);
-      root.querySelector(`[data-view="${target}"]`)?.scrollIntoView({ behavior: "smooth" });
+      root.querySelector(viewTargetSelector(target))?.scrollIntoView({ behavior: "smooth" });
     });
+  });
+
+  root.addEventListener("keydown", (event) => {
+    if (event.key === "/" && root.activeElement !== search) {
+      event.preventDefault();
+      search?.focus();
+    }
   });
 
   root.querySelectorAll("[data-launch-project]").forEach((link) => {
     link.addEventListener("click", () => {
-      localStorage.setItem("agencythings:last-opened", link.dataset.launchProject);
+      setStoredValue(globalThis.localStorage, "agencythings:last-opened", link.dataset.launchProject);
     });
   });
 
-  const lastOpened = localStorage.getItem("agencythings:last-opened");
+  const lastOpened = getStoredValue(globalThis.localStorage, "agencythings:last-opened");
   if (lastOpened) {
     root.querySelector(`[data-project="${lastOpened}"]`)?.classList.add("was-recent");
   }

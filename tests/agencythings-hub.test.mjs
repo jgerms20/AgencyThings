@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import test from "node:test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 async function importHubModule() {
   const source = await readFile(new URL("../assets/hub.js", import.meta.url), "utf8");
@@ -55,6 +57,25 @@ test("filterProjects searches names, types, and purposes without case sensitivit
   assert.equal(filterProjects("   ").length, 3);
 });
 
+test("date, view target, and optional storage helpers fail safely", async () => {
+  const { formatCurrentDate, getStoredValue, setStoredValue, viewTargetSelector } =
+    await importHubModule();
+  const blockedStorage = {
+    getItem() {
+      throw new Error("storage blocked");
+    },
+    setItem() {
+      throw new Error("storage blocked");
+    },
+  };
+
+  assert.equal(formatCurrentDate(new Date("2026-07-12T12:00:00")), "Sunday, July 12");
+  assert.equal(viewTargetSelector("home"), "#top");
+  assert.equal(viewTargetSelector("all"), '[data-view="all"]');
+  assert.equal(getStoredValue(blockedStorage, "key"), null);
+  assert.equal(setStoredValue(blockedStorage, "key", "value"), false);
+});
+
 test("root page is the AgencyThings desktop with accessible launch links", async () => {
   const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
@@ -66,6 +87,8 @@ test("root page is the AgencyThings desktop with accessible launch links", async
   assert.match(html, /href=["']https:\/\/agencythings-gen-alpha\.vercel\.app["']/);
   assert.match(html, /href=["']\.\/assets\/hub\.css["']/);
   assert.match(html, /src=["']\.\/assets\/hub\.js["']/);
+  assert.match(html, /data-current-date/);
+  assert.equal((html.match(/data-directory-project=/g) ?? []).length, 3);
 
   const externalLinks = html.match(/<a[^>]+target="_blank"[^>]+rel="noreferrer"[^>]*>/g) ?? [];
   assert.equal(externalLinks.length, 6);
@@ -77,12 +100,32 @@ test("GitHub Pages packages the hub and Task Brief as separate destinations", as
     "utf8",
   );
 
-  assert.match(workflow, /cp index\.html _site\/index\.html/);
-  assert.match(workflow, /cp -R assets _site\/assets/);
-  assert.match(
-    workflow,
-    /cp -R tools\/digital-task-brief-maker \/?_site\/tools\/digital-task-brief-maker/,
+  assert.deepEqual(
+    workflow.match(/branches:\s*\n(?:\s+- .+\n)+/)?.[0].match(/- ([\w-]+)/g),
+    ["- main"],
   );
-  assert.doesNotMatch(workflow, /cp -R tools\/digital-task-brief-maker\/\. _site\//);
+  assert.match(workflow, /node scripts\/build-pages-site\.mjs _site/);
   assert.match(workflow, /AgencyThings desktop is deployed/);
+});
+
+test("Pages builder creates a runnable hub and nested Task Brief artifact", async () => {
+  const { buildPagesSite } = await import("../scripts/build-pages-site.mjs");
+  const destination = await mkdtemp(join(tmpdir(), "agencythings-pages-"));
+
+  try {
+    await buildPagesSite(destination, new URL("..", import.meta.url));
+
+    await Promise.all([
+      access(join(destination, "index.html")),
+      access(join(destination, "assets", "hub.css")),
+      access(join(destination, "assets", "hub.js")),
+      access(join(destination, "tools", "digital-task-brief-maker", "index.html")),
+      access(join(destination, ".nojekyll")),
+    ]);
+
+    const deployedHub = await readFile(join(destination, "index.html"), "utf8");
+    assert.match(deployedHub, /Joshua(?:'|&apos;|&#39;)s AgencyThings/);
+  } finally {
+    await rm(destination, { recursive: true, force: true });
+  }
 });
