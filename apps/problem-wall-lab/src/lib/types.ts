@@ -1,6 +1,6 @@
-export type SourceType = "news" | "report" | "community" | "reddit" | "study" | "field-note";
-
-export type CandidateStatus = "draft" | "approved" | "rejected";
+export type SourceType = "news" | "report" | "community" | "reddit" | "study";
+export type SourceClass = "news" | "research" | "community";
+export type CandidateStatus = "new" | "shortlisted" | "passed" | "reviewed";
 
 export type BurstDimension =
   | "biggerReason"
@@ -11,22 +11,11 @@ export type BurstDimension =
 
 export type BurstScore = {
   breakdown: Record<BurstDimension, number>;
+  reasons: Record<BurstDimension, string>;
   total: number;
   grade: "wall ready" | "promising" | "needs work";
   notes: string[];
-};
-
-export type ClientBrief = {
-  id: string;
-  name: string;
-  strategist: string;
-  email: string;
-  positioning: string;
-  tone: string;
-  objectives: string[];
-  audiences: string[];
-  problemTerritories: string[];
-  opportunityVerbs: string[];
+  evidenceCapped: boolean;
 };
 
 export type SourceSignal = {
@@ -34,7 +23,8 @@ export type SourceSignal = {
   title: string;
   source: string;
   sourceType: SourceType;
-  url?: string;
+  sourceClass: SourceClass;
+  url: string;
   publishedAt: string;
   audience: string;
   behavior: string;
@@ -47,35 +37,34 @@ export type SourceSignal = {
 
 export type ProblemCandidate = {
   id: string;
-  weekOf?: string;
-  clientId: string;
-  clientName: string;
-  strategist: string;
-  email: string;
+  weekOf: string;
   problem: string;
-  opportunity: string;
+  biggerReason: string;
+  rootCause: string;
   details: string;
   audience: string;
   sources: SourceSignal[];
   status: CandidateStatus;
-  score?: BurstScore;
-  imagePrompt?: string;
+  notes: string;
+  score: BurstScore;
 };
+
+export type DeckInspiration = Pick<
+  ProblemCandidate,
+  "id" | "problem" | "biggerReason" | "rootCause" | "details"
+>;
 
 export type WeeklyWallInput = {
   weekOf: string;
-  clients: ClientBrief[];
   signals: SourceSignal[];
   limit?: number;
+  now?: string;
 };
 
 export type WorkflowStep = {
   id: string;
   label: string;
-  owner: string;
   description: string;
-  inputs: string[];
-  outputs: string[];
 };
 
 export type WeeklyWorkflow = {
@@ -87,7 +76,27 @@ export type WeeklyWorkflow = {
   outputs: string[];
 };
 
+export type SourceFailure = { source: string; message: string };
+
+export type RefreshResult = {
+  signals: SourceSignal[];
+  sourcesAttempted: number;
+  sourcesSucceeded: number;
+  failures: SourceFailure[];
+  refreshedAt: string;
+};
+
 export type SourceRefreshOptions = {
   fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
   now?: string;
+  maxAgeDays?: number;
+};
+
+export type WeeklyRefreshResult = {
+  weekOf: string;
+  refreshedAt: string;
+  mode: "supabase" | "demo";
+  persistenceErrors: string[];
+  refresh: RefreshResult;
+  candidates: ProblemCandidate[];
 };

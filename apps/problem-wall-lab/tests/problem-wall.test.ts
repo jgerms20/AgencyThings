@@ -1,128 +1,84 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildProblemFromSignal,
-  formatProblemSlideText,
-  generateWeeklyWall,
-  scoreProblemCandidate
-} from "../src/lib/problem-wall";
-import type { ClientBrief, SourceSignal } from "../src/lib/types";
+import { buildProblemFromSignal, generateWeeklyWall, scoreProblemCandidate } from "../src/lib/problem-wall";
+import type { ProblemCandidate, SourceSignal } from "../src/lib/types";
 
-const gatorade: ClientBrief = {
-  id: "gatorade",
-  name: "Gatorade",
-  strategist: "Stephanie Berenson",
-  email: "Stephanie.berenson@omc.com",
-  positioning: "The leader in hydration science for every/body",
-  tone: "Fearless, knowledgeable, spirited, inspiring",
-  objectives: ["Make dehydration feel urgent", "Expand beyond elite athletes"],
-  audiences: ["everyday hydration seekers", "neurodivergent people", "workers in heat"],
-  problemTerritories: ["hydration friction", "body signal gaps", "science fatigue"],
-  opportunityVerbs: ["help", "prove", "normalize"]
+const freshSignal: SourceSignal = {
+  id: "fresh-study",
+  title: "Parents lose six hours a week coordinating school messages",
+  source: "OpenAlex",
+  sourceType: "study",
+  sourceClass: "research",
+  url: "https://doi.org/10.1000/example",
+  publishedAt: "2026-07-10",
+  audience: "working parents",
+  behavior: "switch between five disconnected school communication tools",
+  tension: "urgent information is scattered across apps that do not share context",
+  stat: "6 hours per week",
+  urgency: "new district platform changes are increasing coordination load",
+  whyItMatters: "missed messages create childcare, work, and learning consequences",
+  tags: ["family", "learning"]
 };
 
-const hydrationSignal: SourceSignal = {
-  id: "nd-hydration-signal",
-  title: "Weak thirst signals lead to dehydration for neurodivergent adults",
-  source: "Community thread plus hydration study",
-  sourceType: "community",
-  url: "https://example.com/nd-hydration",
-  publishedAt: "2026-07-06",
-  audience: "neurodivergent adults",
-  behavior: "miss thirst signals until symptoms become disruptive",
-  tension: "most reminders become extra executive-function work",
-  stat: "64% say body-signal reminders are easier to ignore than environmental cues",
-  urgency: "summer heat is increasing daily dehydration risk",
-  whyItMatters: "poor hydration can impair focus, mood, and physical safety",
-  tags: ["hydration", "neurodivergence", "summer"]
-};
+function candidate(overrides: Partial<ProblemCandidate> = {}): ProblemCandidate {
+  return {
+    id: "candidate",
+    weekOf: "2026-07-13",
+    problem: "Working parents lose six hours each week because school communication is split across five tools.",
+    biggerReason: "Missed messages create childcare, work, and learning consequences.",
+    rootCause: "Urgent information is scattered across apps that do not share context.",
+    details: "A new study documents six hours of weekly coordination work.",
+    audience: "working parents",
+    sources: [freshSignal],
+    status: "new",
+    notes: "",
+    ...overrides
+  };
+}
 
 describe("scoreProblemCandidate", () => {
-  it("scores a specific, urgent, solvable candidate higher than a vague candidate", () => {
-    const strong = scoreProblemCandidate({
-      id: "strong",
-      clientId: "gatorade",
-      clientName: "Gatorade",
-      strategist: "Stephanie Berenson",
-      email: "Stephanie.berenson@omc.com",
-      problem:
-        "Neurodivergent people are getting dehydrated because thirst reminders feel like more executive-function work.",
-      opportunity:
-        "HOW COULD GATORADE TURN HYDRATION INTO AN ENVIRONMENTAL CUE THAT DOESN'T FEEL LIKE ANOTHER TASK?",
-      details:
-        "A new community signal found 64% say body-signal reminders are easier to ignore than environmental cues, while summer heat is increasing risk.",
-      audience: "neurodivergent adults",
-      sources: [hydrationSignal],
-      status: "draft"
-    });
+  it("returns five evidence-backed B.U.R.S.T. dimensions and caps missing evidence", () => {
+    const strong = scoreProblemCandidate(candidate(), new Date("2026-07-13T12:00:00Z"));
+    const unsupported = scoreProblemCandidate(candidate({ sources: [], details: "A vague frustration." }), new Date("2026-07-13T12:00:00Z"));
 
-    const vague = scoreProblemCandidate({
-      id: "vague",
-      clientId: "gatorade",
-      clientName: "Gatorade",
-      strategist: "Stephanie Berenson",
-      email: "Stephanie.berenson@omc.com",
-      problem: "People should hydrate more.",
-      opportunity: "HOW COULD GATORADE HELP?",
-      details: "Hydration is important.",
-      audience: "people",
-      sources: [],
-      status: "draft"
-    });
-
-    expect(strong.total).toBeGreaterThanOrEqual(20);
-    expect(strong.total).toBeGreaterThan(vague.total);
-    expect(strong.breakdown.specificity).toBe(5);
-    expect(vague.grade).toBe("needs work");
+    expect(Object.keys(strong.breakdown)).toEqual([
+      "biggerReason",
+      "unexpectedness",
+      "relevancy",
+      "specificity",
+      "targetedCause"
+    ]);
+    expect(Object.keys(strong.reasons)).toHaveLength(5);
+    expect(strong.total).toBeGreaterThan(unsupported.total);
+    expect(unsupported.grade).not.toBe("wall ready");
+    expect(unsupported.evidenceCapped).toBe(true);
   });
 });
 
 describe("buildProblemFromSignal", () => {
-  it("turns a source signal and client brief into a deck-shaped candidate", () => {
-    const candidate = buildProblemFromSignal(hydrationSignal, gatorade, "2026-07-13");
+  it("creates a generic source-preserving problem with no client or strategist fields", () => {
+    const result = buildProblemFromSignal(freshSignal, "2026-07-13");
 
-    expect(candidate.problem).toContain("NEURODIVERGENT ADULTS");
-    expect(candidate.problem).toContain("DEHYDRATED");
-    expect(candidate.opportunity).toMatch(/^HOW COULD GATORADE /);
-    expect(candidate.details).toContain("64%");
-    expect(candidate.strategist).toBe("Stephanie Berenson");
-    expect(candidate.weekOf).toBe("2026-07-13");
+    expect(result.problem).toContain("The burden is landing on working parents");
+    expect(result.biggerReason).toContain("childcare");
+    expect(result.rootCause).toContain("scattered");
+    expect(result.sources[0]?.url).toBe(freshSignal.url);
+    expect(result.sources[0]?.publishedAt).toBe("2026-07-10");
+    expect(result).not.toHaveProperty("clientName");
+    expect(result).not.toHaveProperty("strategist");
   });
 });
 
 describe("generateWeeklyWall", () => {
-  it("generates a sorted weekly pool without repeating source-client pairings", () => {
+  it("sorts fresh generic candidates and never invents candidates without signals", () => {
     const pool = generateWeeklyWall({
       weekOf: "2026-07-13",
-      clients: [gatorade],
-      signals: [
-        hydrationSignal,
-        {
-          ...hydrationSignal,
-          id: "construction-heat",
-          audience: "construction workers",
-          behavior: "lose productivity on high-heat job sites",
-          stat: "heat stress causes 29% to 41% productivity losses",
-          urgency: "new OSHA heat-rule debates are putting worker safety in focus"
-        }
-      ],
-      limit: 2
+      signals: [freshSignal, { ...freshSignal, id: "second", title: "A second weaker signal", url: "https://doi.org/10.1000/second", stat: undefined }],
+      limit: 2,
+      now: "2026-07-13T12:00:00Z"
     });
 
     expect(pool).toHaveLength(2);
-    expect(pool[0]!.score!.total).toBeGreaterThanOrEqual(pool[1]!.score!.total);
-    expect(new Set(pool.map((candidate) => candidate.id)).size).toBe(2);
-  });
-});
-
-describe("formatProblemSlideText", () => {
-  it("exports the exact fields needed to build a Problem Wall slide", () => {
-    const candidate = buildProblemFromSignal(hydrationSignal, gatorade, "2026-07-13");
-    const slideText = formatProblemSlideText(candidate);
-
-    expect(slideText).toContain("DETAILS");
-    expect(slideText).toContain("STRATEGIST TO REACH OUT TO");
-    expect(slideText).toContain("PROBLEM");
-    expect(slideText).toContain("OPPORTUNITY");
-    expect(slideText).toContain("Stephanie.berenson@omc.com");
+    expect(pool[0]!.score.total).toBeGreaterThanOrEqual(pool[1]!.score.total);
+    expect(generateWeeklyWall({ weekOf: "2026-07-13", signals: [] })).toEqual([]);
   });
 });

@@ -1,49 +1,33 @@
-# Problem Wall Lab
+# Problem Wall
 
-Internal weekly Problem Wall generator for strategy teams.
+Joshua's weekly problem-discovery workspace. It scans current public news, research, and community sources; turns direct-linked signals into generic problem framings; scores them with B.U.R.S.T.; and supports shortlist, notes, and weekly wrap-up.
 
-## What It Does
+## Workflow
 
-- Generates a weekly pool of Problem Wall candidates from source signals and client briefs.
-- Scores each candidate against B.U.R.S.T.: bigger reason, unexpectedness, urgency, specificity, and solvable cause.
-- Preserves the deck structure: `DETAILS`, `STRATEGIST TO REACH OUT TO`, `PROBLEM`, and `OPPORTUNITY`.
-- Supports manual source intake for Reddit finds, new studies, reports, field notes, or client friction.
-- Lets strategists approve/reject candidates and export deck-ready copy or workflow JSON.
-- Includes a Vercel cron endpoint at `/api/weekly-refresh`.
-- Runs in demo mode with seeded clients and source signals before external feeds or Supabase are configured.
+- **New this week:** Only current, direct-linked source results. Total source failure produces an explicit empty state; deck examples never fill the feed.
+- **Shortlist:** Keep a problem, add notes, copy the weekly readout, or download JSON.
+- **Reviewed:** Completed shortlist and passed candidates.
+- **Deck inspiration:** Old framing examples in a separate reference-only view.
 
-## Run Locally
+B.U.R.S.T. scores Bigger reason, Unexpectedness, Relevancy/Urgency, Specificity, and Targeted cause. Missing valid evidence caps readiness.
+
+## Run
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Open <http://localhost:3000>.
+## Vercel
 
-## Deploy On Vercel
+Use `apps/problem-wall-lab` as the Vercel root directory. `vercel.json` runs `/api/weekly-refresh` Mondays at `0 13 * * 1`. The browser's **Find new problems** action uses `POST` and the cron uses authenticated `GET`; both call the same runner.
 
-Create a Vercel project from `jgerms20/AgencyThings` and set the root directory to:
-
-```text
-apps/problem-wall-lab
-```
-
-Vercel will pick up `vercel.json` and call `/api/weekly-refresh` every Monday at 13:00 UTC.
-
-## Optional Environment
-
-The app works without environment variables. Add these when you want persistence or private sources:
+Optional environment:
 
 ```text
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-PROBLEM_WALL_SOURCE_FEEDS=
+CRON_SECRET=
 ```
 
-`PROBLEM_WALL_SOURCE_FEEDS` can be a comma-separated list of RSS feeds to use instead of the built-in public scan.
-
-## Data Model
-
-See `supabase/schema.sql` for optional hosted storage tables.
+Without Supabase the API reports `mode: "demo"` and the UI persists review state locally. See `supabase/schema.sql` for weekly-run, source, candidate, status, and notes storage.
