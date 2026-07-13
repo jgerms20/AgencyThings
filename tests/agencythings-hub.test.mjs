@@ -10,7 +10,7 @@ async function importHubModule() {
   return import(url);
 }
 
-test("registry contains the three AgencyThings worlds and their action modes", async () => {
+test("registry contains the five AgencyThings worlds and their action modes", async () => {
   const { projects } = await importHubModule();
 
   assert.deepEqual(
@@ -19,6 +19,8 @@ test("registry contains the three AgencyThings worlds and their action modes", a
       { id: "task-brief", name: "Digital Task Brief Maker", type: "Workflow", mode: "make" },
       { id: "problem-wall", name: "Problem Wall Lab", type: "Strategy Lab", mode: "think" },
       { id: "gen-alpha", name: "Gen Alpha Intelligence Lab", type: "Living Research", mode: "learn" },
+      { id: "memento", name: "Memento", type: "Cultural Planning", mode: "think" },
+      { id: "lunch-learn", name: "Lunch & Learn", type: "Programming Desk", mode: "learn" },
     ],
   );
 });
@@ -42,6 +44,16 @@ test("registry preserves internal and external launch destinations", async () =>
       {
         id: "gen-alpha",
         href: "https://agencythings-gen-alpha.vercel.app",
+        external: true,
+      },
+      {
+        id: "memento",
+        href: "https://agencythings-memento.vercel.app",
+        external: true,
+      },
+      {
+        id: "lunch-learn",
+        href: "https://agencythings-lunch-learn.vercel.app",
         external: true,
       },
     ],
@@ -79,7 +91,9 @@ test("filterProjects searches names, types, and purposes without case sensitivit
   assert.deepEqual(filterProjects("strategy").map(({ id }) => id), ["problem-wall"]);
   assert.deepEqual(filterProjects("RESEARCH").map(({ id }) => id), ["gen-alpha"]);
   assert.deepEqual(filterProjects("media plan").map(({ id }) => id), ["task-brief"]);
-  assert.equal(filterProjects("   ").length, 3);
+  assert.deepEqual(filterProjects("cultural").map(({ id }) => id), ["gen-alpha", "memento"]);
+  assert.deepEqual(filterProjects("programming").map(({ id }) => id), ["lunch-learn"]);
+  assert.equal(filterProjects("   ").length, 5);
 });
 
 test("date, view target, and optional storage helpers fail safely", async () => {
@@ -116,20 +130,22 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.match(html, /<button[^>]+data-nav-target="learn"[^>]*>Learn<\/button>/);
   assert.match(css, /translateY\(-4px\)/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
-  assert.equal((html.match(/data-recent-status/g) ?? []).length, 3);
+  assert.equal((html.match(/data-recent-status/g) ?? []).length, 5);
   assert.match(html, />Recently opened</);
   assert.doesNotMatch(html, /http-equiv=["']refresh/i);
   assert.doesNotMatch(html, /window\.location\.replace/);
   assert.match(html, /href=["']https:\/\/agencythings-task-brief\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-problem-wall\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-gen-alpha\.vercel\.app["']/);
+  assert.match(html, /href=["']https:\/\/agencythings-memento\.vercel\.app["']/);
+  assert.match(html, /href=["']https:\/\/agencythings-lunch-learn\.vercel\.app["']/);
   assert.match(html, /href=["']\.\/assets\/hub\.css["']/);
   assert.match(html, /src=["']\.\/assets\/hub\.js["']/);
   assert.match(html, /data-current-date/);
-  assert.equal((html.match(/data-directory-project=/g) ?? []).length, 3);
+  assert.equal((html.match(/data-directory-project=/g) ?? []).length, 5);
 
   const externalLinks = html.match(/<a[^>]+target="_blank"[^>]+rel="noreferrer"[^>]*>/g) ?? [];
-  assert.equal(externalLinks.length, 6);
+  assert.equal(externalLinks.length, 10);
 });
 
 test("GitHub Pages packages the hub and Task Brief as separate destinations", async () => {

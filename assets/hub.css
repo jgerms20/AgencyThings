@@ -102,7 +102,7 @@ kbd { border: 1px solid var(--line); border-radius: 4px; padding: 0.1rem 0.35rem
 .launch-link svg { width: 1.8rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 
 .empty-state { border: 1px dashed var(--line); border-radius: 6px; padding: 1rem; color: var(--muted); }
-.desk-shelves { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 2.75rem; border: 1px solid var(--line); border-radius: 6px; }
+.desk-shelves { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 2.75rem; border: 1px solid var(--line); border-radius: 6px; }
 .desk-shelves a { padding: 1rem 1.25rem; color: var(--ink); font-size: 0.9rem; font-weight: 800; text-decoration: none; }
 .desk-shelves a + a { border-left: 1px solid var(--line); }
 .desk-shelves a:hover, .desk-shelves a:focus-visible { color: #0b59ff; background: var(--soft); outline: none; }
@@ -120,6 +120,9 @@ kbd { border: 1px solid var(--line); border-radius: 4px; padding: 0.1rem 0.35rem
   .project-symbol { font-size: 1rem; }
   .project-copy { padding: 1.25rem; }
   .project-action { grid-column: 2; border-top: 1px solid var(--line); border-left: 0; padding: 0.8rem 1.25rem; }
+  .desk-shelves { grid-template-columns: repeat(2, 1fr); }
+  .desk-shelves a:nth-child(odd) { border-left: 0; }
+  .desk-shelves a:nth-child(n+3) { border-top: 1px solid var(--line); }
 }
 
 @media (max-width: 500px) {

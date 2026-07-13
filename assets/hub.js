@@ -26,6 +26,24 @@ export const projects = [
     href: "https://agencythings-gen-alpha.vercel.app",
     external: true,
   },
+  {
+    id: "memento",
+    name: "Memento",
+    type: "Cultural Planning",
+    mode: "think",
+    purpose: "Find verified cultural moments and turn them into useful brand opportunities.",
+    href: "https://agencythings-memento.vercel.app",
+    external: true,
+  },
+  {
+    id: "lunch-learn",
+    name: "Lunch & Learn",
+    type: "Programming Desk",
+    mode: "learn",
+    purpose: "Plan sessions, move partner outreach, and keep agency learning alive.",
+    href: "https://agencythings-lunch-learn.vercel.app",
+    external: true,
+  },
 ];
 
 export function filterProjects(query = "") {
