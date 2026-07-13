@@ -1,11 +1,9 @@
-name: Deploy Digital Task Brief Maker
+name: Deploy AgencyThings Desktop
 
 on:
   push:
     branches:
       - main
-      - master
-      - work
   workflow_dispatch:
 
 permissions:
@@ -27,14 +25,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare static site
-        run: |
-          mkdir -p _site
-          cp -R tools/digital-task-brief-maker/. _site/
-          touch _site/.nojekyll
-          cat > _site/build-info.json <<EOF
-          {"build":"guided-workflow","date":"2026-06-26","time":"14:47 PT","sha":"${GITHUB_SHA}"}
-          EOF
+      - name: Prepare AgencyThings site
+        run: node scripts/build-pages-site.mjs _site
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -51,13 +43,13 @@ jobs:
       - name: Write deployment summary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
-          ## Digital Task Brief Maker is deployed
+          ## AgencyThings desktop is deployed
 
-          Open this URL:
+          Open the workspace:
 
           ${{ steps.deployment.outputs.page_url }}
 
-          Expected build badge: `Current build: guided workflow - 2026-06-26 2:47 PM PT`
+          The Digital Task Brief Maker remains available at:
 
-          If the live page still shows an older build, hard refresh the URL or add `?v=2026-06-26-1447-pt-smart-inventory`.
+          ${{ steps.deployment.outputs.page_url }}tools/digital-task-brief-maker/
           SUMMARY
