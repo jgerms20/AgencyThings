@@ -89,13 +89,14 @@ kbd { border: 1px solid var(--line); border-radius: 4px; padding: 0.1rem 0.35rem
 }
 
 .project-row:hover, .project-row:focus-within { border-color: var(--accent); box-shadow: 0 11px 23px color-mix(in srgb, var(--accent) 14%, transparent); transform: translateY(-4px); }
-.project-row.was-recent { outline: 2px solid color-mix(in srgb, var(--accent) 38%, transparent); outline-offset: 2px; }
 .project-symbol { display: grid; place-items: center; border-right: 1px solid var(--line); color: var(--accent); font-size: 1.4rem; font-weight: 900; }
 .project-copy { align-self: center; padding: 1.5rem 2.25rem; }
 .project-mode { display: block; margin-bottom: 0.5rem; color: var(--accent); font-size: 0.9rem; font-weight: 900; text-transform: uppercase; }
 .project-copy h2 { margin-bottom: 0.5rem; font-size: clamp(1.45rem, 2.5vw, 2rem); line-height: 1.05; letter-spacing: 0; }
 .project-copy p { margin-bottom: 0; color: #353b45; line-height: 1.45; }
 .project-action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-left: 1px solid var(--line); padding: 1.5rem 2rem; color: var(--muted); font-size: 0.86rem; font-weight: 800; }
+.project-status { display: grid; gap: 0.35rem; }
+.recent-status { color: var(--accent); font-size: 0.74rem; font-weight: 900; text-transform: uppercase; }
 .launch-link { display: grid; width: 3rem; height: 3rem; place-items: center; border: 0; border-radius: 4px; color: var(--accent); background: transparent; }
 .launch-link:hover, .launch-link:focus-visible { color: #ffffff; background: var(--accent); outline: none; }
 .launch-link svg { width: 1.8rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }

@@ -124,7 +124,12 @@ export function initHub(root = document) {
   });
 
   const lastOpened = getStoredValue(globalThis.localStorage, "agencythings:last-opened");
-  if (lastOpened) root.querySelector(`[data-project="${lastOpened}"]`)?.classList.add("was-recent");
+  if (lastOpened) {
+    const recentProject = root.querySelector(`[data-project="${lastOpened}"]`);
+    recentProject?.classList.add("was-recent");
+    const recentStatus = recentProject?.querySelector("[data-recent-status]");
+    if (recentStatus) recentStatus.hidden = false;
+  }
 }
 
 if (typeof document !== "undefined") initHub();

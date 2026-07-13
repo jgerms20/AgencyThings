@@ -7,7 +7,7 @@ const toolRoot = new URL("../../tools/digital-task-brief-maker/", import.meta.ur
 function referencedIds(source) {
   return [
     ...new Set(
-      [...source.matchAll(/qs\(\s*["']#([^"']+)["']\s*\)/g)].map(
+      [...source.matchAll(/(?:qs|querySelector)\(\s*["']#([^"']+)["']\s*\)/g)].map(
         ([, id]) => id,
       ),
     ),
@@ -36,4 +36,11 @@ test("Task Brief keeps all application IDs unique and its workflow controls visi
   for (const id of ["copy-brief", "export-json", "export-ppt", "export-google", "print-brief"]) {
     assert.equal(idOccurrences(html, id), 1, `#${id} export control must remain visible`);
   }
+});
+
+test("Task Brief keeps all five steps readable without a mobile overflow rail", async () => {
+  const css = await readFile(new URL("src/upgrade-styles.css", toolRoot), "utf8");
+
+  assert.match(css, /@media \(max-width: 560px\)[\s\S]*?\.stepper\s*\{[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width: 560px\)[\s\S]*?\.step-button\s*\{[^}]*min-width:\s*0/);
 });

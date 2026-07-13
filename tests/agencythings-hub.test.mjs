@@ -116,6 +116,8 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.match(html, /<button[^>]+data-nav-target="learn"[^>]*>Learn<\/button>/);
   assert.match(css, /translateY\(-4px\)/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.equal((html.match(/data-recent-status/g) ?? []).length, 3);
+  assert.match(html, />Recently opened</);
   assert.doesNotMatch(html, /http-equiv=["']refresh/i);
   assert.doesNotMatch(html, /window\.location\.replace/);
   assert.match(html, /href=["']https:\/\/agencythings-task-brief\.vercel\.app["']/);

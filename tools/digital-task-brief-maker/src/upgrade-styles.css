@@ -85,9 +85,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 @media (max-width: 560px) {
   .tool-header { min-height: 4rem; }
   .tool-header h1 { font-size: 1.05rem; }
-  .stepper { width: 100%; }
-  .step-button { min-height: 4rem; min-width: 6.8rem; gap: 0.4rem; padding: 0.45rem; }
-  .step-button strong { font-size: 0.8rem; }
+  .stepper { grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; overflow-x: clip; }
+  .stepper li { min-width: 0; }
+  .step-button { min-height: 4.75rem; min-width: 0; flex-direction: column; gap: 0.25rem; padding: 0.4rem 0.1rem; text-align: center; }
+  .step-button strong { max-width: 100%; font-size: 0.68rem; line-height: 1.1; }
   .step-button span { width: 1.65rem; height: 1.65rem; }
   .panel { padding: 1.5rem 0; }
   .section-heading { align-items: flex-start; }
