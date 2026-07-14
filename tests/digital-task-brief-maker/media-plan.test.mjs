@@ -109,7 +109,20 @@ describe('media plan reasoning', () => {
     assert.equal(splitSlides[1].groups.length, 1);
     assert.ok(!tvcGroup.matchedPlacement.sourceUrls.some((url) => /tiktok/i.test(url)));
     assert.ok(socialTikTok.matchedPlacement.sourceUrls.some((url) => /tiktok/i.test(url)));
-    assert.ok(searchPack.some((item) => item.label === 'Official specs' && /TikTok/.test(item.query)));
+    assert.ok(searchPack.some((item) => item.label === 'Official specs' && item.type === 'source'));
+    assert.ok(searchPack.some((item) => item.url === 'https://ads.tiktok.com/help/article/video-ads-specifications'));
+    assert.ok(searchPack.filter((item) => item.label === 'Official specs').every((item) => !item.query));
+    const dimensionOnly = buildSearchPack({
+      platform: 'POLV',
+      placementName: 'Video spot',
+      partners: ['All partners'],
+      assets: [':30 video'],
+      channels: ['Linear video'],
+      formats: ['MP4'],
+      specNotes: ['1920 x 1080 HD']
+    });
+    assert.ok(dimensionOnly.some((item) => /iab\.com/.test(item.url || '')));
+    assert.ok(dimensionOnly.every((item) => !/business\.x\.com/.test(item.url || '')));
     assert.ok(searchPack.some((item) => item.label === 'Brand examples' && /Gatorade Lower Sugar/.test(item.query)));
   });
 });

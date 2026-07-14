@@ -142,6 +142,8 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.match(html, /href=["']\.\/assets\/hub\.css["']/);
   assert.match(html, /src=["']\.\/assets\/hub\.js["']/);
   assert.match(html, /data-current-date/);
+  assert.match(html, /data-theme-toggle/);
+  assert.match(css, /\[data-theme=["']dark["']\]/);
   assert.equal((html.match(/data-directory-project=/g) ?? []).length, 5);
 
   const externalLinks = html.match(/<a[^>]+target="_blank"[^>]+rel="noreferrer"[^>]*>/g) ?? [];

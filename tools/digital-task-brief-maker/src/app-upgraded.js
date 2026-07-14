@@ -510,9 +510,7 @@ function renderSources() {
 }
 
 function buildSearchPack(group) {
-  const pack = BriefCore.buildSearchPack(group, state.options);
-  const official = { label: 'Official specs', query: officialSpecQuery(group), type: 'web' };
-  return [official, ...pack.filter((item) => item.label !== 'Official specs')];
+  return BriefCore.buildSearchPack(group, state.options);
 }
 
 function buildSpecSnapshot(group, limit = 4) {
@@ -533,36 +531,7 @@ function sourceUrls(group) {
 }
 
 function officialSourceUrls(group) {
-  const text = normalize([group.platform, group.placementName, ...(group.partners || []), ...(group.assets || []), ...(group.channels || []), ...(group.formats || []), ...(group.specNotes || [])].join(' '));
-  const urls = [];
-  if (/meta|instagram|facebook/.test(text)) urls.push('https://www.facebook.com/business/ads-guide');
-  if (/tiktok/.test(text)) urls.push('https://ads.tiktok.com/help/article/video-ads-specifications');
-  if (/youtube|google/.test(text)) urls.push('https://support.google.com/google-ads/answer/2375464');
-  if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/creative-specs');
-  if (/\bx\b|twitter|amplify/.test(text)) urls.push('https://business.x.com/en/help/campaign-setup/creative-ad-specifications.html');
-  if (/spotify/.test(text)) urls.push('https://ads.spotify.com/en-US/ad-specs/');
-  if (/pandora|sxm|siriusxm|soundcloud/.test(text)) urls.push('https://www.sxmmedia.com/');
-  if (/audacy/.test(text)) urls.push('https://audacyinc.com/advertising/');
-  if (/iheart/.test(text)) urls.push('https://www.iheartmedia.com/advertising/');
-  if (/programmatic|display|banner|dv360|dsp|iab|300x250|728x90|160x600|320x50|300x600/.test(text)) urls.push('https://iabtechlab.com/standards/iab-new-ad-portfolio-guidelines/');
-  if (/ctv|connected tv/.test(text)) urls.push('https://iabtechlab.com/standards/ctv-ad-portfolio/');
-  return urls;
-}
-
-function officialSpecQuery(group) {
-  const text = normalize([group.platform, group.placementName, ...(group.partners || []), ...(group.assets || [])].join(' '));
-  if (/meta|instagram|facebook/.test(text)) return 'Meta ads guide image video creative specifications official';
-  if (/tiktok/.test(text)) return 'TikTok ads creative specifications official';
-  if (/youtube|google/.test(text)) return 'Google Ads video ad specifications official';
-  if (/pinterest/.test(text)) return 'Pinterest business creative specs official';
-  if (/\bx\b|twitter|amplify/.test(text)) return 'X ads creative ad specifications official';
-  if (/spotify/.test(text)) return 'Spotify audio ad specs official';
-  if (/pandora|sxm|siriusxm|soundcloud/.test(text)) return 'SXM Media Pandora audio advertising specs official';
-  if (/audacy/.test(text)) return 'Audacy audio ad specs official';
-  if (/iheart/.test(text)) return 'iHeartMedia audio advertising specs official';
-  if (/podcast|audio/.test(text)) return 'audio ad specs podcast advertising official';
-  if (/programmatic|display|banner|dv360|dsp|iab/.test(text)) return 'IAB new ad portfolio display ad specs official';
-  return `${group.platform} ${group.placementName} ad specs official`;
+  return BriefCore.officialSourceUrls(group);
 }
 
 function toSourceLink(url) {
@@ -576,10 +545,21 @@ function toSourceLink(url) {
 }
 
 function toSearchTile(item) {
+  if (item.type === 'source' && item.url) {
+    return `<a class="clip-tile official-tile" href="${escapeAttribute(item.url)}" target="_blank" rel="noreferrer"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(sourceDisplayName(item.url))}</strong><small>Open partner documentation</small></a>`;
+  }
   const searchUrl = item.type === 'web'
     ? `https://www.google.com/search?q=${encodeURIComponent(item.query)}`
     : `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(item.query)}`;
   return `<a class="clip-tile" href="${escapeAttribute(searchUrl)}" target="_blank" rel="noreferrer"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.query)}</strong></a>`;
+}
+
+function sourceDisplayName(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return 'Official documentation';
+  }
 }
 
 async function handleTemplateSelection(event) {
@@ -645,6 +625,8 @@ function collectOptions() {
   };
   document.documentElement.style.setProperty('--client-primary', state.options.primaryColor);
   document.documentElement.style.setProperty('--client-accent', state.options.accentColor);
+  document.documentElement.style.setProperty('--client-background', state.options.backgroundColor);
+  document.documentElement.style.setProperty('--client-text', state.options.textColor);
   els.previewClient.textContent = state.options.clientName;
   els.previewCampaign.textContent = [state.options.campaignName, state.options.campaignYear, state.options.templateName && `Template: ${state.options.templateName}`].filter(Boolean).join(' - ');
   swatchButtons.forEach((button) => button.classList.toggle('active', button.dataset.templateStyle === templateStyle && !state.template?.colors));
@@ -747,7 +729,7 @@ function buildSourceAppendix() {
   list.className = 'appendix-list';
   for (const group of outputGroups()) {
     const links = sourceUrls(group).map(toSourceLink).join('') || '<span class="muted">No source links yet.</span>';
-    const searches = state.options.includeSearches ? buildSearchPack(group).slice(0, 2).map((item) => `<span>${escapeHtml(item.query)}</span>`).join('') : '';
+    const searches = state.options.includeSearches ? buildSearchPack(group).filter((item) => item.query).slice(0, 2).map((item) => `<span>${escapeHtml(item.query)}</span>`).join('') : '';
     const image = state.sourceImages[group.key] ? `<p><strong>Example image:</strong> ${escapeHtml(state.sourceImages[group.key])}</p>` : '';
     const note = state.sourceNotes[group.key] ? `<p>${escapeHtml(state.sourceNotes[group.key])}</p>` : '';
     list.insertAdjacentHTML('beforeend', `<article><strong>${escapeHtml(group.platform)} - ${escapeHtml(group.placementName)}</strong><div class="source-links">${links}</div><div class="chip-row">${searches}</div>${image}${note}</article>`);
@@ -865,7 +847,7 @@ async function exportPowerPointBrief({ fileSuffix = 'powerpoint', toast = 'Power
   if (state.options.includeSources) {
     const sourceRows = outputGroups().map((group) => {
       const urls = sourceUrls(group).join(' | ');
-      const searches = buildSearchPack(group).slice(0, 2).map((item) => `${item.label}: ${item.query}`).join(' | ');
+      const searches = buildSearchPack(group).filter((item) => item.query).slice(0, 2).map((item) => `${item.label}: ${item.query}`).join(' | ');
       const image = state.sourceImages[group.key] ? `Image: ${state.sourceImages[group.key]}` : '';
       const note = state.sourceNotes[group.key] ? `Notes: ${state.sourceNotes[group.key]}` : '';
       return `${group.platform} - ${group.placementName}: ${[urls, searches, image, note].filter(Boolean).join(' | ')}`;
@@ -957,7 +939,8 @@ function toggleTheme() {
 }
 
 function restoreTheme() {
-  const isDark = localStorage.getItem('brief-maker-theme') === 'dark';
+  const storedTheme = localStorage.getItem('brief-maker-theme');
+  const isDark = storedTheme ? storedTheme === 'dark' : true;
   document.body.classList.toggle('dark-mode', isDark);
   els.themeToggle.textContent = isDark ? 'Light mode' : 'Dark mode';
 }

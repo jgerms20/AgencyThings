@@ -36,6 +36,12 @@ test("Task Brief keeps all application IDs unique and its workflow controls visi
   for (const id of ["copy-brief", "export-json", "export-ppt", "export-google", "print-brief"]) {
     assert.equal(idOccurrences(html, id), 1, `#${id} export control must remain visible`);
   }
+
+  assert.match(html, /Import PowerPoint brand template/);
+  assert.match(html, /Download for Google Slides/);
+  assert.match(upgradedApp, /item\.type === 'source'/);
+  assert.match(upgradedApp, /localStorage\.getItem\('brief-maker-theme'\)/);
+  assert.doesNotMatch(upgradedApp, /const official = \{ label: 'Official specs', query:/);
 });
 
 test("Task Brief keeps all five steps readable without a mobile overflow rail", async () => {
