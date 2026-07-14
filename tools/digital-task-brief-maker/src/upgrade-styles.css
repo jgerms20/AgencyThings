@@ -8,6 +8,7 @@
 
 body { background: var(--paper); }
 body.dark-mode { --paper: #101216; --panel: #171a20; --soft: #232833; }
+body.dark-mode { --ink: #f5f7fb; --muted: #aeb6c4; --line: #343a46; color-scheme: dark; }
 
 button { border: 1px solid #0b59ff; border-radius: 4px; color: #ffffff; background: #0b59ff; }
 button.secondary, button.icon-button { border-color: var(--line); color: var(--ink); background: var(--panel); }
@@ -69,8 +70,17 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .customize-grid { gap: 1.5rem; }
 .options-panel { gap: 1rem; }
 .checkbox-stack, .brief-placement, .mini-safe-zone, .source-appendix article { border-radius: 4px; }
-.brand-preview { color: #ffffff; background: #0b59ff; }
-.brand-preview p { color: #ffffff; }
+.brand-preview { position: relative; min-height: 19rem; overflow: hidden; color: var(--client-text, #111111); background: var(--client-background, #ffffff); border-color: var(--client-accent, #00a7a7); }
+.brand-preview .preview-accent { position: absolute; inset: 0 0 auto; height: 0.8rem; background: var(--client-accent, #00a7a7); }
+.brand-preview > span { color: var(--client-accent, #00a7a7); }
+.brand-preview .preview-copy { display: grid; align-content: end; min-height: 10rem; border-left: 0.8rem solid var(--client-primary, #ffd400); padding-left: 1.2rem; }
+.brand-preview strong { color: var(--client-text, #111111); font-size: clamp(1.8rem, 3vw, 3rem); }
+.brand-preview p, .brand-preview small { color: color-mix(in srgb, var(--client-text, #111111) 72%, transparent); }
+.template-upload em { display: block; margin-top: 0.35rem; color: var(--muted); font-size: 0.76rem; font-style: normal; font-weight: 400; line-height: 1.35; text-transform: none; }
+.official-tile { border-color: var(--client-accent, #00a7a7); background: color-mix(in srgb, var(--client-accent, #00a7a7) 10%, var(--panel)); }
+.official-tile small { color: var(--muted); font-size: 0.72rem; }
+body.dark-mode .drop-zone:hover, body.dark-mode .drop-zone.dragging, body.dark-mode .clip-tile { background: #1d222b; }
+body.dark-mode .platform-group header, body.dark-mode .pill { background: #1b2948; }
 .swatch-option, .swatch-option span { border-radius: 4px; }
 .toast { border-radius: 4px; }
 

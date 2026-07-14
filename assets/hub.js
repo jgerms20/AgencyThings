@@ -116,6 +116,18 @@ export function initHub(root = document) {
 
   if (currentDate) currentDate.textContent = formatCurrentDate();
 
+  const themeToggle = root.querySelector("[data-theme-toggle]");
+  const storedTheme = getStoredValue(globalThis.localStorage, "agencythings:theme");
+  const initialTheme = storedTheme === "light" ? "light" : "dark";
+  root.documentElement.dataset.theme = initialTheme;
+  updateThemeControl(themeToggle, initialTheme);
+  themeToggle?.addEventListener("click", () => {
+    const nextTheme = root.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    root.documentElement.dataset.theme = nextTheme;
+    setStoredValue(globalThis.localStorage, "agencythings:theme", nextTheme);
+    updateThemeControl(themeToggle, nextTheme);
+  });
+
   search?.addEventListener("input", () => {
     activateView(activeView, root, search.value);
   });
@@ -148,6 +160,13 @@ export function initHub(root = document) {
     const recentStatus = recentProject?.querySelector("[data-recent-status]");
     if (recentStatus) recentStatus.hidden = false;
   }
+}
+
+function updateThemeControl(control, theme) {
+  if (!control) return;
+  const next = theme === "dark" ? "light" : "dark";
+  control.textContent = next === "light" ? "Light" : "Dark";
+  control.setAttribute("aria-label", `Switch to ${next} mode`);
 }
 
 if (typeof document !== "undefined") initHub();

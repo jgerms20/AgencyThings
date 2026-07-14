@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ProblemWallWorkspace from "../src/components/ProblemWallWorkspace";
 
@@ -17,17 +17,26 @@ const apiResult = {
   }]
 };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+  vi.unstubAllGlobals();
+});
 
 describe("ProblemWallWorkspace", () => {
   it("renders the weekly sequence and removes the client handoff controls", () => {
     render(<ProblemWallWorkspace />);
 
     expect(screen.getByRole("button", { name: "Find new problems" })).toBeInTheDocument();
-    for (const label of ["New this week", "Shortlist", "Reviewed", "Deck inspiration"]) {
-      expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
+    for (const label of ["New this week", "Saved", "Already in the deck"]) {
+      expect(screen.getByRole("tab", { name: new RegExp(label) })).toBeInTheDocument();
     }
     expect(screen.queryByText(/strategist|client fit|approve|reject|export deck/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/B\.U\.R\.S\.T|wall ready|total/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /Brand lens/i })).toBeInTheDocument();
+    expect(screen.getByRole("slider", { name: /Discovery edge/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Switch to light mode/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Search X/i })).toHaveAttribute("href", expect.stringContaining("x.com/search"));
   });
 
   it("uses the refresh route, shortlists a candidate, and exposes wrap-up actions", async () => {
@@ -37,12 +46,28 @@ describe("ProblemWallWorkspace", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Find new problems/i }));
     await screen.findByText(/Working parents lose time/i);
-    fireEvent.click(screen.getByRole("button", { name: /Shortlist problem/i }));
-    fireEvent.click(screen.getByRole("tab", { name: /Shortlist/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Save problem/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /Saved/i }));
 
-    expect(screen.getByText(/Wrap up the week/i)).toBeInTheDocument();
+    expect(screen.getByText(/worth carrying forward/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Copy summary/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Download JSON/i })).toBeInTheDocument();
     await waitFor(() => expect(screen.getAllByText(/1 problem shortlisted/i).length).toBeGreaterThan(0));
+  });
+
+  it("sends the active brand lens and excludes already-seen problems on refresh", async () => {
+    const fetchMock = vi.fn(async () => Response.json(apiResult));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ProblemWallWorkspace />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: /Brand lens/i }), { target: { value: "Gatorade" } });
+    fireEvent.click(screen.getByRole("button", { name: /Find new problems/i }));
+    await screen.findByText(/Working parents lose time/i);
+    fireEvent.click(screen.getByRole("button", { name: /Find new problems/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const secondRequest = fetchMock.mock.calls[1]?.[1] as RequestInit;
+    expect(secondRequest.body).toContain("Gatorade");
+    expect(secondRequest.body).toContain("p1");
   });
 });

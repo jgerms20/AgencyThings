@@ -90,6 +90,9 @@ export type SourceRefreshOptions = {
   fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
   now?: string;
   maxAgeDays?: number;
+  brandLens?: string;
+  excludeIds?: string[];
+  edge?: number;
 };
 
 export type WeeklyRefreshResult = {

@@ -222,15 +222,34 @@ export function buildSearchPack(group, options = {}) {
   const partner = group.partners?.[0] || '';
   const asset = group.assets?.[0] || group.placementName;
   const base = [partner || group.platform, asset].filter(Boolean).join(' ');
-  const officialQuery = officialSpecQuery(group);
   const brandQuery = [clientName, partner || group.platform, asset, 'ad example'].filter(Boolean).join(' ');
+  const official = officialSourceUrls(group).map((url) => ({ label: 'Official specs', url, type: 'source' }));
 
   return [
-    { label: 'Official specs', query: officialQuery, type: 'web' },
+    ...official,
     { label: 'Image examples', query: `${base} ad examples`, type: 'image' },
     { label: 'Brand examples', query: brandQuery || `${base} brand example`, type: 'image' },
     { label: 'Competitive examples', query: `${base} best ad examples`, type: 'image' }
   ];
+}
+
+export function officialSourceUrls(group) {
+  const text = normalize([group.platform, group.placementName, ...(group.partners || []), ...(group.assets || []), ...(group.channels || []), ...(group.formats || []), ...(group.specNotes || [])].join(' '));
+  const partnerText = normalize([group.platform, ...(group.partners || [])].join(' '));
+  const urls = [];
+  if (/meta|instagram|facebook/.test(text)) urls.push('https://www.facebook.com/business/ads-guide');
+  if (/tiktok/.test(text)) urls.push('https://ads.tiktok.com/help/article/video-ads-specifications');
+  if (/youtube|google/.test(text)) urls.push('https://support.google.com/google-ads/answer/17091270');
+  if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/creative-specs');
+  if (/(^| )x( |$)|twitter|amplify/.test(partnerText)) urls.push('https://business.x.com/en/help/campaign-setup/creative-ad-specifications.html');
+  if (/spotify/.test(text)) urls.push('https://ads.spotify.com/en-US/ad-specs/');
+  if (/pandora|sxm|siriusxm|soundcloud/.test(text)) urls.push('https://www.sxmmedia.com/advertising-solutions/audio');
+  if (/audacy/.test(text)) urls.push('https://audacyinc.com/advertising/');
+  if (/iheart/.test(text)) urls.push('https://www.iheartmedia.com/advertising/');
+  if (/programmatic|display|banner|dv360|dsp|iab|300x250|728x90|160x600|320x50|300x600/.test(text)) urls.push('https://www.iab.com/guidelines/iab-new-ad-portfolio/');
+  if (/ctv|connected tv/.test(text)) urls.push('https://iabtechlab.com/standards/ctv-ad-portfolio/');
+  if (/tvc|linear video|polv|olv|video spot/.test(text)) urls.push('https://www.iab.com/guidelines/digital-video-in-stream-ad-format-guidelines/');
+  return [...new Set(urls)];
 }
 
 export function specSummary(placement, limit = 3) {
@@ -388,20 +407,6 @@ function sourceUrlsForRow(row) {
   if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/creative-specs');
   if (/\bx\b|twitter|amplify/.test(text)) urls.push('https://business.x.com/en/help/campaign-setup/creative-ad-specifications.html');
   return urls;
-}
-
-function officialSpecQuery(group) {
-  const text = normalize([group.platform, group.placementName, ...(group.partners || []), ...(group.assets || [])].join(' '));
-  if (/meta|instagram|facebook/.test(text)) return 'Meta ads guide image video creative specifications official';
-  if (/tiktok/.test(text)) return 'TikTok ads creative specifications official';
-  if (/youtube|google/.test(text)) return 'Google Ads video ad specifications official';
-  if (/pinterest/.test(text)) return 'Pinterest business creative specs official';
-  if (/\bx\b|twitter|amplify/.test(text)) return 'X ads creative ad specifications official';
-  if (/spotify|pandora|sxm|audacy|iheart|podcast/.test(text)) return 'audio ad specs Spotify Pandora podcast official';
-  if (/programmatic|display|banner|dv360|dsp|iab/.test(text)) return 'IAB display ad unit specs banner official';
-  if (/roku|disney|lg|brightline|custom/.test(text)) return `${group.placementName} advertising specs official`;
-  if (/ooh|gstv|cooler/.test(text)) return `${group.placementName} OOH advertising specs official`;
-  return `${group.platform} ${group.placementName} ad specs official`;
 }
 
 function toCandidateLines(input, placementLibrary) {

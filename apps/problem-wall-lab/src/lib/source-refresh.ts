@@ -7,11 +7,14 @@ const NON_ENGLISH_TITLE_PATTERN = /\b(?:dan|dengan|pada|pegawai|pengaruh|perempu
 
 type SourceDefinition = { name: string; kind: "rss" | "openalex" | "crossref" | "reddit"; url: string };
 
-const SOURCES: SourceDefinition[] = [
-  ...TOPICS.slice(0, 3).map((topic) => ({
+function sourceDefinitions(brandLens = ""): SourceDefinition[] {
+  const lens = brandLens.trim();
+  const topics = lens ? [lens, ...TOPICS.slice(0, 5)] : TOPICS;
+  return [
+  ...topics.map((topic) => ({
     name: `Google News: ${topic}`,
     kind: "rss" as const,
-    url: `https://news.google.com/rss/search?q=${encodeURIComponent(`new study ${topic} problem`)}`
+    url: `https://news.google.com/rss/search?q=${encodeURIComponent(`${lens ? `${lens} ` : ""}${topic} problem frustration`)}`
   })),
   {
     name: "OpenAlex",
@@ -33,15 +36,17 @@ const SOURCES: SourceDefinition[] = [
     kind: "reddit",
     url: "https://www.reddit.com/r/Parenting/new.json?limit=12"
   }
-];
+  ];
+}
 
 export async function refreshSourceSignals(options: SourceRefreshOptions = {}): Promise<RefreshResult> {
   const fetcher = options.fetcher ?? fetch;
   const now = new Date(options.now ?? Date.now());
   const failures: RefreshResult["failures"] = [];
   let sourcesSucceeded = 0;
+  const sources = sourceDefinitions(options.brandLens);
 
-  const batches = await Promise.all(SOURCES.map(async (definition) => {
+  const batches = await Promise.all(sources.map(async (definition) => {
     try {
       const response = await fetcher(definition.url, {
         headers: { "user-agent": "ProblemWallLab/2.0 (+https://agencythings-problem-wall.vercel.app)" },
@@ -65,7 +70,7 @@ export async function refreshSourceSignals(options: SourceRefreshOptions = {}): 
 
   return {
     signals: dedupeSignals(fresh),
-    sourcesAttempted: SOURCES.length,
+    sourcesAttempted: sources.length,
     sourcesSucceeded,
     failures,
     refreshedAt: now.toISOString()

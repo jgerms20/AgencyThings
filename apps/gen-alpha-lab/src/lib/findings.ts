@@ -3,8 +3,21 @@ import type { ConfidenceLevel, ResearchRecord } from "./types";
 export type TopicLens = {
   id: "connect" | "media" | "influence" | "time" | "learn" | "play-create" | "ai";
   label: string;
+  href: string;
   description: string;
+  pageTitle: string;
+  thesis: string;
+  visualAnatomy: string[];
+  genZContrast: string;
+  agencyQuestion: string;
   findingIds: string[];
+};
+
+export type LibrarySection = {
+  id: "articles" | "podcasts" | "books" | "youtube";
+  title: "Articles" | "Podcasts" | "Books" | "YouTube";
+  description: string;
+  records: ResearchRecord[];
 };
 
 export type Finding = {
@@ -25,44 +38,135 @@ export type Finding = {
 export const findingTopics: TopicLens[] = [
   {
     id: "connect",
-    label: "Connect",
+    label: "How they connect",
+    href: "/topics/connect",
     description: "Friendship, family, communities, and communication norms.",
+    pageTitle: "How they connect",
+    thesis:
+      "Connection travels through play, chat, video, family routines, and shared inside jokes instead of living in one app.",
+    visualAnatomy: [
+      "Portable group identity that follows the activity",
+      "Shared worlds that give friends something to do together",
+      "Family permission and household context around the edges"
+    ],
+    genZContrast:
+      "Gen Z made social platforms the gathering place; Gen Alpha expects the gathering place to be embedded inside the activity.",
+    agencyQuestion:
+      "What part of the experience helps a relationship carry forward after the screen, game, or video changes?",
     findingIds: ["friendship-portable"]
   },
   {
     id: "media",
-    label: "Media",
+    label: "How they consume media",
+    href: "/topics/media",
     description: "Video, creators, discovery, and the shared entertainment layer.",
+    pageTitle: "How they consume media",
+    thesis:
+      "Media is not just watched. It is searched, remixed, discussed, used as instruction, and folded into the next activity.",
+    visualAnatomy: [
+      "Video as default explanation layer",
+      "Creator-led discovery before formal search",
+      "AI-assisted recommendations becoming conversational"
+    ],
+    genZContrast:
+      "Gen Z learned to tune algorithmic feeds; Gen Alpha is meeting media as a responsive interface that can recommend, explain, and answer back.",
+    agencyQuestion:
+      "Does the media plan work as entertainment, instruction, and social currency at the same time?",
     findingIds: ["video-default"]
   },
   {
     id: "influence",
-    label: "Influence",
+    label: "How they are influenced",
+    href: "/topics/influence",
     description: "Parents, peers, creators, fandoms, and brands in the decision loop.",
+    pageTitle: "How they are influenced",
+    thesis:
+      "Influence moves through a network: creators and peers spark desire, while adults still control many permissions and purchases.",
+    visualAnatomy: [
+      "Creator and peer signals start the want",
+      "Household negotiation shapes the decision",
+      "Shared carts, wish lists, and proof points become persuasion tools"
+    ],
+    genZContrast:
+      "Gen Z creator culture often centered public identity; Gen Alpha's influence loop is more visibly negotiated inside the household.",
+    agencyQuestion:
+      "Where does the child advocate, and where does the adult need clarity, safety, or confidence?",
     findingIds: ["influence-is-networked"]
   },
   {
     id: "time",
-    label: "Time",
+    label: "How they spend time",
+    href: "/topics/time",
     description: "Routines, attention, family rules, and the texture of an on-demand day.",
+    pageTitle: "How they spend time",
+    thesis:
+      "Digital time is part of daily life, but it remains managed childhood, shaped by household routines and context.",
+    visualAnatomy: [
+      "Household rules and permissions",
+      "On-demand entertainment and learning moments",
+      "The real question of what the screen replaces or enables"
+    ],
+    genZContrast:
+      "Gen Z's screen-time debate centered online identity; Gen Alpha's is more often about how digital life fits around managed family routines.",
+    agencyQuestion:
+      "What routine does the experience enter, and what does it ask the family to trade off?",
     findingIds: ["time-is-managed"]
   },
   {
     id: "learn",
-    label: "Learn",
+    label: "How they learn",
+    href: "/topics/learn",
     description: "School, tutorials, search, games, and informal skill building.",
+    pageTitle: "How they learn",
+    thesis:
+      "Learning is assembled across school, tutorial video, search, games, family help, and AI support.",
+    visualAnatomy: [
+      "A first attempt matters more than a perfect lecture",
+      "Help appears at the moment of confusion",
+      "Play and making can carry real skill development"
+    ],
+    genZContrast:
+      "Gen Z learned to search for answers; Gen Alpha is growing up with systems that can coach the next attempt in real time.",
+    agencyQuestion:
+      "Does the idea create a low-friction first attempt and a clear next step when they get stuck?",
     findingIds: ["learning-is-assembled"]
   },
   {
     id: "play-create",
-    label: "Play & Create",
+    label: "How they play and create",
+    href: "/topics/play-create",
     description: "Games as social spaces for making, remixing, problem solving, and identity.",
+    pageTitle: "How they play and create",
+    thesis:
+      "For Gen Alpha, play and creation frequently share the same interface, especially in worlds built for making and remixing.",
+    visualAnatomy: [
+      "World-building as a normal play pattern",
+      "Remix and customization as social expression",
+      "Collaborative problem solving inside games"
+    ],
+    genZContrast:
+      "Gen Z popularized creator tools; Gen Alpha meets creation as a default part of the play environment.",
+    agencyQuestion:
+      "What can they shape, customize, remix, or show to someone else?",
     findingIds: ["creation-gaming-is-participatory"]
   },
   {
     id: "ai",
-    label: "AI",
+    label: "How they use AI",
+    href: "/topics/ai",
     description: "Ambient assistants, discovery, trust, safety, and literacy.",
+    pageTitle: "How they use AI",
+    thesis:
+      "AI is becoming a normal interface for asking, comparing, discovering, and creating, not a separate future-tech category.",
+    visualAnatomy: [
+      "Conversational search and entertainment discovery",
+      "Homework, explanation, and creative scaffolding",
+      "Trust, verification, and adult guidance built into the workflow"
+    ],
+    genZContrast:
+      "Gen Z adapted to algorithmic feeds; Gen Alpha is learning to navigate systems that answer back.",
+    agencyQuestion:
+      "Where should the interface encourage checking, comparison, and useful skepticism?",
     findingIds: ["ai-is-a-normal-interface"]
   }
 ];
@@ -211,6 +315,53 @@ export function getSupportingRecords(
 
 export function getFindingById(id: string): Finding | undefined {
   return findings.find((finding) => finding.id === id);
+}
+
+export function getTopicById(id: string): TopicLens | undefined {
+  return findingTopics.find((topic) => topic.id === id);
+}
+
+export function getFindingsForTopic(topic: TopicLens): Finding[] {
+  const findingById = new Map(findings.map((finding) => [finding.id, finding]));
+  return topic.findingIds.flatMap((id) => {
+    const finding = findingById.get(id);
+    return finding ? [finding] : [];
+  });
+}
+
+export function getLibrarySections(records: ResearchRecord[]): LibrarySection[] {
+  const externalRecords = records.filter((record) => record.url && record.kind !== "interview");
+  const articles = externalRecords.filter((record) => record.kind === "report" || record.kind === "article");
+  const podcasts = externalRecords.filter((record) => record.kind === "podcast");
+  const books = externalRecords.filter((record) => record.kind === "book");
+  const youtube = externalRecords.filter((record) => record.kind === "youtube" || record.sourceClass === "video");
+
+  return [
+    {
+      id: "articles",
+      title: "Articles",
+      description: "Research reports, peer-reviewed studies, and reported analysis with direct source links.",
+      records: articles
+    },
+    {
+      id: "podcasts",
+      title: "Podcasts",
+      description: "Owned and external listening material for synthesis, contrast, and planning language.",
+      records: podcasts
+    },
+    {
+      id: "books",
+      title: "Books",
+      description: "Long-form frameworks that help the lab pressure-test its point of view.",
+      records: books
+    },
+    {
+      id: "youtube",
+      title: "YouTube",
+      description: "Video explainers and briefings that show how the conversation is being framed publicly.",
+      records: youtube
+    }
+  ];
 }
 
 export function validateFindings(

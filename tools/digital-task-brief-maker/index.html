@@ -8,7 +8,7 @@
     <meta http-equiv='Expires' content='0' />
     <title>Digital Task Brief Maker</title>
     <link rel='stylesheet' href='./src/styles.css' />
-    <link rel='stylesheet' href='./src/upgrade-styles.css?v=2026-07-01-1432-pt-direct-publish' />
+    <link rel='stylesheet' href='./src/upgrade-styles.css?v=2026-07-13-agencythings-v3' />
   </head>
   <body>
     <header class='app-header'>
@@ -153,7 +153,8 @@
             <input id='accent-color' type='hidden' value='#00a7a7' />
             <label class='template-upload' for='template-file'>
               <input id='template-file' class='file-input' type='file' accept='.pptx,.potx' />
-              <span>Add brand template</span>
+              <span>Import PowerPoint brand template</span>
+              <em>Reads theme colors from a .pptx or .potx and applies them to the preview and exported deck.</em>
               <small id='template-status'>No template added</small>
             </label>
             <div class='swatch-row' aria-label='Brand look presets'>
@@ -170,9 +171,13 @@
             </div>
           </form>
           <aside class='brand-preview' aria-live='polite'>
-            <span>Preview</span>
-            <strong id='preview-client'>Client / brand</strong>
-            <p id='preview-campaign'>Campaign name</p>
+            <div class='preview-accent'></div>
+            <span>Live deck preview</span>
+            <div class='preview-copy'>
+              <strong id='preview-client'>Client / brand</strong>
+              <p id='preview-campaign'>Campaign name</p>
+            </div>
+            <small>Template colors update here and carry into the downloaded deck.</small>
           </aside>
         </div>
         <div id='deck-plan' class='deck-plan empty-state'>Upload and review placements to see the deck plan.</div>
@@ -191,8 +196,8 @@
           <div class='button-row compact'>
             <button id='copy-brief' type='button' class='secondary'>Copy text</button>
             <button id='export-json' type='button' class='secondary'>Export JSON</button>
-            <button id='export-ppt' type='button' class='secondary'>Export PowerPoint</button>
-            <button id='export-google' type='button' class='secondary'>Export Google Slides</button>
+            <button id='export-ppt' type='button' class='secondary'>Download PowerPoint</button>
+            <button id='export-google' type='button' class='secondary'>Download for Google Slides</button>
             <button id='print-brief' type='button'>Export PDF</button>
           </div>
         </div>
@@ -203,6 +208,6 @@
       </section>
     </main>
 
-    <script type='module' src='./src/app-upgraded.js?v=2026-07-01-1432-pt-direct-publish'></script>
+    <script type='module' src='./src/app-upgraded.js?v=2026-07-13-agencythings-v3'></script>
   </body>
 </html>
