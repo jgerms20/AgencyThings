@@ -1,8 +1,10 @@
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import type { Route } from "next";
 import { findings, findingTopics, getSupportingRecords } from "@/lib/findings";
 import { seedRecords } from "@/lib/seed-data";
 import type { Finding } from "@/lib/findings";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type FindingDetailProps = {
   finding: Finding;
@@ -12,14 +14,17 @@ export default function FindingDetail({ finding }: FindingDetailProps) {
   const topic = findingTopics.find((item) => item.id === finding.topicId);
   const support = getSupportingRecords(finding, seedRecords);
   const related = findings.filter((item) => item.id !== finding.id).slice(0, 3);
-  const heroImage = finding.heroImage ?? "/gen-alpha-culture-map.png";
-  const heroAlt = finding.heroAlt ?? "Gen Alpha culture across media, play, learning, and AI";
+  const heroImage = finding.heroImage ?? "/findings/connection.png";
+  const heroAlt = finding.heroAlt ?? "Editorial photograph for a Gen Alpha finding";
 
   return (
     <main className="finding-detail-page">
       <header className="detail-header">
         <Link href="/" className="detail-brand">Gen Alpha Intelligence Lab</Link>
-        <Link href="/" className="back-link"><ArrowLeft aria-hidden="true" size={16} /> Field guide</Link>
+        <div className="detail-actions">
+          <Link href="/" className="back-link"><ArrowLeft aria-hidden="true" size={16} /> Field guide</Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <article>
@@ -53,7 +58,7 @@ export default function FindingDetail({ finding }: FindingDetailProps) {
 
         <section className="detail-evidence">
           <div>
-            <p className="detail-eyebrow">Sourcebook</p>
+            <p className="detail-eyebrow">Library</p>
             <h2>Evidence behind this finding</h2>
           </div>
           <div className="detail-evidence-list">
@@ -73,7 +78,7 @@ export default function FindingDetail({ finding }: FindingDetailProps) {
           <h2>Related findings</h2>
           <div>
             {related.map((item) => (
-              <Link href={`/findings/${item.id}`} key={item.id}>
+              <Link href={`/findings/${item.id}` as Route} key={item.id}>
                 <span>{findingTopics.find((topicItem) => topicItem.id === item.topicId)?.label}</span>
                 <strong>{item.title}</strong>
                 <ArrowUpRight aria-hidden="true" size={17} />

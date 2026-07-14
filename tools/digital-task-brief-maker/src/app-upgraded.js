@@ -302,7 +302,7 @@ function generateBrief({ goToReview = false } = {}) {
 
 function enrichGroups(groups) {
   return groups.map((group) => {
-    const urls = [...new Set([...(group.matchedPlacement?.sourceUrls || []), ...officialSourceUrls(group)])];
+    const urls = officialSourceUrls(group);
     return {
       ...group,
       matchedPlacement: {
@@ -486,7 +486,7 @@ function renderSources() {
   for (const group of groups) {
     const card = document.createElement('article');
     card.className = 'source-card';
-    const sourceLinks = sourceUrls(group).map(toSourceLink).join('') || '<span class="muted">No source URLs yet.</span>';
+    const sourceLinks = sourceUrls(group).map(toSourceLink).join('') || '<span class="muted">No authoritative spec link is mapped yet. Use the imported plan specs and confirm with the partner.</span>';
     const specSnapshot = buildSpecSnapshot(group, 4).map((spec) => `<span>${escapeHtml(spec)}</span>`).join('') || '<span>Confirm specs manually.</span>';
     const searchTiles = buildSearchPack(group).map(toSearchTile).join('');
     const note = state.sourceNotes[group.key] || '';
@@ -527,7 +527,7 @@ function buildSpecSnapshot(group, limit = 4) {
 }
 
 function sourceUrls(group) {
-  return [...new Set([...(group.matchedPlacement?.sourceUrls || []), ...officialSourceUrls(group)])];
+  return officialSourceUrls(group);
 }
 
 function officialSourceUrls(group) {

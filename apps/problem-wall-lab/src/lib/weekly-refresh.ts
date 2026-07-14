@@ -7,7 +7,10 @@ export async function runWeeklyRefresh(options: SourceRefreshOptions & { weekOf?
   const now = new Date(options.now ?? Date.now());
   const weekOf = options.weekOf ?? mondayOf(now);
   const refresh = await refreshSourceSignals(options);
-  const candidates = generateWeeklyWall({ weekOf, signals: refresh.signals, now: now.toISOString(), limit: 18 });
+  const excluded = new Set(options.excludeIds ?? []);
+  const candidates = generateWeeklyWall({ weekOf, signals: refresh.signals, now: now.toISOString(), limit: 48 })
+    .filter((candidate) => !excluded.has(candidate.id))
+    .slice(0, 18);
   const persistence = await persistWeeklyRun({ weekOf, refreshedAt: refresh.refreshedAt, refresh, candidates });
   return {
     weekOf,

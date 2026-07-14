@@ -58,13 +58,23 @@ describe("buildProblemFromSignal", () => {
   it("creates a generic source-preserving problem with no client or strategist fields", () => {
     const result = buildProblemFromSignal(freshSignal, "2026-07-13");
 
-    expect(result.problem).toContain("The burden is landing on working parents");
+    expect(result.problem).toBe("Working parents are losing time because school communication is split across disconnected tools.");
     expect(result.biggerReason).toContain("childcare");
     expect(result.rootCause).toContain("scattered");
     expect(result.sources[0]?.url).toBe(freshSignal.url);
     expect(result.sources[0]?.publishedAt).toBe("2026-07-10");
     expect(result).not.toHaveProperty("clientName");
     expect(result).not.toHaveProperty("strategist");
+  });
+
+  it("turns academic work-family titles into a plain-language problem", () => {
+    const result = buildProblemFromSignal({
+      ...freshSignal,
+      title: "A systematic review of work-family conflict and caregiver burden",
+      audience: "working families"
+    }, "2026-07-13");
+
+    expect(result.problem).toBe("Working families are being squeezed by work and caregiving demands that do not fit together.");
   });
 });
 

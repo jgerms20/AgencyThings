@@ -9,6 +9,11 @@ export async function GET(request: Request) {
   return NextResponse.json(await runWeeklyRefresh());
 }
 
-export async function POST() {
-  return NextResponse.json(await runWeeklyRefresh());
+export async function POST(request?: Request) {
+  const body = request ? await request.json().catch(() => ({})) : {} as { brandLens?: string; excludeIds?: string[]; edge?: number };
+  return NextResponse.json(await runWeeklyRefresh({
+    brandLens: body.brandLens?.slice(0, 80),
+    excludeIds: Array.isArray(body.excludeIds) ? body.excludeIds.slice(0, 300) : [],
+    edge: Number.isFinite(body.edge) ? body.edge : 55
+  }));
 }

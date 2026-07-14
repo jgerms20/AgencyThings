@@ -246,9 +246,9 @@ export function officialSourceUrls(group) {
   if (/pandora|sxm|siriusxm|soundcloud/.test(text)) urls.push('https://www.sxmmedia.com/advertising-solutions/audio');
   if (/audacy/.test(text)) urls.push('https://audacyinc.com/advertising/');
   if (/iheart/.test(text)) urls.push('https://www.iheartmedia.com/advertising/');
-  if (/programmatic|display|banner|dv360|dsp|iab|300x250|728x90|160x600|320x50|300x600/.test(text)) urls.push('https://iabtechlab.com/standards/iab-new-ad-portfolio-guidelines/');
+  if (/programmatic|display|banner|dv360|dsp|iab|300x250|728x90|160x600|320x50|300x600/.test(text)) urls.push('https://www.iab.com/guidelines/iab-new-ad-portfolio/');
   if (/ctv|connected tv/.test(text)) urls.push('https://iabtechlab.com/standards/ctv-ad-portfolio/');
-  if (/tvc|linear video|polv|olv|video spot/.test(text)) urls.push('https://www.iab.com/guidelines/digital-video-ad-format-guidelines/');
+  if (/tvc|linear video|polv|olv|video spot/.test(text)) urls.push('https://www.iab.com/guidelines/digital-video-in-stream-ad-format-guidelines/');
   return [...new Set(urls)];
 }
 

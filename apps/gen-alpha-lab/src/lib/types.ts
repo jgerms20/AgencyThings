@@ -1,4 +1,11 @@
-export type ResearchKind = "report" | "article" | "podcast" | "interview" | "field-note";
+export type ResearchKind =
+  | "report"
+  | "article"
+  | "podcast"
+  | "book"
+  | "youtube"
+  | "interview"
+  | "field-note";
 
 export type ReviewStatus = "new" | "queued" | "reviewed";
 
@@ -9,6 +16,9 @@ export type SourceClass =
   | "peer reviewed"
   | "journalism"
   | "video"
+  | "book"
+  | "podcast"
+  | "youtube"
   | "community"
   | "owned";
 

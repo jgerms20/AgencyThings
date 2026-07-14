@@ -40,6 +40,8 @@ test("Task Brief keeps all application IDs unique and its workflow controls visi
   assert.match(html, /Import PowerPoint brand template/);
   assert.match(html, /Download for Google Slides/);
   assert.match(upgradedApp, /item\.type === 'source'/);
+  assert.match(upgradedApp, /No authoritative spec link is mapped yet/);
+  assert.doesNotMatch(upgradedApp, /group\.matchedPlacement\?\.sourceUrls \|\| \[\]/);
   assert.match(upgradedApp, /localStorage\.getItem\('brief-maker-theme'\)/);
   assert.doesNotMatch(upgradedApp, /const official = \{ label: 'Official specs', query:/);
 });

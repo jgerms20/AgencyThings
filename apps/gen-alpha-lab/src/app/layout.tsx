@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Gen Alpha Intelligence Lab",
   description:
-    "A findings-first cultural field guide to Gen Alpha, with direct evidence, owned media, and interview intake.",
+    "A findings-first cultural field guide to Gen Alpha, with topic lenses, direct evidence, owned media, and a rich library.",
   icons: {
     icon: "/favicon.svg"
   }

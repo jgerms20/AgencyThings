@@ -10,31 +10,45 @@ describe("LabWorkspace", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders the field-guide thesis, required lenses, and sourcebook without dashboard controls", () => {
+  it("renders the field-guide thesis, required lens routes, library, and theme toggle", async () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
+    await waitFor(() => {
+      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    });
     expect(
       screen.getByRole("heading", {
         name: /understanding the first ai-native childhood/i
       })
     ).toBeInTheDocument();
     for (const lens of [
-      "Connect",
-      "Media",
-      "Influence",
-      "Time",
-      "Learn",
-      "Play & Create",
-      "AI"
+      ["How they connect", "/topics/connect"],
+      ["How they consume media", "/topics/media"],
+      ["How they are influenced", "/topics/influence"],
+      ["How they spend time", "/topics/time"],
+      ["How they learn", "/topics/learn"],
+      ["How they play and create", "/topics/play-create"],
+      ["How they use AI", "/topics/ai"]
     ]) {
-      expect(screen.getAllByText(lens).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole("link", { name: new RegExp(lens[0], "i") })[0]).toHaveAttribute(
+        "href",
+        lens[1]
+      );
     }
     expect(screen.getByText(/How their world fits together/i)).toBeInTheDocument();
     expect(
       screen.getAllByText("#093 Gen Alpha: AI, Gaming, and the First Fully Digital Childhood").length
     ).toBeGreaterThan(0);
-    expect(screen.getByText("Sourcebook")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /upload interview/i }).length).toBeGreaterThan(0);
+    expect(screen.getByText("Library")).toBeInTheDocument();
+    for (const section of ["Articles", "Podcasts", "Books", "YouTube"]) {
+      expect(screen.getByRole("heading", { name: section })).toBeInTheDocument();
+    }
+    expect(screen.getByRole("button", { name: /switch to light theme/i })).toBeInTheDocument();
+    expect(screen.queryByText("/gen-alpha-culture-map.png")).not.toBeInTheDocument();
+    expect(screen.queryByAltText(/collage illustrating gen alpha culture/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /upload interview/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/interview archive/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/save interview/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/add source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/research queue/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/demo mode/i)).not.toBeInTheDocument();
@@ -60,28 +74,19 @@ describe("LabWorkspace", () => {
     ).toHaveAttribute("href", "/findings/friendship-portable");
   });
 
-  it("adds an interview record from the lab intake form", async () => {
+  it("switches between dark and light themes", async () => {
     const user = userEvent.setup();
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    await user.click(screen.getAllByRole("button", { name: /upload interview/i })[0]);
-    await user.type(screen.getByLabelText(/interview title/i), "Cousin interview: AI homework");
-    await user.type(screen.getByLabelText(/participant alias/i), "Joshua fieldwork");
-    await user.clear(screen.getByLabelText(/relationship or context/i));
-    await user.type(screen.getByLabelText(/relationship or context/i), "AI, school, family");
-    expect(screen.getByLabelText(/interview file/i)).toBeInTheDocument();
-    await user.type(
-      screen.getByLabelText(/notes or transcript/i),
-      "AI shows up as homework help, not as a futuristic tool."
-    );
-    await user.click(screen.getByRole("button", { name: /save interview/i }));
-
     await waitFor(() => {
-      expect(screen.getAllByText("Cousin interview: AI homework").length).toBeGreaterThan(0);
+      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
     });
+    await user.click(screen.getByRole("button", { name: /switch to light theme/i }));
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    expect(screen.getByRole("button", { name: /switch to dark theme/i })).toBeInTheDocument();
   });
 
-  it("hydrates persisted interviews from the API alongside browser records", async () => {
+  it("does not hydrate visible interview records or call intake APIs", async () => {
     window.localStorage.setItem(
       "gen-alpha-lab-records",
       JSON.stringify([
@@ -122,26 +127,25 @@ describe("LabWorkspace", () => {
 
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    await waitFor(() => {
-      expect(screen.getByText("Local interview")).toBeInTheDocument();
-      expect(screen.getByText("Shared interview")).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText("Library")).toBeInTheDocument());
+    expect(screen.queryByText("Local interview")).not.toBeInTheDocument();
+    expect(screen.queryByText("Shared interview")).not.toBeInTheDocument();
     expect(screen.queryByText("Interview slot: cousin media diary")).not.toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledWith("/api/lab-records");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("exposes sourcebook filter state to assistive technology", async () => {
+  it("exposes library filter state to assistive technology", async () => {
     const user = userEvent.setup();
     render(<LabWorkspace initialRecords={seedRecords} />);
 
     const all = screen.getByRole("button", { name: "All" });
-    const peerReviewed = screen.getByRole("button", { name: "peer reviewed" });
+    const podcasts = screen.getByRole("button", { name: "Podcasts" });
     expect(all).toHaveAttribute("aria-pressed", "true");
-    expect(peerReviewed).toHaveAttribute("aria-pressed", "false");
+    expect(podcasts).toHaveAttribute("aria-pressed", "false");
 
-    await user.click(peerReviewed);
+    await user.click(podcasts);
 
     expect(all).toHaveAttribute("aria-pressed", "false");
-    expect(peerReviewed).toHaveAttribute("aria-pressed", "true");
+    expect(podcasts).toHaveAttribute("aria-pressed", "true");
   });
 });
