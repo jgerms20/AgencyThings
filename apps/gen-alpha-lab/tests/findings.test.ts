@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   findingTopics,
+  filterLibraryRecords,
   findings,
   getLibrarySections,
   getFindingById,
@@ -113,5 +114,48 @@ describe("Gen Alpha field-guide findings", () => {
     ]);
     expect(sections.every((section) => section.records.length > 0)).toBe(true);
     expect(sections.flatMap((section) => section.records).every((record) => record.url)).toBe(true);
+  });
+
+  it("filters library records by their explicit Make, Think, and Learn purpose", () => {
+    for (const mode of ["make", "think", "learn"] as const) {
+      const filtered = filterLibraryRecords(seedRecords, mode);
+
+      expect(filtered.length).toBeGreaterThan(0);
+      expect(filtered.every((record) => record.useModes?.includes(mode))).toBe(true);
+    }
+
+    expect(filterLibraryRecords(seedRecords, "all")).toEqual(seedRecords);
+    expect(filterLibraryRecords(seedRecords, "make").map((record) => record.id)).toContain(
+      "roblox-search-style-trends-2025"
+    );
+    expect(filterLibraryRecords(seedRecords, "make").map((record) => record.id)).not.toContain(
+      "arxiv-young-user-safety-2025"
+    );
+  });
+
+  it("includes the supplied deep-reading sources with direct links and explicit purposes", () => {
+    const expectedResources = [
+      ["mccrindle-alpha-defined", "https://mccrindle.com.au/article/topic/generation-alpha/generation-alpha-defined/"],
+      ["emarketer-alpha-habits-2026", "https://www.emarketer.com/content/gen-alpha-digital-habits-2026/"],
+      ["gwi-alpha-unfiltered", "https://www.gwi.com/reports/gen-alpha"],
+      ["razorfish-alpha-ai", "https://www.razorfish.com/articles/news/razorfish-explores-gen-alpha-relationship-with-ai-in-new-study/"],
+      ["razorfish-alpha-industries", "https://www.razorfish.com/articles/news/razorfishs-new-gen-alpha-research-spotlights-the-generations-perceptions-of-five-key-industries/"],
+      ["ftc-coppa-2025", "https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-changes-childrens-privacy-rule-limiting-companies-ability-monetize-kids-data"],
+      ["roblox-search-style-trends-2025", "https://ir.roblox.com/news/news-details/2025/Roblox-Releases-New-Data-Decoding-Search-and-Style-Trends-in-Digital-Experiences/default.aspx"],
+      ["arxiv-young-user-safety-2025", "https://arxiv.org/abs/2505.11160"],
+      ["esafety-social-minimum-age", "https://www.esafety.gov.au/about-us/industry-regulation/social-media-age-restrictions"],
+      ["aecf-generation-alpha", "https://www.aecf.org/blog/what-is-generation-alpha"],
+      ["oxford-brain-rot-2024", "https://corp.oup.com/news/brain-rot-named-oxford-word-of-the-year-2024/"]
+    ];
+
+    for (const [id, url] of expectedResources) {
+      expect(seedRecords).toContainEqual(
+        expect.objectContaining({
+          id,
+          url,
+          useModes: expect.arrayContaining([expect.stringMatching(/^(make|think|learn)$/)])
+        })
+      );
+    }
   });
 });

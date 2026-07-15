@@ -134,18 +134,32 @@ describe("LabWorkspace", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("exposes library filter state to assistive technology", async () => {
+  it("filters individual library records with accessible Make, Think, and Learn controls", async () => {
     const user = userEvent.setup();
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    const all = screen.getByRole("button", { name: "All" });
-    const podcasts = screen.getByRole("button", { name: "Podcasts" });
+    const all = screen.getByRole("button", { name: "All resources" });
+    const make = screen.getByRole("button", { name: "Make" });
+    const think = screen.getByRole("button", { name: "Think" });
+    const learn = screen.getByRole("button", { name: "Learn" });
     expect(all).toHaveAttribute("aria-pressed", "true");
-    expect(podcasts).toHaveAttribute("aria-pressed", "false");
+    expect(make).toHaveAttribute("aria-pressed", "false");
 
-    await user.click(podcasts);
+    await user.click(make);
 
     expect(all).toHaveAttribute("aria-pressed", "false");
-    expect(podcasts).toHaveAttribute("aria-pressed", "true");
+    expect(make).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Roblox Releases New Data Decoding Search and Style Trends in Digital Experiences")).toBeInTheDocument();
+    expect(screen.queryByText("Protecting Young Users on Social Media")).not.toBeInTheDocument();
+
+    await user.click(think);
+    expect(think).toHaveAttribute("aria-pressed", "true");
+    expect(make).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByText("Understanding Generation Alpha")).toBeInTheDocument();
+
+    await user.click(learn);
+    expect(learn).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Protecting Young Users on Social Media")).toBeInTheDocument();
+    expect(screen.queryByText("Roblox Releases New Data Decoding Search and Style Trends in Digital Experiences")).not.toBeInTheDocument();
   });
 });
