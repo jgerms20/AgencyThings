@@ -1,4 +1,4 @@
-import type { ConfidenceLevel, ResearchRecord } from "./types";
+import type { ConfidenceLevel, LibraryUseMode, ResearchRecord } from "./types";
 
 export type TopicLens = {
   id: "connect" | "media" | "influence" | "time" | "learn" | "play-create" | "ai";
@@ -19,6 +19,8 @@ export type LibrarySection = {
   description: string;
   records: ResearchRecord[];
 };
+
+export type LibraryUseFilter = LibraryUseMode | "all";
 
 export type Finding = {
   id: string;
@@ -362,6 +364,15 @@ export function getLibrarySections(records: ResearchRecord[]): LibrarySection[] 
       records: youtube
     }
   ];
+}
+
+export function filterLibraryRecords(
+  records: ResearchRecord[],
+  mode: LibraryUseFilter
+): ResearchRecord[] {
+  if (mode === "all") return records;
+
+  return records.filter((record) => record.useModes?.includes(mode));
 }
 
 export function validateFindings(

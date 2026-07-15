@@ -11,10 +11,15 @@ export type ReviewStatus = "new" | "queued" | "reviewed";
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 
+export type LibraryUseMode = "make" | "think" | "learn";
+
 export type SourceClass =
   | "primary research"
   | "peer reviewed"
   | "journalism"
+  | "industry research"
+  | "policy"
+  | "preprint"
   | "video"
   | "book"
   | "podcast"
@@ -40,6 +45,7 @@ export type ResearchRecord = {
   storagePath?: string;
   sourceClass?: SourceClass;
   synthesisStatus?: string;
+  useModes?: LibraryUseMode[];
 };
 
 export type FilterState = {

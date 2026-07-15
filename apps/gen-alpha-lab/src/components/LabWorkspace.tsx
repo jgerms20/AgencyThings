@@ -17,18 +17,18 @@ import { useMemo, useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   findings,
+  filterLibraryRecords,
   findingTopics,
   getLibrarySections,
   getSupportingRecords,
-  type LibrarySection
+  type LibrarySection,
+  type LibraryUseFilter
 } from "@/lib/findings";
 import type { ResearchRecord } from "@/lib/types";
 
 type LabWorkspaceProps = {
   initialRecords: ResearchRecord[];
 };
-
-type LibraryFilter = "all" | LibrarySection["title"];
 
 const libraryIcons: Record<LibrarySection["title"], typeof Newspaper> = {
   Articles: Newspaper,
@@ -38,16 +38,16 @@ const libraryIcons: Record<LibrarySection["title"], typeof Newspaper> = {
 };
 
 export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
-  const [activeLibrary, setActiveLibrary] = useState<LibraryFilter>("all");
+  const [activeLibrary, setActiveLibrary] = useState<LibraryUseFilter>("all");
 
   const featuredFindings = useMemo(() => findings.filter((finding) => finding.featured), []);
-  const librarySections = useMemo(() => getLibrarySections(initialRecords), [initialRecords]);
+  const filteredLibraryRecords = useMemo(
+    () => filterLibraryRecords(initialRecords, activeLibrary),
+    [activeLibrary, initialRecords]
+  );
   const visibleLibrarySections = useMemo(
-    () =>
-      activeLibrary === "all"
-        ? librarySections
-        : librarySections.filter((section) => section.title === activeLibrary),
-    [activeLibrary, librarySections]
+    () => getLibrarySections(filteredLibraryRecords).filter((section) => section.records.length > 0),
+    [filteredLibraryRecords]
   );
   const podcast = useMemo(
     () => initialRecords.find((record) => record.id === "owned-podcast-093"),
@@ -218,7 +218,7 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
         <div className="section-intro library-intro">
           <div>
             <h2 id="library-heading">Library</h2>
-            <p>Direct external sources grouped by format so the lab feels like an editorial research hub.</p>
+            <p>Go deeper with the evidence, context, and references behind the lab. Choose what you need to do, then browse by format.</p>
           </div>
           <div className="library-filters" aria-label="Filter library">
             <button
@@ -227,17 +227,17 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
               className={activeLibrary === "all" ? "active" : ""}
               onClick={() => setActiveLibrary("all")}
             >
-              All
+              All resources
             </button>
-            {librarySections.map((section) => (
+            {(["make", "think", "learn"] as const).map((mode) => (
               <button
                 type="button"
-                aria-pressed={activeLibrary === section.title}
-                className={activeLibrary === section.title ? "active" : ""}
-                onClick={() => setActiveLibrary(section.title)}
-                key={section.id}
+                aria-pressed={activeLibrary === mode}
+                className={activeLibrary === mode ? "active" : ""}
+                onClick={() => setActiveLibrary(mode)}
+                key={mode}
               >
-                {section.title}
+                {mode[0].toUpperCase() + mode.slice(1)}
               </button>
             ))}
           </div>
@@ -257,10 +257,21 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
                 <div className="library-list">
                   {section.records.map((record) => (
                     <article className="library-row" key={record.id}>
-                      <span>{record.source}</span>
+                      <div className="library-source">
+                        <span>{record.source}</span>
+                        <small>{record.sourceClass}</small>
+                      </div>
                       <div>
                         <h4>{record.title}</h4>
                         <p>{record.summary}</p>
+                        <div className="library-meta" aria-label={`Topics and uses for ${record.title}`}>
+                          {record.tags.slice(0, 3).map((tag) => (
+                            <span key={tag}>{tag.replaceAll("-", " ")}</span>
+                          ))}
+                          {record.useModes?.map((mode) => (
+                            <strong key={mode}>{mode}</strong>
+                          ))}
+                        </div>
                       </div>
                       {record.url ? (
                         <a aria-label={`Open ${record.title}`} href={record.url} target="_blank" rel="noreferrer">
