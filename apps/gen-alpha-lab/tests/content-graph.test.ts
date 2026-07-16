@@ -106,6 +106,16 @@ describe("canonical content graph", () => {
     expect(issueList).toContain(expectedIssue);
   });
 
+  it.each([
+    ["artists", cultureShapers.filter((shaper) => shaper.type !== "artist"), "Expected at least 30 artist culture shapers, received 0"],
+    ["athletes", cultureShapers.filter((shaper) => shaper.type !== "athlete"), "Expected at least 12 athlete culture shapers, received 0"],
+    ["IP records", cultureShapers.filter((shaper) => shaper.type !== "screen-ip" && shaper.type !== "franchise"), "Expected at least 12 IP culture shapers, received 0"],
+  ] as const)("rejects a graph below the %s coverage floor", (_label, cultureShapers, expectedIssue) => {
+    const issueList = validateContentGraph({ ...canonicalGraph, cultureShapers });
+
+    expect(issueList).toContain(expectedIssue);
+  });
+
   it("rejects orphaned insight, space, and culture-shaper references", () => {
     const insight = insights[0];
     const space = spaces[0];

@@ -186,6 +186,21 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
   if (graph.themes.length !== canonicalThemeIds.length) {
     issues.push(`Expected exactly ${canonicalThemeIds.length} themes, received ${graph.themes.length}`);
   }
+
+  const cultureShaperCounts = {
+    artist: graph.cultureShapers.filter((shaper) => shaper.type === "artist").length,
+    athlete: graph.cultureShapers.filter((shaper) => shaper.type === "athlete").length,
+    ip: graph.cultureShapers.filter((shaper) => shaper.type === "screen-ip" || shaper.type === "franchise").length,
+  };
+  if (cultureShaperCounts.artist < 30) {
+    issues.push(`Expected at least 30 artist culture shapers, received ${cultureShaperCounts.artist}`);
+  }
+  if (cultureShaperCounts.athlete < 12) {
+    issues.push(`Expected at least 12 athlete culture shapers, received ${cultureShaperCounts.athlete}`);
+  }
+  if (cultureShaperCounts.ip < 12) {
+    issues.push(`Expected at least 12 IP culture shapers, received ${cultureShaperCounts.ip}`);
+  }
   if (graph.insights.length !== canonicalThemeIds.length * expectedInsightsPerTheme) {
     issues.push(`Expected exactly ${canonicalThemeIds.length * expectedInsightsPerTheme} insights, received ${graph.insights.length}`);
   }

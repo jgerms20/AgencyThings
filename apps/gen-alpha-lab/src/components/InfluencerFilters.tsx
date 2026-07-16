@@ -3,19 +3,19 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { CultureShaper, CultureShaperType } from "@/lib/content/culture-shapers";
+import type { CultureShaper } from "@/lib/content/culture-shapers";
+import type { CultureShaperDirectoryType } from "@/lib/content/types";
 
 type InfluencerFiltersProps = {
   shapers: CultureShaper[];
 };
 
-const typeOptions: Array<{ value: "all" | CultureShaperType; label: string }> = [
+const typeOptions: Array<{ value: CultureShaperDirectoryType; label: string }> = [
   { value: "all", label: "All types" },
   { value: "creator", label: "Creator" },
   { value: "artist", label: "Artist" },
   { value: "athlete", label: "Athlete" },
-  { value: "screen-ip", label: "Screen / IP" },
-  { value: "franchise", label: "Franchise" },
+  { value: "ip", label: "IP" },
 ];
 
 const ageOptions = ["all", "1-5", "3-8", "6-9", "8-12", "10-14", "13-18"];
@@ -33,7 +33,7 @@ function overlapsAge(profileRange: string, selectedRange: string) {
 }
 
 export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
-  const [type, setType] = useState<"all" | CultureShaperType>("all");
+  const [type, setType] = useState<CultureShaperDirectoryType>("all");
   const [age, setAge] = useState("all");
   const [topic, setTopic] = useState("all");
   const [platform, setPlatform] = useState("all");
@@ -42,7 +42,7 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
 
   const filtered = useMemo(
     () => shapers.filter((shaper) =>
-      (type === "all" || shaper.type === type)
+      (type === "all" || (type === "ip" ? shaper.type === "screen-ip" || shaper.type === "franchise" : shaper.type === type))
       && overlapsAge(shaper.audience.ageRange, age)
       && (topic === "all" || shaper.topics.includes(topic))
       && (platform === "all" || shaper.platforms.includes(platform))
@@ -62,7 +62,7 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
 
   const resultLabel = type === "all"
     ? `${filtered.length} culture shapers shown`
-    : `${filtered.length} ${type === "screen-ip" ? "screen / IP profiles" : `${type}s`} shown`;
+    : `${filtered.length} ${type === "ip" ? "IP profiles" : `${type}s`} shown`;
 
   return (
     <section className="culture-shaper-directory" aria-label="Culture shaper directory">

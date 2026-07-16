@@ -1,7 +1,7 @@
 import { influencers as legacyCreators } from "../influencers";
-import type { ConfidenceLevel } from "./types";
+import type { ConfidenceLevel, CultureShaperType } from "./types";
+export type { CultureShaperType } from "./types";
 
-export type CultureShaperType = "creator" | "artist" | "athlete" | "screen-ip" | "franchise";
 export type CultureShaperPronouns = "he" | "she" | "they";
 export type IndicatorKey = "reach" | "participation" | "commercialPull" | "audienceCenter";
 export type IndicatorTier = 1 | 2 | 3 | 4;
@@ -661,6 +661,66 @@ function additional(seed: AdditionalSeed): CultureShaper {
 
 const sharedMediaInsight = "media-properties-travel";
 
+type CoverageSeed = Pick<CultureShaper, "id" | "name" | "pronouns" | "type" | "officialUrl">;
+
+function coverageShaper(seed: CoverageSeed): CultureShaper {
+  const isArtist = seed.type === "artist";
+  const isAthlete = seed.type === "athlete";
+  const role = isArtist
+    ? "Music and fandom reference point"
+    : isAthlete
+      ? "Sport and performance reference point"
+      : "Screen and franchise reference point";
+  const category = isArtist
+    ? "Music and youth culture"
+    : isAthlete
+      ? "Sport and youth culture"
+      : "Family entertainment and fandom";
+  const topics = isArtist ? ["music", "fandom"] : isAthlete ? ["competition", "sports"] : ["fandom", "storytelling"];
+  const formats = isArtist ? ["song", "live performance"] : isAthlete ? ["highlight", "live competition"] : ["screen story", "licensed play"];
+  const platforms = isArtist ? ["Spotify", "YouTube"] : isAthlete ? ["YouTube", "Instagram"] : ["YouTube", "Streaming"];
+  const audienceSegments = isArtist ? ["music fans", "older Gen Alpha"] : isAthlete ? ["sports fans", "families"] : ["families", "fandom"];
+  const relation = isArtist
+    ? { id: "olivia-rodrigo", label: "Olivia Rodrigo", kind: "culture-shaper" as const, href: "/influencers/olivia-rodrigo" }
+    : isAthlete
+      ? { id: "caitlin-clark", label: "Caitlin Clark", kind: "culture-shaper" as const, href: "/influencers/caitlin-clark" }
+      : { id: "bluey", label: "Bluey", kind: "culture-shaper" as const, href: "/influencers/bluey" };
+
+  return additional({
+    ...seed,
+    role,
+    category,
+    summary: `${seed.name} is included as a recognisable reference point whose work travels through media, conversation, and participatory fan culture.`,
+    topics,
+    formats,
+    platforms,
+    audienceSegments,
+    audience: {
+      center: "Youth and family audiences",
+      broader: "Broader entertainment and culture audiences",
+      ageRange: "6-17",
+      confidence: "low",
+      confidenceRationale: "this directory range is an editorial orientation based on format and public cultural visibility, not a claim of property-specific child audience measurement.",
+    },
+    influenceMechanism: `${seed.name} offers a shared set of references that can move between viewing, listening, play, conversation, and fan expression.`,
+    definingMoments: [
+      "A recognisable public work or performance",
+      "Fan conversation and social circulation",
+      "Licensed, live, or platform extensions",
+    ],
+    relatedEntities: [relation],
+    insightIds: ["media-repeatable-formats", sharedMediaInsight],
+    sourceIds: ["gwi-alpha-unfiltered", "pew-teens-social-2024"],
+    sourceNotes: [
+      { sourceId: "gwi-alpha-unfiltered", note: `GWI provides broad youth-interest context for ${seed.name}; it does not measure this profile's audience directly.` },
+      { sourceId: "pew-teens-social-2024", note: `Pew provides adjacent platform context for ${seed.name}, not title-specific child demographics.` },
+    ],
+    videos: [],
+    featured: false,
+    indicatorTiers: { reach: 2, participation: 2, commercialPull: 2, audienceCenter: 1 },
+  });
+}
+
 const additionalShapers: CultureShaper[] = [
   additional({ id: "olivia-rodrigo", name: "Olivia Rodrigo", pronouns: "she", type: "artist", role: "Confessional pop reference point", category: "Music and youth identity", summary: "Songwriting about first heartbreak, anger, and self-definition gives older Gen Alpha a vivid vocabulary for emotional transition.", topics: ["music", "identity", "relationships"], formats: ["song", "music video", "arena tour"], platforms: ["Spotify", "YouTube", "TikTok"], audienceSegments: ["girls", "music fans", "older Gen Alpha"], audience: { center: "Ages 10-17, especially girls and young music fans", broader: "Families and cross-generational pop audiences", ageRange: "10-17", confidence: "medium", confidenceRationale: "music themes, social circulation, and adjacent teen audience research align, while private listener analytics are unavailable." }, influenceMechanism: "Emotionally precise songs become captions, covers, conversation prompts, and shared milestone soundtracks.", definingMoments: ["SOUR and GUTS becoming youth-pop reference albums", "drivers license moving from intimate song to participatory social format", "Tour, vinyl, merchandise, and film extensions"], relatedEntities: [{ id: "sabrina-carpenter", label: "Sabrina Carpenter", kind: "culture-shaper", href: "/influencers/sabrina-carpenter" }], relatedSpaceIds: ["youtube", "tiktok"], insightIds: ["media-repeatable-formats", sharedMediaInsight], sourceIds: ["gwi-alpha-unfiltered", "pew-teens-social-2024"], sourceNotes: [{ sourceId: "gwi-alpha-unfiltered", note: "GWI supplies youth-interest and media context; album and tour moments are checked against Rodrigo's official destination." }, { sourceId: "pew-teens-social-2024", note: "Pew provides adjacent evidence for teen platform circulation, not artist-specific audience measurement." }], officialUrl: "https://www.oliviarodrigo.com/", videos: [{ youtubeId: "ZmDBbnmKpqQ", title: "drivers license (Official Video)", embeddable: true }], featured: false, indicatorTiers: { reach: 4, participation: 3, commercialPull: 4, audienceCenter: 3 } }),
   additional({ id: "sabrina-carpenter", name: "Sabrina Carpenter", pronouns: "she", type: "artist", role: "Repeatable pop-format maker", category: "Music, humor, and style", summary: "Compact hooks, visual wit, fashion, and performance details turn pop releases into formats that travel through clips and imitation.", topics: ["music", "fashion", "humor"], formats: ["song", "music video", "live performance"], platforms: ["Spotify", "YouTube", "TikTok"], audienceSegments: ["girls", "music fans", "older Gen Alpha"], audience: { center: "Ages 10-17, especially girls and pop audiences", broader: "Young adults and mainstream pop listeners", ageRange: "10-17", confidence: "medium", confidenceRationale: "format signals and adjacent youth-platform research support the range without first-party demographics." }, influenceMechanism: "A recognizable lyrical and visual grammar makes each release easy to quote, recreate, and carry into style culture.", definingMoments: ["Espresso becoming a cross-platform pop phrase", "Live outros changing by city and rewarding repeat viewing", "Short n' Sweet touring, physical releases, and merchandise"], relatedEntities: [{ id: "olivia-rodrigo", label: "Olivia Rodrigo", kind: "culture-shaper", href: "/influencers/olivia-rodrigo" }], relatedSpaceIds: ["youtube", "tiktok"], insightIds: ["media-repeatable-formats", "media-creators-templates"], sourceIds: ["gwi-alpha-unfiltered", "pew-teens-social-2024"], sourceNotes: [{ sourceId: "gwi-alpha-unfiltered", note: "GWI frames music and youth-interest context; release details come from Carpenter's official destination." }, { sourceId: "pew-teens-social-2024", note: "Pew supports the adjacent platform context in which clips circulate, not a claim about Carpenter's exact audience." }], officialUrl: "https://www.sabrinacarpenter.com/", videos: [{ youtubeId: "eVli-tstM5E", title: "Espresso (Official Video)", embeddable: true }], featured: false, indicatorTiers: { reach: 4, participation: 3, commercialPull: 4, audienceCenter: 3 } }),
@@ -676,7 +736,56 @@ const additionalShapers: CultureShaper[] = [
   additional({ id: "minecraft", name: "Minecraft", pronouns: "they", type: "franchise", role: "Creation-world standard", category: "Games, making, video, and education", summary: "Block-based building connects play, collaboration, tutorials, storytelling, classroom use, and creator culture through one shared visual language.", topics: ["gaming", "creation", "learning"], formats: ["video game", "gameplay video", "collaborative build"], platforms: ["Minecraft", "YouTube", "Education"], audienceSegments: ["gamers", "families", "students"], audience: { center: "Ages 6-15 across builders, gamers, and learners", broader: "Families, educators, creators, and adult players", ageRange: "6-15", confidence: "high", confidenceRationale: "direct 5-13 creation-gaming research and the franchise's education system support a clear youth center." }, influenceMechanism: "A simple construction grammar lets players make, teach, narrate, collaborate, and turn their own worlds into media.", definingMoments: ["Survival and Creative modes supporting distinct play styles", "YouTube builders and roleplayers turning worlds into stories", "Games, Education Edition, merchandise, film, and live community events"], relatedEntities: [{ id: "aphmau", label: "Aphmau", kind: "culture-shaper", href: "/influencers/aphmau" }], insightIds: ["play-making-interface", "learning-creation-skills"], sourceIds: ["walton-creation-gaming-2024", "ofcom-children-media-lives-2025"], sourceNotes: [{ sourceId: "walton-creation-gaming-2024", note: "The Walton/Bodacious study directly includes Minecraft in research with 5- to 13-year-olds about creation gaming and learning." }, { sourceId: "ofcom-children-media-lives-2025", note: "Ofcom supplies qualitative context for games moving through children's friendship and media routines." }], officialUrl: "https://www.minecraft.net/", videos: [], featured: false, indicatorTiers: { reach: 4, participation: 4, commercialPull: 4, audienceCenter: 4 } }),
 ];
 
-export const cultureShapers: CultureShaper[] = [...migratedCreators, ...additionalShapers];
+const coverageShapers: CultureShaper[] = [
+  ["taylor-swift", "Taylor Swift", "she", "artist", "https://www.taylorswift.com/"],
+  ["billie-eilish", "Billie Eilish", "she", "artist", "https://www.billieeilish.com/"],
+  ["chappell-roan", "Chappell Roan", "she", "artist", "https://www.iamchappellroan.com/"],
+  ["ariana-grande", "Ariana Grande", "she", "artist", "https://www.arianagrande.com/"],
+  ["dua-lipa", "Dua Lipa", "she", "artist", "https://www.dualipa.com/"],
+  ["sza", "SZA", "she", "artist", "https://www.szactrl.com/"],
+  ["doja-cat", "Doja Cat", "she", "artist", "https://www.dojacat.com/"],
+  ["gracie-abrams", "Gracie Abrams", "she", "artist", "https://www.gracieabrams.com/"],
+  ["charli-xcx", "Charli xcx", "she", "artist", "https://www.charlixcx.com/"],
+  ["benson-boone", "Benson Boone", "he", "artist", "https://www.bensonboone.com/"],
+  ["tate-mcrae", "Tate McRae", "she", "artist", "https://www.tatemcrae.com/"],
+  ["the-weeknd", "The Weeknd", "he", "artist", "https://www.theweeknd.com/"],
+  ["bruno-mars", "Bruno Mars", "he", "artist", "https://www.brunomars.com/"],
+  ["bad-bunny", "Bad Bunny", "he", "artist", "https://www.badbunny.com/"],
+  ["karol-g", "KAROL G", "she", "artist", "https://www.karolgmusic.com/"],
+  ["feid", "Feid", "he", "artist", "https://www.feidofficial.com/"],
+  ["tyla", "Tyla", "she", "artist", "https://www.tylaworld.com/"],
+  ["pinkpantheress", "PinkPantheress", "she", "artist", "https://www.pantheress.pink/"],
+  ["beabadoobee", "beabadoobee", "she", "artist", "https://www.beabadoobee.com/"],
+  ["newjeans", "NewJeans", "they", "artist", "https://www.newjeans.kr/"],
+  ["bts", "BTS", "they", "artist", "https://ibighit.com/bts/eng/"],
+  ["stray-kids", "Stray Kids", "they", "artist", "https://straykids.jype.com/"],
+  ["blackpink", "BLACKPINK", "they", "artist", "https://www.blackpinkmusic.com/"],
+  ["lisa", "LISA", "she", "artist", "https://www.lalisaofficial.com/"],
+  ["marshmello", "Marshmello", "he", "artist", "https://www.marshmellomusic.com/"],
+  ["alex-warren", "Alex Warren", "he", "artist", "https://www.alexwarrenofficial.com/"],
+  ["laufey", "Laufey", "she", "artist", "https://www.laufeymusic.com/"],
+  ["kendrick-lamar", "Kendrick Lamar", "he", "artist", "https://oklama.com/"],
+  ["lebron-james", "LeBron James", "he", "athlete", "https://www.lebronjames.com/"],
+  ["lionel-messi", "Lionel Messi", "he", "athlete", "https://messi.com/"],
+  ["vinicius-junior", "Vinicius Junior", "he", "athlete", "https://vinijr.com/"],
+  ["coco-gauff", "Coco Gauff", "she", "athlete", "https://www.cocogauff.com/"],
+  ["stephen-curry", "Stephen Curry", "he", "athlete", "https://www.stephencurry30.com/"],
+  ["naomi-osaka", "Naomi Osaka", "she", "athlete", "https://www.naomiosaka.com/"],
+  ["ilona-maher", "Ilona Maher", "she", "athlete", "https://www.ilonamaher.com/"],
+  ["jude-bellingham", "Jude Bellingham", "he", "athlete", "https://www.realmadrid.com/en-US/football/first-team/players/jude-bellingham"],
+  ["aja-wilson", "A'ja Wilson", "she", "athlete", "https://www.wnba.com/player/203469/a-ja-wilson"],
+  ["paw-patrol", "PAW Patrol", "they", "screen-ip", "https://www.pawpatrol.com/"],
+  ["inside-out", "Inside Out", "they", "screen-ip", "https://movies.disney.com/inside-out"],
+  ["sonic-the-hedgehog", "Sonic the Hedgehog", "he", "franchise", "https://www.sonicthehedgehog.com/"],
+  ["lego", "LEGO", "they", "franchise", "https://www.lego.com/"],
+  ["spider-verse", "Spider-Verse", "they", "screen-ip", "https://www.sonypictures.com/movies/spider-man-acrossthespiderverse"],
+] as const satisfies ReadonlyArray<readonly [string, string, CultureShaperPronouns, CultureShaperType, string]>;
+
+export const cultureShapers: CultureShaper[] = [
+  ...migratedCreators,
+  ...additionalShapers,
+  ...coverageShapers.map(([id, name, pronouns, type, officialUrl]) => coverageShaper({ id, name, pronouns, type, officialUrl })),
+];
 
 export function getCultureShaper(id: string): CultureShaper | undefined {
   return cultureShapers.find((shaper) => shaper.id === id);

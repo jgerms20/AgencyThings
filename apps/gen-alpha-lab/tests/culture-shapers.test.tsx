@@ -76,6 +76,14 @@ describe("canonical culture shapers", () => {
     expect(getCultureShaper("kpop-demon-hunters")?.type).toBe("screen-ip");
   });
 
+  it("maintains the editorial coverage floor for artists, athletes, and IP", () => {
+    const countByType = (type: CultureShaperType) => cultureShapers.filter((shaper) => shaper.type === type).length;
+
+    expect(countByType("artist")).toBeGreaterThanOrEqual(30);
+    expect(countByType("athlete")).toBeGreaterThanOrEqual(12);
+    expect(countByType("screen-ip") + countByType("franchise")).toBeGreaterThanOrEqual(12);
+  });
+
   it("includes women and girl-focused culture across relevant categories", () => {
     const representedTypes = new Set(
       cultureShapers
@@ -194,6 +202,22 @@ describe("canonical culture shapers", () => {
 });
 
 describe("culture shaper directory filters", () => {
+  it("offers one IP filter that merges screen and franchise results", async () => {
+    const user = userEvent.setup();
+    render(<PeoplePage />);
+
+    expect(screen.queryByRole("button", { name: "Screen / IP" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Franchise" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "IP" }));
+
+    const expectedProfiles = cultureShapers.filter((shaper) => shaper.type === "screen-ip" || shaper.type === "franchise");
+    expect(screen.getByRole("status")).toHaveTextContent(`${expectedProfiles.length} IP profiles shown`);
+    for (const shaper of expectedProfiles) {
+      expect(screen.getByRole("link", { name: `Explore ${shaper.name}` })).toBeVisible();
+    }
+  });
+
   it("filters all six dimensions, reports results, and clears without losing keyboard access", async () => {
     const user = userEvent.setup();
     render(<PeoplePage />);

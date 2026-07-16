@@ -153,6 +153,9 @@ export type ComparisonDimension = {
   caveat: string;
 };
 
+export type CultureShaperType = "creator" | "artist" | "athlete" | "screen-ip" | "franchise";
+export type CultureShaperDirectoryType = "all" | "creator" | "artist" | "athlete" | "ip";
+
 export type ContentGraph = {
   sources: Source[];
   themes: Theme[];
