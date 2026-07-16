@@ -43,6 +43,19 @@ describe("forty-insight evidence graph", () => {
     }
   });
 
+  it("gives every insight bespoke interpretation and relationships", () => {
+    expect(new Set(insights.map((insight) => insight.interpretation))).toHaveProperty("size", 40);
+    expect(new Set(insights.map((insight) => insight.confidenceReason))).toHaveProperty("size", 40);
+    expect(new Set(insights.map((insight) => insight.nuance))).toHaveProperty("size", 40);
+    expect(new Set(insights.map((insight) => insight.genZComparison))).toHaveProperty("size", 40);
+    expect(new Set(insights.map((insight) => insight.agencyImplication))).toHaveProperty("size", 40);
+
+    for (const insight of insights) {
+      expect(insight.relatedCreatorIds.length, insight.id).toBeGreaterThan(0);
+      expect(insight.relatedSpaceIds.length, insight.id).toBeGreaterThan(0);
+    }
+  });
+
   it("treats AI as a cross-cutting tag instead of a theme", () => {
     expect(themes.every((theme) => !`${theme.id} ${theme.title}`.toLowerCase().includes("ai"))).toBe(true);
 
