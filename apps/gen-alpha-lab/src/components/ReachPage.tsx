@@ -12,6 +12,11 @@ const insightById = new Map(insights.map((insight) => [insight.id, insight]));
 const sourceById = new Map(sources.map((source) => [source.id, source]));
 const spaceById = new Map(spaces.map((space) => [space.id, space]));
 const cultureShaperById = new Map(cultureShapers.map((shaper) => [shaper.id, shaper]));
+const resolveReferences = <T,>(ids: string[] | undefined, entityById: Map<string, T>): T[] =>
+  Array.isArray(ids) ? ids.flatMap((id) => {
+    const entity = entityById.get(id);
+    return entity ? [entity] : [];
+  }) : [];
 
 export default function ReachPage() {
   return (
@@ -51,10 +56,10 @@ export default function ReachPage() {
 
       <ol className="reach-play-list">
         {strategyPlays.map((play, index) => {
-          const relatedInsights = play.insightIds.map((id) => insightById.get(id)!);
-          const relatedSources = play.sourceIds.map((id) => sourceById.get(id)!);
-          const relatedSpaces = play.relatedSpaceIds.map((id) => spaceById.get(id)!);
-          const relatedShapers = play.relatedCultureShaperIds.map((id) => cultureShaperById.get(id)!);
+          const relatedInsights = resolveReferences(play.insightIds, insightById);
+          const relatedSources = resolveReferences(play.sourceIds, sourceById);
+          const relatedSpaces = resolveReferences(play.relatedSpaceIds, spaceById);
+          const relatedShapers = resolveReferences(play.relatedCultureShaperIds, cultureShaperById);
           const titleId = `${play.id}-title`;
 
           return (

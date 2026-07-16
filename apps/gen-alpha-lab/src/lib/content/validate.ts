@@ -1,5 +1,8 @@
+import { cultureShapers } from "./culture-shapers";
 import { evidenceItems, insights, themes } from "./evidence";
 import { sources } from "./sources";
+import { spaces } from "./spaces";
+import { strategyPlays } from "./strategy";
 import type { ContentGraph } from "./types";
 
 const requiredEvidenceFields = ["population", "ageRange", "geography", "period", "methodology", "limitations"] as const;
@@ -9,7 +12,15 @@ const locatorPattern = /\b(?:sections?|tables?|figures?|pages?|paragraphs?|chapt
 const claimKinds = new Set(["metric", "finding", "observed claim", "editorial inference"]);
 const sourceMetadataClaimPattern = /^(?:(?:the|this|a|an)\s+)?(?:study|report|survey|review|census|article|release|research|panel|book|announcement)\s+(?:covers?|examines?|includes?|uses?|combines?|synthesizes?|follows?|measures?|surveys?|surveyed|evaluates?|focuses?|records?|is based on)\b/i;
 
-const defaultGraph: ContentGraph = { sources, themes, insights, evidenceItems };
+const defaultGraph: ContentGraph = {
+  sources,
+  themes,
+  insights,
+  evidenceItems,
+  strategyPlays,
+  spaces,
+  cultureShapers,
+};
 
 const duplicateIds = (items: { id: string }[], label: string): string[] => {
   const seen = new Set<string>();
@@ -67,6 +78,10 @@ const hasDirectEditorialUrl = (value: string): boolean => {
 };
 
 const hasMeaningfulScope = (value: string): boolean => Boolean(value.trim()) && !placeholderScope.test(value.trim());
+const hasText = (value: unknown): value is string => typeof value === "string" && Boolean(value.trim());
+const hasTextList = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.length > 0 && value.every(hasText);
+const referenceIds = (value: unknown): string[] => Array.isArray(value) ? value.filter(hasText) : [];
 const isClaimLevelEvidence = (item: ContentGraph["evidenceItems"][number]): boolean =>
   claimKinds.has(item.claimKind) && Boolean(item.supportRationale?.trim()) && !sourceMetadataClaimPattern.test(item.claim.trim());
 
@@ -76,10 +91,14 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     ...duplicateIds(graph.insights, "insight"),
     ...duplicateIds(graph.sources, "source"),
     ...duplicateIds(graph.evidenceItems, "evidence"),
+    ...duplicateIds(graph.strategyPlays, "strategy"),
     ...duplicateGraphIds(graph),
   ];
   const themeIds = new Set(graph.themes.map((theme) => theme.id));
   const insightIds = new Set(graph.insights.map((insight) => insight.id));
+  const sourceIds = new Set(graph.sources.map((source) => source.id));
+  const spaceIds = new Set(graph.spaces.map((space) => space.id));
+  const cultureShaperIds = new Set(graph.cultureShapers.map((shaper) => shaper.id));
   const sourceById = new Map(graph.sources.map((source) => [source.id, source]));
   const evidenceById = new Map(graph.evidenceItems.map((item) => [item.id, item]));
 
@@ -125,6 +144,55 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     }
     if (evidence.some((item) => !item!.insightIds.includes(insight.id))) {
       issues.push(`Insight is not linked back from evidence: ${insight.id}`);
+    }
+  }
+
+  for (const play of graph.strategyPlays) {
+    if (!hasText(play.ageContext)) issues.push(`Strategy is missing ageContext: ${play.id}`);
+    if (!hasText(play.evidenceRationale)) issues.push(`Strategy is missing evidenceRationale: ${play.id}`);
+    if (!hasTextList(play.formats)) issues.push(`Strategy is missing formats: ${play.id}`);
+    if (!hasTextList(play.failureModes)) issues.push(`Strategy is missing failureModes: ${play.id}`);
+    if (!hasTextList(play.ethicalConstraints)) issues.push(`Strategy is missing ethicalConstraints: ${play.id}`);
+
+    const playInsightIds = referenceIds(play.insightIds);
+    const playSourceIds = referenceIds(play.sourceIds);
+    const playSpaceIds = referenceIds(play.relatedSpaceIds);
+    const playCultureShaperIds = referenceIds(play.relatedCultureShaperIds);
+
+    for (const insightId of playInsightIds) {
+      if (!insightIds.has(insightId)) issues.push(`Strategy references missing insight: ${play.id} -> ${insightId}`);
+    }
+    for (const sourceId of playSourceIds) {
+      if (!sourceIds.has(sourceId)) issues.push(`Strategy references missing source: ${play.id} -> ${sourceId}`);
+    }
+    for (const spaceId of playSpaceIds) {
+      if (!spaceIds.has(spaceId)) issues.push(`Strategy references missing space: ${play.id} -> ${spaceId}`);
+    }
+    for (const cultureShaperId of playCultureShaperIds) {
+      if (!cultureShaperIds.has(cultureShaperId)) {
+        issues.push(`Strategy references missing culture shaper: ${play.id} -> ${cultureShaperId}`);
+      }
+    }
+
+    const validInsightIds = playInsightIds.filter((id) => insightIds.has(id));
+    const validSourceIds = playSourceIds.filter((id) => sourceIds.has(id));
+    const hasAlignedEvidence = (insightId: string, sourceId: string): boolean => graph.evidenceItems.some((item) =>
+      item.sourceId === sourceId && item.insightIds.includes(insightId) && isClaimLevelEvidence(item),
+    );
+
+    if (validInsightIds.length > 0) {
+      for (const sourceId of validSourceIds) {
+        if (!validInsightIds.some((insightId) => hasAlignedEvidence(insightId, sourceId))) {
+          issues.push(`Strategy source is not aligned to referenced insight evidence: ${play.id} -> ${sourceId}`);
+        }
+      }
+    }
+    if (validSourceIds.length > 0) {
+      for (const insightId of validInsightIds) {
+        if (!validSourceIds.some((sourceId) => hasAlignedEvidence(insightId, sourceId))) {
+          issues.push(`Strategy insight has no evidence from declared sources: ${play.id} -> ${insightId}`);
+        }
+      }
     }
   }
 

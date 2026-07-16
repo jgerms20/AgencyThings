@@ -1,7 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { evidenceItems, insights } from "@/lib/content/evidence";
+import { cultureShapers } from "@/lib/content/culture-shapers";
+import { evidenceItems, insights, themes } from "@/lib/content/evidence";
 import { sources } from "@/lib/content/sources";
+import { spaces } from "@/lib/content/spaces";
+import { strategyPlays } from "@/lib/content/strategy";
+import type { ContentGraph, StrategyPlay } from "@/lib/content/types";
 import { validateContentGraph } from "@/lib/content/validate";
+
+const canonicalGraph = {
+  sources,
+  themes,
+  insights,
+  evidenceItems,
+  strategyPlays,
+  spaces,
+  cultureShapers,
+} satisfies ContentGraph;
+
+const emptyStrategyContext: Pick<ContentGraph, "strategyPlays" | "spaces" | "cultureShapers"> = {
+  strategyPlays: [],
+  spaces: [],
+  cultureShapers: [],
+};
+
+const invalidStrategy = (field: keyof StrategyPlay, value: unknown): StrategyPlay => ({
+  ...strategyPlays[0],
+  [field]: value,
+}) as StrategyPlay;
 
 describe("canonical content graph", () => {
   it("stores extracted evidence with explicit scope, fieldwork, and limitations", () => {
@@ -38,8 +63,84 @@ describe("canonical content graph", () => {
     expect(validateContentGraph()).toEqual([]);
   });
 
+  it("rejects duplicate strategy IDs", () => {
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [strategyPlays[0], { ...strategyPlays[1], id: strategyPlays[0].id }],
+    });
+
+    expect(issueList).toContain(`Duplicate strategy ID: ${strategyPlays[0].id}`);
+  });
+
+  it.each([
+    ["ageContext", undefined, "ageContext"],
+    ["ageContext", "   ", "ageContext"],
+    ["evidenceRationale", undefined, "evidenceRationale"],
+    ["evidenceRationale", "   ", "evidenceRationale"],
+    ["formats", undefined, "formats"],
+    ["formats", [], "formats"],
+    ["failureModes", undefined, "failureModes"],
+    ["failureModes", [], "failureModes"],
+    ["ethicalConstraints", undefined, "ethicalConstraints"],
+    ["ethicalConstraints", [], "ethicalConstraints"],
+  ] as Array<[keyof StrategyPlay, unknown, string]>)
+  ("rejects a strategy with missing or empty %s", (field, value, issueField) => {
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [invalidStrategy(field, value)],
+    });
+
+    expect(issueList).toContain(`Strategy is missing ${issueField}: ${strategyPlays[0].id}`);
+  });
+
+  it.each([
+    ["insightIds", "missing-insight", "insight"],
+    ["sourceIds", "missing-source", "source"],
+    ["relatedSpaceIds", "missing-space", "space"],
+    ["relatedCultureShaperIds", "missing-culture-shaper", "culture shaper"],
+  ] as Array<[keyof StrategyPlay, string, string]>)
+  ("rejects a strategy with an orphan %s reference", (field, missingId, entityLabel) => {
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [invalidStrategy(field, [missingId])],
+    });
+
+    expect(issueList).toContain(
+      `Strategy references missing ${entityLabel}: ${strategyPlays[0].id} -> ${missingId}`,
+    );
+  });
+
+  it("rejects a declared strategy source that does not support any referenced insight", () => {
+    const unrelatedSourceId = "bedtime-screen-early-adolescents-2024";
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [{ ...strategyPlays[0], sourceIds: [unrelatedSourceId] }],
+    });
+
+    expect(issueList).toContain(
+      `Strategy source is not aligned to referenced insight evidence: ${strategyPlays[0].id} -> ${unrelatedSourceId}`,
+    );
+  });
+
+  it("rejects a strategy insight with no evidence from its declared sources", () => {
+    const unrelatedInsightId = "time-nighttime-use";
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [{
+        ...strategyPlays[0],
+        insightIds: [...strategyPlays[0].insightIds, unrelatedInsightId],
+        sourceIds: ["walton-creation-gaming-2024"],
+      }],
+    });
+
+    expect(issueList).toContain(
+      `Strategy insight has no evidence from declared sources: ${strategyPlays[0].id} -> ${unrelatedInsightId}`,
+    );
+  });
+
   it("rejects search endpoints and placeholder scope fields", () => {
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: [
         {
           ...sources[0],
@@ -55,6 +156,7 @@ describe("canonical content graph", () => {
     expect(issueList).toContain("Source has no direct editorial URL: search-source");
 
     const placeholderIssueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: sources.map((source, index) => index === 0 ? {
         ...source,
         ageRange: "Not fully disclosed",
@@ -83,6 +185,7 @@ describe("canonical content graph", () => {
     "https://publisher.example/find?search_query=gen-alpha",
   ])("rejects publisher search URL %s", (url) => {
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: [{ ...sources[0], id: "publisher-search", url }],
       themes: [],
       insights: [],
@@ -94,6 +197,7 @@ describe("canonical content graph", () => {
 
   it("allows ordinary article URLs with unrelated query parameters", () => {
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: [{
         ...sources[0],
         id: "ordinary-article",
@@ -117,6 +221,7 @@ describe("canonical content graph", () => {
       insightIds: [],
     };
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: [sources.find((source) => source.id === metadataEvidence.sourceId)!],
       themes: [],
       insights: [],
@@ -157,6 +262,7 @@ describe("canonical content graph", () => {
       insightIds: [insight.id],
     }));
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: sources.slice(0, 2),
       themes: [{ id: "play-belonging", title: "Play", description: "Test theme" }],
       insights: [insight],
@@ -207,6 +313,7 @@ describe("canonical content graph", () => {
 
   it("rejects IDs reused across graph types", () => {
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources,
       themes: [{ id: "pwc-alpha-2026", title: "Duplicate ID", description: "Test theme" }],
       insights: [],
@@ -218,6 +325,7 @@ describe("canonical content graph", () => {
 
   it("rejects unsupported insight claims and evidence links", () => {
     const issueList = validateContentGraph({
+      ...emptyStrategyContext,
       sources: [sources[0]],
       themes: [{ id: "play-belonging", title: "Play", description: "Test theme" }],
       insights: [{

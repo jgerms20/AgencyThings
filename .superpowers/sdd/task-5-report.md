@@ -41,3 +41,22 @@ DONE
 - Shared header navigation remains intentionally unchanged because `SiteHeader.tsx` and global responsive navigation belong to Task 8. Task 5 is reachable from every insight detail through the activated stable hook.
 - Multi-viewport browser QA remains Task 9's responsibility. The component includes local 1000px, 700px, and 420px reflow rules without changing Task 8's global stylesheet.
 - The recommendations synthesize the current canonical graph. Where evidence is adjacent or directional, the copy states that limit rather than treating the strategy as causal proof.
+
+## Review Follow-up: Strategy Graph Validation
+
+### Correction
+
+- Moved `StrategyPlay` into the canonical content types and extended `ContentGraph` with strategy plays plus the space and culture-shaper reference registries required to validate them.
+- Added default-graph validation for duplicate strategy IDs; missing or empty age context, evidence rationale, formats, failure modes, and ethical constraints; and orphan insight, source, space, or culture-shaper references.
+- Added bidirectional evidence alignment: every declared strategy source must support at least one referenced insight, and every referenced insight must have canonical evidence from at least one declared source.
+- Replaced adjacent source references in all eight plays with the canonical extracted-evidence sources that actually support their linked insights.
+- Replaced `ReachPage` non-null lookup assertions with resilient resolution that omits unresolved links if invalid data bypasses validation.
+
+### TDD And Verification
+
+- Red: `npm test -- --run tests/content-graph.test.ts tests/reach-page.test.tsx` failed 18 tests across every requested validator case and the unresolved-reference render crash.
+- Green: the same focused command passed 2 files and 43 tests after the correction.
+- Full: `npm test -- --run` passed 19 files and 110 tests.
+- Build: `npm run build` passed TypeScript and generated 132 static pages, including `/reach-them`.
+- Final diff checks will be rerun against the staged tree before commit.
+- Commit message: `Validate Gen Alpha strategy graph`.

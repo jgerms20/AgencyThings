@@ -90,4 +90,32 @@ describe("Reach Them strategy", () => {
 
     expect(screen.getByRole("heading", { name: "Reach children responsibly, with value they can use." })).toBeInTheDocument();
   });
+
+  it("renders safely when unresolved strategy references bypass validation", () => {
+    const play = strategyPlays[0];
+    const originalReferences = {
+      insightIds: play.insightIds,
+      sourceIds: play.sourceIds,
+      relatedSpaceIds: play.relatedSpaceIds,
+      relatedCultureShaperIds: play.relatedCultureShaperIds,
+    };
+    let view: ReturnType<typeof render> | undefined;
+
+    Object.assign(play, {
+      insightIds: ["missing-insight"],
+      sourceIds: ["missing-source"],
+      relatedSpaceIds: ["missing-space"],
+      relatedCultureShaperIds: ["missing-culture-shaper"],
+    });
+
+    try {
+      expect(() => {
+        view = render(<ReachPage />);
+      }).not.toThrow();
+      expect(view?.container.querySelector('a[href*="missing-"]')).not.toBeInTheDocument();
+      expect(screen.getByRole("region", { name: play.title })).toBeInTheDocument();
+    } finally {
+      Object.assign(play, originalReferences);
+    }
+  });
 });

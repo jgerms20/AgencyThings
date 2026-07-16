@@ -87,9 +87,33 @@ export type Insight = {
   tags: string[];
 };
 
+export type StrategyPlay = {
+  id: string;
+  title: string;
+  whenAppropriate: string;
+  ageContext: string;
+  directChildValue: string;
+  adultDecisionContext: string;
+  evidenceRationale: string;
+  formats: string[];
+  failureModes: string[];
+  ethicalConstraints: string[];
+  insightIds: string[];
+  sourceIds: string[];
+  relatedSpaceIds: string[];
+  relatedCultureShaperIds: string[];
+};
+
+export type ContentEntityReference = {
+  id: string;
+};
+
 export type ContentGraph = {
   sources: Source[];
   themes: Theme[];
   insights: Insight[];
   evidenceItems: EvidenceItem[];
+  strategyPlays: StrategyPlay[];
+  spaces: ContentEntityReference[];
+  cultureShapers: ContentEntityReference[];
 };
