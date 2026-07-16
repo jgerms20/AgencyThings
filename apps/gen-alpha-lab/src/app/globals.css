@@ -423,9 +423,9 @@ iframe { display: block; max-width: 100%; }
   list-style: none;
 }
 .overview-reach-list summary::-webkit-details-marker { display: none; }
-.overview-reach-list summary > span { color: var(--coral); font-size: .72rem; font-weight: 900; }
+.overview-reach-list summary > .overview-reach-number { color: var(--coral); font-size: .72rem; font-weight: 900; }
 .overview-reach-list summary > strong { font-family: var(--font-display); font-size: 1.8rem; line-height: 1; }
-.overview-reach-list summary > p { max-width: 620px; color: var(--muted); line-height: 1.45; }
+.overview-reach-list summary > .overview-reach-summary { max-width: 620px; color: var(--muted); line-height: 1.45; }
 .overview-reach-list summary > svg { transition: transform 150ms ease; }
 .overview-reach-list details[open] summary > svg { transform: rotate(180deg); }
 .overview-reach-list details > div {
@@ -467,8 +467,12 @@ iframe { display: block; max-width: 100%; }
 }
 .overview-topic-controls button:last-child { border-right: 0; }
 .overview-topic-controls button:hover,
-.overview-topic-controls button:focus-visible,
-.overview-topic-controls button[aria-pressed="true"] { background: #090a09; color: #f5f5ec; outline: none; }
+.overview-topic-controls button[aria-pressed="true"] { background: #090a09; color: #f5f5ec; }
+.overview-topic-controls button:focus-visible {
+  outline: 3px solid #f5f5ec;
+  outline-offset: -5px;
+  box-shadow: 0 0 0 3px #090a09;
+}
 .overview-comparison-result {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1254,7 +1258,7 @@ iframe { display: block; max-width: 100%; }
   .overview-media-shelf h2 { font-size: 1.95rem; }
   .overview-reach-list summary { grid-template-columns: 34px minmax(0, 1fr) 28px; gap: 12px; min-height: 0; padding: 22px 0; }
   .overview-reach-list summary > strong { font-size: 1.45rem; }
-  .overview-reach-list summary > p { grid-row: 2; grid-column: 2 / -1; font-size: .86rem; }
+  .overview-reach-list summary > .overview-reach-summary { grid-row: 2; grid-column: 2 / -1; font-size: .86rem; }
   .overview-reach-list summary > svg { grid-row: 1; grid-column: 3; }
   .overview-reach-list details > div { grid-template-columns: 1fr; gap: 20px; padding: 0 0 24px 46px; }
   .overview-comparison { padding-top: 50px; padding-bottom: 54px; }

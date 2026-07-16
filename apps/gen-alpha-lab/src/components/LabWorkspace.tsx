@@ -139,9 +139,9 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
           {reachPrinciples.map((principle) => (
             <details data-testid="overview-reach-principle" key={principle.title}>
               <summary>
-                <span>{principle.number}</span>
+                <span className="overview-reach-number">{principle.number}</span>
                 <strong>{principle.title}</strong>
-                <p>{principle.summary}</p>
+                <span className="overview-reach-summary">{principle.summary}</span>
                 <ChevronDown aria-hidden="true" size={24} />
               </summary>
               <div>
