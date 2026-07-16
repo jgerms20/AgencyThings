@@ -65,8 +65,8 @@ describe("forty-insight evidence graph", () => {
   });
 
   it("does not generate a standalone AI topic route", () => {
-    expect(findingTopics.some((topic) => topic.id === "ai")).toBe(false);
-    expect(generateTopicStaticParams().some(({ topicId }) => topicId === "ai")).toBe(false);
+    expect(new Set<string>(findingTopics.map((topic) => topic.id)).has("ai")).toBe(false);
+    expect(new Set<string>(generateTopicStaticParams().map(({ topicId }) => topicId)).has("ai")).toBe(false);
   });
 
   it("generates one static detail route for every insight", () => {
@@ -78,9 +78,11 @@ describe("forty-insight evidence graph", () => {
   });
 
   it("renders forty unique direct insight links in the directory", () => {
-    render(<InsightsPage />);
+    const { container } = render(<InsightsPage />);
 
-    const links = screen.getAllByRole("link", { name: /^Explore / });
+    const links = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>("[data-testid='insight-directory-item'] a[href^='/insights/']"),
+    );
     expect(links).toHaveLength(40);
     expect(new Set(links.map((link) => link.getAttribute("href")))).toHaveProperty("size", 40);
     expect(links.every((link) => link.getAttribute("href")?.startsWith("/insights/"))).toBe(true);

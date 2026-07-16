@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import ComparePage from "../src/components/ComparePage";
 import { comparisonDimensions, getComparisonEvidence } from "../src/lib/content/comparisons";
+import type { ComparisonCohortKey, ComparisonDimension } from "../src/lib/content/types";
 
 const topicTitles = [
   "Media & attention",
@@ -21,7 +22,7 @@ const strategicDifferences = {
   "media-attention": {
     genZ: "Gen Alpha enters a creator-led, algorithmic video mix earlier; Gen Z provides the clearest near-age precedent, not a fixed endpoint.",
     genX: "Plan for different discovery defaults: child-first participatory video for Alpha, with the 30-49 adult band used only as a directional media proxy.",
-    boomers: "Do not force one channel plan across the household: Alpha's video discovery is participatory, while the 65+ adult proxy retains a larger traditional-video context.",
+    boomers: "Do not force one channel plan across the household: Alpha's video discovery is participatory, while the 65+ adult proxy shows broad YouTube reach but far less TikTok use.",
   },
   "compare-play-belonging": {
     genZ: "Design for continuity, not a generation contest: both cohorts use games socially, while Alpha's evidence places making and learning inside the play space earlier.",
@@ -40,30 +41,8 @@ const strategicDifferences = {
   },
 } as const;
 
-type CohortKey = keyof typeof cohortLabels;
-type CohortUnderTest = {
-  mentality: string;
-  ageRange: string;
-  geography: string;
-  sourceYear: string;
-  evidenceStatus: "direct cohort evidence" | "adult age-band proxy" | "evidence gap";
-  sourceIds: string[];
-  evidenceIds: string[];
-  evidenceSupport: Record<string, string>;
-};
-type TopicUnderTest = {
-  id: keyof typeof strategicDifferences;
-  title: string;
-  genAlpha: CohortUnderTest;
-  comparisons: Record<CohortKey, {
-    comparisonClass: "age-matched observed evidence" | "current cohort snapshot" | "directional interpretation";
-    cohort: CohortUnderTest;
-    realDifference: string;
-    caveat: string;
-  }>;
-};
-
-const comparisonTopics = comparisonDimensions as unknown as TopicUnderTest[];
+type TopicId = keyof typeof strategicDifferences;
+const comparisonTopics: ComparisonDimension[] = comparisonDimensions;
 
 describe("topic and cohort comparison", () => {
   it("defines four high-value topics and an exact strategic difference for every cohort combination", () => {
@@ -74,10 +53,11 @@ describe("topic and cohort comparison", () => {
       expect(topic.genAlpha.evidenceStatus).toBe("direct cohort evidence");
       expect(getComparisonEvidence(topic.genAlpha).length).toBeGreaterThan(0);
 
-      for (const cohortKey of Object.keys(cohortLabels) as CohortKey[]) {
+      expect(topic.id in strategicDifferences).toBe(true);
+      for (const cohortKey of Object.keys(cohortLabels) as ComparisonCohortKey[]) {
         const comparison = topic.comparisons[cohortKey];
         expect(comparison.cohort.mentality).toMatch(/\S/);
-        expect(comparison.realDifference).toBe(strategicDifferences[topic.id][cohortKey]);
+        expect(comparison.realDifference).toBe(strategicDifferences[topic.id as TopicId][cohortKey]);
         expect(comparison.caveat).toMatch(/\S/);
         expect(comparison.comparisonClass).toMatch(/age-matched observed evidence|current cohort snapshot|directional interpretation/);
       }

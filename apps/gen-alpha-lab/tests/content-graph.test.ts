@@ -634,13 +634,13 @@ describe("canonical content graph", () => {
   it("rejects IDs reused across graph types", () => {
     const issueList = validateContentGraph({
       ...emptyStrategyContext,
-      sources,
-      themes: [{ id: "pwc-alpha-2026", title: "Duplicate ID", description: "Test theme" }],
+      sources: [{ ...sources[0], id: "play-belonging" }],
+      themes: [{ id: "play-belonging", title: "Duplicate ID", description: "Test theme" }],
       insights: [],
       evidenceItems: [],
     });
 
-    expect(issueList).toContain("Duplicate graph ID across source and theme: pwc-alpha-2026");
+    expect(issueList).toContain("Duplicate graph ID across source and theme: play-belonging");
   });
 
   it("rejects unsupported insight claims and evidence links", () => {

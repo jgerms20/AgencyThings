@@ -136,7 +136,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
           ["pew-adult-social-media-2025"],
           ["evidence-compare-pew-adult-platforms-1"],
         ),
-        "Do not force one channel plan across the household: Alpha's video discovery is participatory, while the 65+ adult proxy retains a larger traditional-video context.",
+        "Do not force one channel plan across the household: Alpha's video discovery is participatory, while the 65+ adult proxy shows broad YouTube reach but far less TikTok use.",
         "The 65+ band excludes younger Boomers and includes adults older than the Boomer definition. It is a directional adult proxy, not a generation estimate.",
       ),
     },
