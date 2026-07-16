@@ -35,10 +35,10 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
       </section>
 
       <section className="spaces-preview" aria-labelledby="spaces-preview-heading">
-        <div className="section-line"><h2 id="spaces-preview-heading">Where they spend time</h2><Link className="text-link" href="/spaces">Explore all spaces <ArrowUpRight aria-hidden="true" size={17} /></Link></div>
+        <div className="section-line"><h2 id="spaces-preview-heading">Where they spend time</h2><Link className="text-link" href="/spaces">Explore all 50 spaces <ArrowUpRight aria-hidden="true" size={17} /></Link></div>
         <div className="space-preview-list">
           {spaces.slice(0, 3).map((space) => (
-            <Link href="/spaces" key={space.id}><span>{space.audience}</span><h3>{space.name}</h3><p>{space.behavior}</p><ArrowUpRight aria-hidden="true" size={18} /></Link>
+            <Link href={`/spaces#${space.id}`} key={space.id}><span>{space.audience}</span><h3>{space.name}</h3><p>{space.whatHappens}</p><ArrowUpRight aria-hidden="true" size={18} /></Link>
           ))}
         </div>
       </section>
