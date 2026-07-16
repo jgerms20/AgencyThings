@@ -386,15 +386,21 @@ iframe { display: block; max-width: 100%; }
 .insight-cluster > header { padding: 48px 32px; border-right: 1px solid #090a09; }
 .insight-cluster > header h2 { font-size: 2.45rem; line-height: 1; }
 .insight-cluster > header p { max-width: 380px; margin-top: 18px; font-size: .9rem; font-weight: 700; line-height: 1.45; }
-.insight-cluster > div { border-top: 1px solid #090a09; }
-.insight-cluster article { position: relative; display: grid; grid-template-columns: 46px minmax(220px, .75fr) minmax(260px, 1.25fr) 42px; gap: 20px; align-items: center; min-height: 150px; padding: 24px 28px; border-bottom: 1px solid #090a09; }
+.insight-cluster-list { border-top: 1px solid #090a09; }
+.insight-cluster article { border-bottom: 1px solid #090a09; }
 .insight-cluster article:last-child { border-bottom: 0; }
-.insight-cluster article > span { font-size: .7rem; font-weight: 900; }
-.insight-cluster article h3 { font-size: 1.85rem; line-height: 1.05; }
-.insight-cluster article p { font-size: .84rem; font-weight: 700; line-height: 1.5; }
-.insight-cluster article a { display: grid; place-items: center; width: 40px; height: 40px; border: 2px solid #090a09; border-radius: 50%; }
-.insight-cluster article a:hover,
-.insight-cluster article a:focus-visible { background: #f5f5ec; outline: none; }
+.insight-directory-trigger { display: grid; grid-template-columns: 46px minmax(0, 1fr) 42px; gap: 20px; align-items: center; width: 100%; min-height: 112px; padding: 24px 28px; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.insight-directory-trigger > span:first-child { font-size: .7rem; font-weight: 900; }
+.insight-directory-trigger > span:nth-child(2) { font-size: 1.85rem; font-weight: 900; line-height: 1.05; }
+.insight-directory-trigger svg { justify-self: end; transition: transform 140ms ease; }
+.insight-directory-trigger[aria-expanded="true"] svg { transform: rotate(180deg); }
+.insight-directory-trigger:hover,
+.insight-directory-trigger:focus-visible { background: #f5f5ec; outline: 3px solid #090a09; outline-offset: -3px; }
+.insight-directory-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 170px; gap: 18px 28px; padding: 0 28px 28px 94px; }
+.insight-directory-detail p { font-size: .84rem; font-weight: 700; line-height: 1.5; }
+.insight-directory-detail a { display: inline-flex; align-items: center; gap: 8px; align-self: start; width: fit-content; border-bottom: 2px solid #090a09; font-size: .78rem; font-weight: 900; text-transform: uppercase; }
+.insight-directory-detail a:hover,
+.insight-directory-detail a:focus-visible { color: #33352b; outline: none; }
 
 .influencer-opening { background: var(--violet); color: #090a09; }
 .influencer-opening > p { color: #2d2637; }
@@ -799,9 +805,8 @@ iframe { display: block; max-width: 100%; }
   .influencer-directory article:nth-child(3n) { border-right: 0; }
   .insight-cluster { grid-template-columns: 1fr; }
   .insight-cluster > header { border-right: 0; border-bottom: 1px solid #090a09; }
-  .insight-cluster article { grid-template-columns: 42px minmax(0, 1fr) 40px; }
-  .insight-cluster article p { grid-column: 2; }
-  .insight-cluster article a { grid-column: 3; grid-row: 1 / span 2; }
+  .insight-directory-trigger { grid-template-columns: 42px minmax(0, 1fr) 40px; gap: 12px; padding: 22px 18px; }
+  .insight-directory-detail { grid-template-columns: 1fr; padding: 0 18px 26px; }
   .creator-profile h2 { font-size: 3.1rem; }
   .library-group { grid-template-columns: 1fr; gap: 20px; }
   .library-group-heading { max-width: 420px; }
@@ -877,8 +882,8 @@ iframe { display: block; max-width: 100%; }
   .people-synthesis p { font-size: 1.05rem; }
   .insight-cluster > header { padding: 38px 18px; }
   .insight-cluster > header h2 { font-size: 2rem; }
-  .insight-cluster article { grid-template-columns: 32px minmax(0, 1fr) 38px; gap: 12px; min-height: 170px; padding: 22px 18px; }
-  .insight-cluster article h3 { font-size: 1.5rem; }
+  .insight-directory-trigger { grid-template-columns: 32px minmax(0, 1fr) 38px; min-height: 112px; }
+  .insight-directory-trigger > span:nth-child(2) { font-size: 1.5rem; overflow-wrap: anywhere; }
   .influencer-directory { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .influencer-directory article:nth-child(3n) { border-right: 1px solid var(--line); }
   .influencer-directory article:nth-child(2n) { border-right: 0; }
