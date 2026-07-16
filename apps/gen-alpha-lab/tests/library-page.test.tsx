@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import LibraryPage from "../src/components/LibraryPage";
+import { sources } from "../src/lib/content/sources";
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("LibraryPage", () => {
@@ -25,7 +26,19 @@ describe("LibraryPage", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Books" }));
-    expect(screen.getByRole("heading", { name: "Books" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open source detail for Generation Alpha" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Videos" })).not.toBeInTheDocument();
+  });
+
+  it("links canonical source cards to their extracted-evidence details", () => {
+    const source = sources.find((item) => item.id === "pwc-alpha-2026")!;
+    render(<LibraryPage initialRecords={seedRecords} />);
+
+    expect(screen.getByRole("heading", { name: source.title })).toBeInTheDocument();
+    expect(screen.getByText(source.population, { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: `Open source detail for ${source.title}` })).toHaveAttribute(
+      "href",
+      "/library/pwc-alpha-2026"
+    );
   });
 });

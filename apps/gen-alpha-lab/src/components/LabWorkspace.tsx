@@ -43,7 +43,7 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
         </div>
       </section>
 
-      {podcast ? <section className="podcast-brief" aria-labelledby="podcast-brief-heading"><Headphones aria-hidden="true" size={28} /><div><span>Joshua&apos;s point of view</span><h2 id="podcast-brief-heading">{podcast.title}</h2><p>{podcast.summary}</p></div><a className="text-link" href={podcast.url} target="_blank" rel="noreferrer">Listen on Spotify <ArrowUpRight aria-hidden="true" size={18} /></a></section> : null}
+      {podcast ? <section className="podcast-brief" aria-labelledby="podcast-brief-heading"><Headphones aria-hidden="true" size={28} /><div><span>Listen to understand them more</span><h2 id="podcast-brief-heading">{podcast.title}</h2><p>{podcast.summary}</p></div><a className="text-link" href={podcast.url} target="_blank" rel="noreferrer">Listen on Spotify <ArrowUpRight aria-hidden="true" size={18} /></a></section> : null}
 
       <section className="library-invitation"><Library aria-hidden="true" size={34} /><h2>The proof lives in one place.</h2><Link className="button" href="/library" aria-label="Open the research library">Open the research library <ArrowUpRight aria-hidden="true" size={18} /></Link></section>
     </main>
