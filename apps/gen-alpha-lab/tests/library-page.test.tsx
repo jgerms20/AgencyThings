@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import LibraryPage from "../src/components/LibraryPage";
+import MediaEmbed, { getMediaEmbedConfig } from "../src/components/MediaEmbed";
 import { sources } from "../src/lib/content/sources";
 import { seedRecords } from "../src/lib/seed-data";
 
@@ -47,19 +48,90 @@ describe("LibraryPage", () => {
     );
   });
 
-  it("uses privacy-enhanced embeds for the researched video library", async () => {
+  it("uses privacy-enhanced embeds for every supplied researched video", async () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
 
     await user.click(screen.getByRole("button", { name: "Videos" }));
 
     const embeds = screen.getAllByTitle(/video$/i);
-    expect(embeds).toHaveLength(8);
-    expect(embeds.map((embed) => embed.getAttribute("src"))).toEqual(expect.arrayContaining([
-      "https://www.youtube-nocookie.com/embed/3mnan0zpxAo",
-      "https://www.youtube-nocookie.com/embed/kjv85Ucx7Ho"
-    ]));
+    const suppliedVideoIds = [
+      "3mnan0zpxAo",
+      "xvHFk3zSDLY",
+      "JVjtMiu-Pgg",
+      "kaihRBDBjxY",
+      "1rjB4u1wg6Y",
+      "xEyK6RiXe30",
+      "EQ-09fHY67U",
+      "kjv85Ucx7Ho"
+    ];
+
+    expect(embeds).toHaveLength(suppliedVideoIds.length);
+    expect(embeds.map((embed) => embed.getAttribute("src"))).toEqual(
+      suppliedVideoIds.map((id) => `https://www.youtube-nocookie.com/embed/${id}`)
+    );
     expect(embeds.every((embed) => embed.getAttribute("loading") === "lazy")).toBe(true);
+  });
+
+  it("maps each supported provider to a responsive embed contract", () => {
+    const cases = [
+      [
+        "Spotify",
+        "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g",
+        "https://open.spotify.com/embed/episode/7l1peATWasIYA07RvqKgwn",
+        "352 / 152"
+      ],
+      [
+        "Apple Podcasts",
+        "https://podcasts.apple.com/us/podcast/id1655565898?i=1000651416408",
+        "https://embed.podcasts.apple.com/us/podcast/id1655565898?i=1000651416408",
+        "660 / 175"
+      ],
+      [
+        "YouTube",
+        "https://www.youtube.com/watch?v=3mnan0zpxAo",
+        "https://www.youtube-nocookie.com/embed/3mnan0zpxAo",
+        "16 / 9"
+      ]
+    ] as const;
+
+    for (const [, url, src, aspectRatio] of cases) {
+      expect(getMediaEmbedConfig(url)).toEqual({ src, aspectRatio });
+    }
+
+    render(<MediaEmbed title="Responsive video" url={cases[2][1]} />);
+    expect(screen.getByTitle("Responsive video video")).toHaveClass("media-embed");
+    expect(screen.getByTitle("Responsive video video")).toHaveStyle({
+      aspectRatio: "16 / 9",
+      width: "100%"
+    });
+  });
+
+  it("falls back to external links for malformed YouTube watch and channel URLs", async () => {
+    const user = userEvent.setup();
+    const malformedRecords = [
+      {
+        ...seedRecords.find((record) => record.id === "common-sense-media-youtube-2025")!,
+        id: "malformed-youtube-watch",
+        title: "Malformed YouTube watch URL",
+        url: "https://www.youtube.com/watch?feature=share"
+      },
+      {
+        ...seedRecords.find((record) => record.id === "common-sense-media-youtube-2025")!,
+        id: "malformed-youtube-channel",
+        title: "Malformed YouTube channel URL",
+        url: "https://www.youtube.com/channel/UC1234567890"
+      }
+    ];
+
+    render(<LibraryPage initialRecords={[...seedRecords, ...malformedRecords]} />);
+    await user.click(screen.getByRole("button", { name: "Videos" }));
+
+    for (const record of malformedRecords) {
+      expect(getMediaEmbedConfig(record.url)).toBeUndefined();
+      expect(screen.queryByTitle(`${record.title} video`)).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: `Open ${record.title}` })).toHaveAttribute("href", record.url);
+    }
   });
 
   it("links canonical source cards to their extracted-evidence details", () => {

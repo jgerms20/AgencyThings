@@ -10,6 +10,23 @@ type MediaEmbedConfig = {
   src: string;
 };
 
+const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/;
+
+function getYouTubeVideoId(parsed: URL, host: string): string | undefined {
+  const isValidVideoId = (value: string | null | undefined) => value && youtubeVideoIdPattern.test(value) ? value : undefined;
+
+  if (host === "youtu.be") {
+    const pathSegments = parsed.pathname.split("/").filter(Boolean);
+    return pathSegments.length === 1 ? isValidVideoId(pathSegments[0]) : undefined;
+  }
+
+  if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+    return parsed.pathname === "/watch" ? isValidVideoId(parsed.searchParams.get("v")) : undefined;
+  }
+
+  return undefined;
+}
+
 export function getMediaEmbedConfig(url: string | undefined): MediaEmbedConfig | undefined {
   if (!url) return undefined;
 
@@ -17,24 +34,21 @@ export function getMediaEmbedConfig(url: string | undefined): MediaEmbedConfig |
     const parsed = new URL(url);
     const host = parsed.hostname.replace(/^www\./, "");
 
-    if (host === "open.spotify.com") {
-      const episodeIndex = parsed.pathname.split("/").indexOf("episode");
-      const episodeId = parsed.pathname.split("/")[episodeIndex + 1];
-      if (episodeId) return { src: `https://open.spotify.com/embed/episode/${episodeId}`, aspectRatio: "352 / 152" };
+    if (parsed.protocol !== "https:") return undefined;
+
+    const pathSegments = parsed.pathname.split("/").filter(Boolean);
+    if (host === "open.spotify.com" && pathSegments.length === 2 && pathSegments[0] === "episode" && /^[A-Za-z0-9]{22}$/.test(pathSegments[1])) {
+      return { src: `https://open.spotify.com/embed/episode/${pathSegments[1]}`, aspectRatio: "352 / 152" };
     }
 
-    if (host === "podcasts.apple.com" || host === "embed.podcasts.apple.com") {
+    if ((host === "podcasts.apple.com" || host === "embed.podcasts.apple.com") && /^\/[^/]+\/podcast\/id\d+/.test(parsed.pathname) && /^\d+$/.test(parsed.searchParams.get("i") ?? "")) {
       return {
         src: `https://embed.podcasts.apple.com${parsed.pathname}${parsed.search}`,
         aspectRatio: "660 / 175"
       };
     }
 
-    const youtubeId = host === "youtu.be"
-      ? parsed.pathname.slice(1)
-      : host === "youtube.com" || host.endsWith(".youtube.com")
-        ? parsed.searchParams.get("v") ?? parsed.pathname.split("/").filter(Boolean).at(-1)
-        : undefined;
+    const youtubeId = getYouTubeVideoId(parsed, host);
     if (youtubeId) return { src: `https://www.youtube-nocookie.com/embed/${youtubeId}`, aspectRatio: "16 / 9" };
   } catch {
     return undefined;
@@ -52,6 +66,7 @@ export default function MediaEmbed({ title, url }: MediaEmbedProps) {
     <iframe
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowFullScreen
+      className="media-embed"
       loading="lazy"
       referrerPolicy="strict-origin-when-cross-origin"
       src={config.src}

@@ -323,20 +323,6 @@ export const seedRecords: ResearchRecord[] = [
     createdAt: "2026-07-12T14:12:30.000Z"
   },
   {
-    id: "future-report-apple-alpha-2025",
-    kind: "podcast",
-    sourceClass: "podcast",
-    title: "Inside the mind of Gen Alpha with Ashley Fell and Luke Davies",
-    source: "The Future Report",
-    url: "https://podcasts.apple.com/us/podcast/id1490489576?i=1000727065781",
-    summary: "Apple Podcasts edition of a practitioner conversation about the conditions and choices shaping Gen Alpha.",
-    tags: ["podcast", "mccrindle", "culture", "gen-alpha"],
-    useModes: ["think"],
-    status: "queued",
-    confidence: "medium",
-    createdAt: "2026-07-16T12:35:00.000Z"
-  },
-  {
     id: "in-the-demo-meet-gen-alpha",
     kind: "podcast",
     sourceClass: "podcast",

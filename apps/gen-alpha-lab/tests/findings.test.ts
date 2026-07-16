@@ -106,19 +106,29 @@ describe("Gen Alpha field-guide findings", () => {
     expect(seedRecords.find((record) => record.id === "owned-podcast-093")?.summary).not.toMatch(/Joshua/i);
   });
 
-  it("keeps Eclectic Polymath first in a ten-episode podcast listening set", () => {
+  it("keeps Eclectic Polymath first in a deduplicated nine-episode podcast listening set", () => {
     const podcasts = filterLibraryByFormat(seedRecords, "podcasts");
 
-    expect(podcasts).toHaveLength(10);
+    expect(podcasts).toHaveLength(9);
     expect(podcasts[0]).toMatchObject({
       id: "owned-podcast-093",
       source: "Eclectic Polymath",
       url: "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g"
     });
     expect(podcasts).toEqual(expect.arrayContaining([
-      expect.objectContaining({ url: expect.stringContaining("id1490489576?i=1000727065781") }),
       expect.objectContaining({ url: expect.stringContaining("id1733611380?i=1000649487888") })
     ]));
+  });
+
+  it("keeps only the richer Spotify embed for the duplicated Future Report episode", () => {
+    const futureReportEpisodes = seedRecords.filter((record) => record.source === "The Future Report");
+
+    expect(futureReportEpisodes).toEqual([
+      expect.objectContaining({
+        id: "future-report-alpha-mccrindle-2025",
+        url: "https://open.spotify.com/episode/5WPGgs3LmLOAkxww8NwsKS"
+      })
+    ]);
   });
 
   it("keeps the owned synthesis first when the library receives podcast records in another order", () => {

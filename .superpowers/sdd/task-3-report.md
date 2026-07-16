@@ -33,3 +33,20 @@ DONE_WITH_CONCERNS
 ## Concerns
 
 - Task 3-focused coverage is green. Repository-wide test and build verification is blocked by the current concurrent changes described above.
+
+## Review Remediation: Rejected Findings
+
+- Preserved all eight researched video records. The project threshold is at least seven, and the requested five additions leave this eight-record set valid.
+- Restricted YouTube embeds to HTTPS `youtube.com/watch?v=<11-character-id>` and `youtu.be/<11-character-id>` URL shapes. Channel URLs, incomplete watch URLs, invalid IDs, and unsupported paths now render no iframe while the library retains each record's external link.
+- Removed the duplicate Apple Podcasts copy of the Future Report episode and kept the existing Spotify record, which preserves the richer working embed.
+- Added direct coverage for Spotify, Apple Podcasts, and YouTube embed conversion; the `media-embed` class, responsive width, and provider aspect-ratio contract; malformed YouTube watch and channel fallback behavior; every supplied video ID; and the Future Report dedupe.
+
+### Review Remediation Verification
+
+- Red: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` failed on the duplicate Future Report podcast, absent media embed class, and malformed YouTube watch URL producing an iframe.
+- Green: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` passed 2 files and 19 tests.
+- `git diff --check`: passed with no whitespace errors.
+
+### Review Remediation Concerns
+
+- Focused Task 3 verification is clean. Repository-wide checks remain outside this remediation because unrelated concurrent edits are present in the Space and validation workstreams.
