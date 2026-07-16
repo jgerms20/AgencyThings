@@ -1,28 +1,24 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import PeoplePage from "../src/components/PeoplePage";
+import { influencers } from "../src/lib/influencers";
 
-describe("PeoplePage", () => {
-  it("turns the creator roster into a concise insight-led page", () => {
+describe("Influencers directory", () => {
+  it("shows thirty culture shapers and opens internal intelligence profiles", () => {
     render(<PeoplePage />);
 
     expect(
       screen.getByRole("heading", {
-        name: "Creators are not just media. They are formats for behavior."
+        name: "Influence has a face, a format, and an audience."
       })
     ).toBeInTheDocument();
+    expect(screen.getAllByTestId("influencer-card")).toHaveLength(30);
 
-    for (const name of ["MrBeast", "IShowSpeed", "Kai Cenat", "Aphmau", "Salish Matter", "Ms. Rachel"]) {
-      expect(screen.getByRole("heading", { name })).toBeInTheDocument();
-      expect(screen.getByAltText(name)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: `Open ${name}'s channel` })).toHaveAttribute(
+    for (const influencer of influencers) {
+      expect(screen.getByRole("link", { name: `Explore ${influencer.name}` })).toHaveAttribute(
         "href",
-        expect.stringMatching(/^https:\/\//)
+        `/influencers/${influencer.id}`
       );
     }
-
-    expect(screen.getByText("Participation beats passive viewing.")).toBeInTheDocument();
-    expect(screen.getByText("Personality carries across formats.")).toBeInTheDocument();
-    expect(screen.getByText("Household permission still matters.")).toBeInTheDocument();
   });
 });

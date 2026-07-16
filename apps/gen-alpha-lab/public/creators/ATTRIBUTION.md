@@ -1,10 +1,12 @@
-# Creator portrait sources
+# Creator portraits
 
-- `mrbeast.jpg`: MrBeast 2023, Wikimedia Commons, CC BY 4.0.
-- `ishowspeed.jpg`: IShowSpeed at Trifecta Somerset, Wikimedia Commons, CC0.
-- `kai-cenat.jpg`: Kai Cenat, Wikimedia Commons, CC BY 3.0.
-- `aphmau.jpg`: Aphmau public X profile image.
-- `salish-matter.jpg`: Salish Matter official YouTube channel image.
-- `ms-rachel.jpg`: Ms. Rachel official YouTube channel image.
+Most portraits in this directory are locally cached copies of the public profile images supplied by each creator's official YouTube channel on July 16, 2026. They are used for internal research and identification in the Gen Alpha Intelligence Lab.
 
-The last three images are included for editorial reference in this internal research tool. Their copyrights remain with their respective owners.
+The corresponding official channel URL for every image is recorded in `src/lib/influencers.ts`. The filename matches the profile ID used by the site.
+
+Featured portrait exceptions:
+
+- `mrbeast.jpg`: Wikimedia Commons, `MrBeast_2023.jpg`, CC BY 4.0.
+- `ishowspeed.jpg`: Wikimedia Commons, `IShowSpeed_at_Trifecta_Somerset,_Singapore.jpg`, CC0.
+- `kai-cenat.jpg`: Wikimedia Commons, `Kai_Cenat.png`, CC BY 3.0.
+- `aphmau.jpg`: public portrait from Aphmau's official X profile.

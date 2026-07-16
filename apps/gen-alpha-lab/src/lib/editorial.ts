@@ -1,138 +1,145 @@
-export type EditorialInsight = {
-  id: "ai" | "play" | "video" | "influence";
+export type InsightTabId = "play-belonging" | "media-influence" | "time-learning" | "ai-agency";
+
+export type InsightTab = {
+  id: InsightTabId;
   label: string;
-  title: string;
-  interpretation: string;
-  href: string;
+  thesis: string;
   tone: "acid" | "cyan" | "coral" | "violet";
 };
 
-export type CreatorProfile = {
+export type EditorialInsight = {
   id: string;
-  name: string;
-  pronouns: "he" | "she";
-  role: string;
-  insight: string;
-  portrait: string;
-  portraitAlt: string;
-  profileUrl: string;
-  sourceUrl: string;
+  number: string;
+  tabId: InsightTabId;
+  title: string;
+  interpretation: string;
+  href: string;
+  tone: InsightTab["tone"];
 };
 
-export const editorialInsights: EditorialInsight[] = [
+export const insightTabs: InsightTab[] = [
   {
-    id: "ai",
-    label: "01 / AI",
-    title: "AI is a default interface.",
-    interpretation:
-      "Learning, search, discovery, and making increasingly begin with a system that answers back.",
-    href: "/topics/ai",
+    id: "play-belonging",
+    label: "Play and belonging",
+    thesis: "Play is where friendship, identity, and making become one behavior.",
     tone: "acid"
   },
   {
-    id: "play",
-    label: "02 / Play",
-    title: "Play is social and creative.",
-    interpretation:
-      "Roblox, Minecraft, and Fortnite are places to gather, make, perform, and solve problems together.",
-    href: "/topics/play-create",
-    tone: "cyan"
-  },
-  {
-    id: "video",
-    label: "03 / Media",
-    title: "Video is utility and culture.",
-    interpretation:
-      "Video entertains, explains, teaches, sets language, and supplies the references that travel between friends.",
-    href: "/topics/media",
+    id: "media-influence",
+    label: "Media and influence",
+    thesis: "Culture arrives through people and repeatable formats, then moves through the household.",
     tone: "coral"
   },
   {
-    id: "influence",
-    label: "04 / Influence",
-    title: "Influence moves through people and households.",
-    interpretation:
-      "Creators spark desire and belonging, while parents still control access, permission, and purchase.",
-    href: "/topics/influence",
+    id: "time-learning",
+    label: "Time and learning",
+    thesis: "Digital life is woven into managed routines, curiosity, and help on demand.",
+    tone: "cyan"
+  },
+  {
+    id: "ai-agency",
+    label: "AI and agency",
+    thesis: "AI feels ordinary; judgment and verification are the emerging differentiators.",
     tone: "violet"
   }
 ];
 
-export const creators: CreatorProfile[] = [
+export const editorialInsights: EditorialInsight[] = [
   {
-    id: "mrbeast",
-    name: "MrBeast",
-    pronouns: "he",
-    role: "Architect of scale",
-    insight:
-      "Turns challenges, prizes, philanthropy, and products into spectacles built to be retold.",
-    portrait: "/creators/mrbeast.jpg",
-    portraitAlt: "MrBeast",
-    profileUrl: "https://www.youtube.com/@MrBeast",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:MrBeast_2023.jpg"
+    id: "play-is-social",
+    number: "01",
+    tabId: "play-belonging",
+    title: "Play is social and creative.",
+    interpretation: "Roblox, Minecraft, and Fortnite are places to gather, make, perform, and solve problems together.",
+    href: "/findings/creation-gaming-is-participatory",
+    tone: "acid"
   },
   {
-    id: "ishowspeed",
-    name: "IShowSpeed",
-    pronouns: "he",
-    role: "Live energy multiplier",
-    insight:
-      "Blends gaming, football, travel, music, and extreme reaction into participatory live culture.",
-    portrait: "/creators/ishowspeed.jpg",
-    portraitAlt: "IShowSpeed",
-    profileUrl: "https://www.youtube.com/@IShowSpeed",
-    sourceUrl:
-      "https://commons.wikimedia.org/wiki/File:IShowSpeed_at_Trifecta_Somerset,_Singapore.jpg"
+    id: "friendship-is-portable",
+    number: "02",
+    tabId: "play-belonging",
+    title: "Friendship travels with the activity.",
+    interpretation: "The group moves between chat, video, games, and real life without treating those as separate social worlds.",
+    href: "/findings/friendship-portable",
+    tone: "acid"
   },
   {
-    id: "kai-cenat",
-    name: "Kai Cenat",
-    pronouns: "he",
-    role: "Community orchestrator",
-    insight:
-      "Makes livestreaming feel like a shared event where chat, guests, and the audience shape the show.",
-    portrait: "/creators/kai-cenat.jpg",
-    portraitAlt: "Kai Cenat",
-    profileUrl: "https://www.youtube.com/@KaiCenat",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Kai_Cenat.png"
+    id: "identity-is-remixed",
+    number: "03",
+    tabId: "play-belonging",
+    title: "Customization is a social language.",
+    interpretation: "Avatars, skins, builds, edits, and inside jokes let identity stay flexible, visible, and shared.",
+    href: "/topics/play-create",
+    tone: "acid"
   },
   {
-    id: "aphmau",
-    name: "Aphmau",
-    pronouns: "she",
-    role: "Story-world builder",
-    insight:
-      "Uses Minecraft roleplay, recurring characters, and humor to create an imaginative fan universe.",
-    portrait: "/creators/aphmau.jpg",
-    portraitAlt: "Aphmau",
-    profileUrl: "https://www.youtube.com/@Aphmau",
-    sourceUrl: "https://x.com/_Aphmau_"
+    id: "video-is-utility",
+    number: "04",
+    tabId: "media-influence",
+    title: "Video is utility and culture.",
+    interpretation: "The same video can entertain, explain, teach a move, start a purchase, and give friends something to quote.",
+    href: "/findings/video-default",
+    tone: "coral"
   },
   {
-    id: "salish-matter",
-    name: "Salish Matter",
-    pronouns: "she",
-    role: "Peer aspiration engine",
-    insight:
-      "Turns challenges, friendship, lifestyle, and beauty rituals into a model of highly visible teen life.",
-    portrait: "/creators/salish-matter.jpg",
-    portraitAlt: "Salish Matter",
-    profileUrl: "https://www.youtube.com/@salishmatter",
-    sourceUrl: "https://www.instagram.com/salishmatter/"
+    id: "creators-are-formats",
+    number: "05",
+    tabId: "media-influence",
+    title: "Creators are behavioral templates.",
+    interpretation: "Their real influence is the challenge, reaction, ritual, phrase, or way of inviting the audience to participate.",
+    href: "/influencers",
+    tone: "coral"
   },
   {
-    id: "ms-rachel",
-    name: "Ms. Rachel",
-    pronouns: "she",
-    role: "Early-learning guide",
-    insight:
-      "Combines songs, repetition, language development, and caregiver trust for younger Gen Alpha.",
-    portrait: "/creators/ms-rachel.jpg",
-    portraitAlt: "Ms. Rachel",
-    profileUrl: "https://www.youtube.com/channel/UCG2CL6EUjG8TVT1Tpl9nJdg",
-    sourceUrl: "https://www.msrachel.com/pages/team"
+    id: "influence-is-negotiated",
+    number: "06",
+    tabId: "media-influence",
+    title: "Influence is negotiated at home.",
+    interpretation: "Creators and peers spark the want; adults still shape access, safety, permission, and purchase.",
+    href: "/findings/influence-is-networked",
+    tone: "coral"
+  },
+  {
+    id: "time-is-managed",
+    number: "07",
+    tabId: "time-learning",
+    title: "Digital time is still managed childhood.",
+    interpretation: "What a screen enables, who is present, and what it replaces matter more than duration alone.",
+    href: "/findings/time-is-managed",
+    tone: "cyan"
+  },
+  {
+    id: "learning-is-assembled",
+    number: "08",
+    tabId: "time-learning",
+    title: "Learning is assembled on demand.",
+    interpretation: "School, tutorial video, search, games, family help, and AI support all sit inside one learning environment.",
+    href: "/findings/learning-is-assembled",
+    tone: "cyan"
+  },
+  {
+    id: "ai-is-normal",
+    number: "09",
+    tabId: "ai-agency",
+    title: "AI is a default interface.",
+    interpretation: "Asking, comparing, discovering, and making increasingly begin with a system that answers back.",
+    href: "/findings/ai-is-a-normal-interface",
+    tone: "violet"
+  },
+  {
+    id: "verification-is-literacy",
+    number: "10",
+    tabId: "ai-agency",
+    title: "Verification is becoming a core literacy.",
+    interpretation: "Fluency now includes knowing when to question, compare, check, and ask an adult or another source.",
+    href: "/topics/ai",
+    tone: "violet"
   }
 ];
+
+export function getInsightsForTab(tabId: InsightTabId): EditorialInsight[] {
+  return editorialInsights.filter((insight) => insight.tabId === tabId);
+}
 
 export const libraryTakeaways = [
   "Culture moves faster than reports.",
