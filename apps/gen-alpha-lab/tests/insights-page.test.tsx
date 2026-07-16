@@ -13,6 +13,13 @@ describe("Insights page", () => {
     for (const theme of ["Play & Belonging", "Media & Influence", "Time & Routines", "Learning & Becoming"]) {
       expect(screen.getByRole("heading", { name: theme })).toBeInTheDocument();
     }
+    for (const item of screen.getAllByTestId("insight-directory-item")) {
+      const trigger = within(item).getByRole("button");
+      const panelId = trigger.getAttribute("aria-controls");
+
+      expect(panelId).not.toBeNull();
+      expect(document.getElementById(panelId!)).toHaveAttribute("hidden");
+    }
     expect(screen.queryByText(/ten truths/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /ai and agency/i })).not.toBeInTheDocument();
   });
@@ -25,7 +32,9 @@ describe("Insights page", () => {
 
     const trigger = screen.getByRole("button", { name: new RegExp(insight.title) });
     expect(trigger).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText(insight.nuance)).not.toBeInTheDocument();
+    const panelId = trigger.getAttribute("aria-controls");
+    expect(panelId).not.toBeNull();
+    expect(document.getElementById(panelId!)).toHaveAttribute("hidden");
 
     trigger.focus();
     await user.keyboard("{Enter}");
@@ -54,7 +63,29 @@ describe("Insights page", () => {
     await user.click(secondTrigger);
     expect(firstTrigger).toHaveAttribute("aria-expanded", "false");
     expect(secondTrigger).toHaveAttribute("aria-expanded", "true");
-    expect(screen.queryByText(first.nuance)).not.toBeInTheDocument();
-    expect(screen.getByText(second.nuance)).toBeInTheDocument();
+    expect(document.getElementById(firstTrigger.getAttribute("aria-controls")!)).toHaveAttribute("hidden");
+    expect(document.getElementById(secondTrigger.getAttribute("aria-controls")!)).not.toHaveAttribute("hidden");
+  });
+
+  it("keeps separate themes open independently while retaining one open quick hit per theme", async () => {
+    const user = userEvent.setup();
+    const [first, second] = getInsightsForTheme("play-belonging");
+    const [otherThemeInsight] = getInsightsForTheme("media-influence");
+
+    render(<InsightsPage />);
+
+    const firstTrigger = screen.getByRole("button", { name: new RegExp(first.title) });
+    const secondTrigger = screen.getByRole("button", { name: new RegExp(second.title) });
+    const otherThemeTrigger = screen.getByRole("button", { name: new RegExp(otherThemeInsight.title) });
+
+    await user.click(firstTrigger);
+    await user.click(otherThemeTrigger);
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "true");
+    expect(otherThemeTrigger).toHaveAttribute("aria-expanded", "true");
+
+    await user.click(secondTrigger);
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "false");
+    expect(secondTrigger).toHaveAttribute("aria-expanded", "true");
+    expect(otherThemeTrigger).toHaveAttribute("aria-expanded", "true");
   });
 });

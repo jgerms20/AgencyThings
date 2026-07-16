@@ -397,10 +397,11 @@ iframe { display: block; max-width: 100%; }
 .insight-directory-trigger:hover,
 .insight-directory-trigger:focus-visible { background: #f5f5ec; outline: 3px solid #090a09; outline-offset: -3px; }
 .insight-directory-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 170px; gap: 18px 28px; padding: 0 28px 28px 94px; }
+.insight-directory-detail[hidden] { display: none; }
 .insight-directory-detail p { font-size: .84rem; font-weight: 700; line-height: 1.5; }
 .insight-directory-detail a { display: inline-flex; align-items: center; gap: 8px; align-self: start; width: fit-content; border-bottom: 2px solid #090a09; font-size: .78rem; font-weight: 900; text-transform: uppercase; }
-.insight-directory-detail a:hover,
-.insight-directory-detail a:focus-visible { color: #33352b; outline: none; }
+.insight-directory-detail a:hover { color: #33352b; }
+.insight-directory-detail a:focus-visible { color: #33352b; outline: 3px solid #090a09; outline-offset: 3px; }
 
 .influencer-opening { background: var(--violet); color: #090a09; }
 .influencer-opening > p { color: #2d2637; }

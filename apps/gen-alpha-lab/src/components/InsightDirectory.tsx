@@ -60,16 +60,20 @@ export default function InsightDirectory() {
                       <ChevronDown aria-hidden="true" size={22} />
                     </button>
                   </h3>
-                  {isOpen ? (
-                    <div aria-labelledby={titleId} className="insight-directory-detail" id={panelId} role="region">
-                      <p>{insight.interpretation}</p>
-                      <p><strong>Nuance:</strong> {insight.nuance}</p>
-                      <p><strong>Confidence:</strong> {insight.confidence}</p>
-                      <Link href={`/insights/${insight.id}` as Route} aria-label={`Explore full detail: ${insight.title}`}>
-                        Explore full detail <ArrowUpRight aria-hidden="true" size={18} />
-                      </Link>
-                    </div>
-                  ) : null}
+                  <div
+                    aria-labelledby={titleId}
+                    className="insight-directory-detail"
+                    hidden={!isOpen}
+                    id={panelId}
+                    role="region"
+                  >
+                    <p>{insight.interpretation}</p>
+                    <p><strong>Nuance:</strong> {insight.nuance}</p>
+                    <p><strong>Confidence:</strong> {insight.confidence}</p>
+                    <Link href={`/insights/${insight.id}` as Route} aria-label={`Explore full detail: ${insight.title}`}>
+                      Explore full detail <ArrowUpRight aria-hidden="true" size={18} />
+                    </Link>
+                  </div>
                 </article>
               );
             })}
