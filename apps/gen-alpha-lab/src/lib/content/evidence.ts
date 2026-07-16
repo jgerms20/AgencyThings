@@ -76,7 +76,7 @@ const fact = (
 ): ExtractedFact => ({ insightId, slot, sourceId, claim, locator, evidenceType });
 
 const extractedFacts: ExtractedFact[] = [
-  fact("play-social-infrastructure", 1, "pew-teens-video-games-2024", "Forty-seven percent of teen video-game players said gaming helped their friendships, and 47% had made an online friend through a game.", "Socializing over video games section, findings paragraphs.", "self-reported"),
+  fact("play-social-infrastructure", 1, "pew-teens-video-games-2024", "47% of teen video-game players said gaming helped their friendships, and 47% had made an online friend through a game.", "Socializing over video games section, findings paragraphs.", "self-reported"),
   fact("play-social-infrastructure", 2, "walton-creation-gaming-2024", "Children said Roblox and Minecraft help them practice creativity and problem-solving, while expert interviews emphasized team-based social learning.", "Key Findings section, cognitive development finding and expert interview paragraph.", "self-reported"),
   fact("play-making-interface", 1, "walton-creation-gaming-2024", "At least seven in ten children wanted to learn subjects such as coding, art, or design inside Roblox or Minecraft.", "Key Findings section, formal education finding.", "self-reported"),
   fact("play-making-interface", 2, "roblox-search-style-trends-2025", "Roblox's first-party trend data linked what users searched for with the avatar styles they adopted inside experiences, making discovery part of creation and play.", "Search and style trends section, platform findings.", "editorial inference"),

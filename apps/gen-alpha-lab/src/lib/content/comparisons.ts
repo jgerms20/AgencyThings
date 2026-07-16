@@ -43,6 +43,10 @@ const comparisonEvidenceSupport: Record<string, string> = {
   "evidence-learning-ai-homework-1": "Documents entertainment and homework use in a tween-and-teen sample without presenting it as a Gen Z-only result.",
   "evidence-learning-commercial-fluency-1": "Supplies the Gen Alpha independent-decision and wish-list figures used for household influence.",
   "evidence-compare-deloitte-genz-commerce-1": "Supplies measured Gen Z purchasing-influence context from social media ads and reviews.",
+  "evidence-play-friendship-travels-1": "Supplies the teen friendship-through-games measure used as a near-age comparison point.",
+  "evidence-play-friendship-travels-2": "Shows children's shared interests moving between games, messaging, video, and in-person friend groups.",
+  "evidence-learning-remix-1": "Documents child-reported creativity and problem-solving through active building in Roblox and Minecraft.",
+  "evidence-learning-remix-2": "Adds an editorial, interest-segmented example of consumption turning into self-made media.",
 };
 
 const cohort = (
@@ -220,6 +224,80 @@ export const comparisonDimensions: ComparisonDimension[] = [
         evidenceGap("Directional interpretation: the available evidence cannot isolate a Boomer learning mentality for comparison with children using AI today."),
         "Use Alpha's AI-learning evidence to plan safeguards now, without inventing a Boomer learning-style opposite.",
         "The graph contains no matched Boomer learning-and-AI measure. The missing comparator is a research gap, not evidence of resistance or preference.",
+      ),
+    },
+  },
+  {
+    id: "friendship-connection",
+    title: "Friendship & connection",
+    genAlpha: cohort(
+      "Friendship travels between game worlds, group messages, videos, and in-person time instead of staying inside one channel.",
+      "Children in qualitative case studies; exact public age range varies",
+      "United Kingdom",
+      "2025",
+      "direct cohort evidence",
+      ["ofcom-children-media-lives-2025"],
+      ["evidence-play-friendship-travels-2"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        cohort(
+          "Teen players report games as friendship infrastructure, including shared play and friendships that begin online.",
+          "13-17 teen sample; overlaps cohort boundaries",
+          "United States",
+          "2024",
+          "near-age proxy",
+          ["pew-teens-video-games-2024"],
+          ["evidence-play-friendship-travels-1"],
+        ),
+        "Gen Alpha's connection pattern is best read as cross-context continuity: the same friendship can move from a game to a group chat to the playground. Gen Z provides an adjacent teen snapshot, not a finished version of that pattern.",
+        "The Alpha evidence is qualitative and the Gen Z evidence is a U.S. teen survey. They support a directional contrast, not a measured generation score.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: no matched Gen X childhood measure tracks how friendships moved across physical and digital settings."),
+        "Treat Alpha's cross-context connection as a current design condition; this library does not support a quantified Gen X childhood comparison.",
+        "No canonical source in this lab measures Gen X childhood friendship behavior against today's connected environments.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: the current evidence cannot reconstruct Boomer childhood friendship behavior as a matched comparison."),
+        "Plan for the connections children have now, rather than turning nostalgia about older childhoods into a behavioral claim.",
+        "No matched Boomer childhood series is available in the research library, so the evidence gap remains visible.",
+      ),
+    },
+  },
+  {
+    id: "creation-expression",
+    title: "Creation & expression",
+    genAlpha: cohort(
+      "Making is integrated into play: children describe building worlds as a way to develop creativity and problem-solving.",
+      "5-13",
+      "United States",
+      "2024",
+      "direct cohort evidence",
+      ["walton-creation-gaming-2024"],
+      ["evidence-learning-remix-1"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        evidenceGap("No matched Gen Z measure in this library establishes when creation tools became part of everyday play."),
+        "The useful insight is developmental rather than competitive: Gen Alpha encounters creation tools inside core play environments earlier. This library does not contain a clean Gen Z comparison measure for that claim.",
+        "The research library does not contain a like-for-like Gen Z creation measure, so the gap is explicit rather than filled with an assumption.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: there is no matched Gen X childhood evidence for creation tools embedded in everyday play."),
+        "Use the current Alpha creation environment as the strategy input; a historical comparison would exceed the available evidence.",
+        "No canonical source measures Gen X childhood creation behavior against today's game-making systems.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: no matched Boomer childhood evidence is present for creation in digital play environments."),
+        "Do not make a nostalgia claim where the research library only supports the contemporary Alpha environment.",
+        "No matched Boomer childhood series is available for this comparison.",
       ),
     },
   },

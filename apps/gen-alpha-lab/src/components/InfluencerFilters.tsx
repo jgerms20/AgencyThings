@@ -3,7 +3,7 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { CultureShaper } from "@/lib/content/culture-shapers";
+import { getCultureShaperImage, type CultureShaper } from "@/lib/content/culture-shapers";
 import type { CultureShaperDirectoryType } from "@/lib/content/types";
 
 type InfluencerFiltersProps = {
@@ -32,6 +32,24 @@ function overlapsAge(profileRange: string, selectedRange: string) {
   return Number(profile[1]) <= Number(selected[2]) && Number(selected[1]) <= Number(profile[2]);
 }
 
+function interleaveCultureTypes(shapers: CultureShaper[]) {
+  const groups = new Map<string, CultureShaper[]>();
+  for (const shaper of shapers) {
+    const group = groups.get(shaper.type) ?? [];
+    group.push(shaper);
+    groups.set(shaper.type, group);
+  }
+
+  const result: CultureShaper[] = [];
+  while ([...groups.values()].some((group) => group.length > 0)) {
+    for (const type of ["creator", "artist", "athlete", "screen-ip", "franchise"]) {
+      const next = groups.get(type)?.shift();
+      if (next) result.push(next);
+    }
+  }
+  return result;
+}
+
 export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
   const [type, setType] = useState<CultureShaperDirectoryType>("all");
   const [age, setAge] = useState("all");
@@ -41,13 +59,13 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
   const [segment, setSegment] = useState("all");
 
   const filtered = useMemo(
-    () => shapers.filter((shaper) =>
+    () => interleaveCultureTypes(shapers.filter((shaper) =>
       (type === "all" || (type === "ip" ? shaper.type === "screen-ip" || shaper.type === "franchise" : shaper.type === type))
       && overlapsAge(shaper.audience.ageRange, age)
       && (topic === "all" || shaper.topics.includes(topic))
       && (platform === "all" || shaper.platforms.includes(platform))
       && (format === "all" || shaper.formats.includes(format))
-      && (segment === "all" || shaper.audienceSegments.includes(segment))),
+      && (segment === "all" || shaper.audienceSegments.includes(segment)))),
     [age, format, platform, segment, shapers, topic, type],
   );
 
@@ -103,7 +121,7 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
         {filtered.map((shaper, index) => (
           <article data-testid={shaper.type === "creator" ? "influencer-card" : "culture-shaper-card"} key={shaper.id}>
             <Link href={`/influencers/${shaper.id}`} aria-label={`Explore ${shaper.name}`}>
-              {shaper.portrait ? <img src={shaper.portrait} alt={shaper.name} loading="lazy" decoding="async" /> : (
+              {getCultureShaperImage(shaper) ? <img src={getCultureShaperImage(shaper)} alt={shaper.name} loading="lazy" decoding="async" /> : (
                 <span className="culture-shaper-monogram" style={{ aspectRatio: "1 / 1", display: "grid", placeItems: "center" }} aria-hidden="true">
                   {shaper.name.slice(0, 2).toUpperCase()}
                 </span>

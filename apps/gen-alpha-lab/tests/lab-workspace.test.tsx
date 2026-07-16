@@ -8,11 +8,11 @@ import { cultureShapers } from "../src/lib/content/culture-shapers";
 import { seedRecords } from "../src/lib/seed-data";
 
 const culturePreview = [
+  { id: "mrbeast", name: "MrBeast", image: "/culture/mrbeast.png" },
+  { id: "kai-cenat", name: "Kai Cenat", image: "/creators/kai-cenat.jpg" },
   { id: "bluey", name: "Bluey", image: "/culture/bluey.jpg" },
+  { id: "aphmau", name: "Aphmau", image: "/creators/aphmau.jpg" },
   { id: "kpop-demon-hunters", name: "KPop Demon Hunters", image: "/culture/kpop-demon-hunters.jpg" },
-  { id: "aphmau", name: "Aphmau" },
-  { id: "olivia-rodrigo", name: "Olivia Rodrigo" },
-  { id: "caitlin-clark", name: "Caitlin Clark" },
 ] as const;
 
 const shelfRecords = {

@@ -4,18 +4,18 @@ import InsightTabs from "@/components/InsightTabs";
 import MediaEmbed from "@/components/MediaEmbed";
 import OverviewComparison from "@/components/OverviewComparison";
 import SiteHeader from "@/components/SiteHeader";
-import { cultureShapers } from "@/lib/content/culture-shapers";
+import { cultureShapers, getCultureShaperImage } from "@/lib/content/culture-shapers";
 import { spaces } from "@/lib/spaces";
 import type { ResearchRecord } from "@/lib/types";
 
 type LabWorkspaceProps = { initialRecords: ResearchRecord[] };
 
 const overviewCultureShaperIds = [
+  "mrbeast",
+  "kai-cenat",
   "bluey",
-  "kpop-demon-hunters",
   "aphmau",
-  "olivia-rodrigo",
-  "caitlin-clark",
+  "kpop-demon-hunters",
 ] as const;
 
 const overviewSpaceIds = ["roblox", "school", "parks-playgrounds-pickup-play"] as const;
@@ -89,7 +89,7 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
         <div className="portrait-strip portrait-strip-five">
           {culturePreview.map((shaper) => (
             <Link href={`/influencers/${shaper.id}`} key={shaper.id}>
-              {shaper.portrait ? <img src={shaper.portrait} alt={shaper.name} loading="lazy" decoding="async" /> : (
+              {getCultureShaperImage(shaper) ? <img src={getCultureShaperImage(shaper)} alt={shaper.name} loading="lazy" decoding="async" /> : (
                 <span className="culture-shaper-monogram" aria-hidden="true">
                   {shaper.name.slice(0, 2).toUpperCase()}
                 </span>

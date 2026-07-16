@@ -3,7 +3,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import IndicatorTooltip from "@/components/IndicatorTooltip";
 import SiteHeader from "@/components/SiteHeader";
-import { getCultureShaper, type CultureShaper } from "@/lib/content/culture-shapers";
+import { getCultureShaper, getCultureShaperImage, type CultureShaper } from "@/lib/content/culture-shapers";
 import { getSource } from "@/lib/content/selectors";
 import { spaces } from "@/lib/spaces";
 
@@ -33,7 +33,7 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
             <h1>{profile.name}</h1>
             <p>{profile.summary}</p>
           </div>
-          {profile.portrait ? <img src={profile.portrait} alt={profile.name} /> : null}
+          {getCultureShaperImage(profile) ? <img src={getCultureShaperImage(profile)} alt={profile.name} /> : null}
         </header>
 
         <section className="influencer-indicators" aria-label="Editorial influence indicators">
@@ -113,7 +113,7 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           </section>
         ))}
 
-        {profile.mediaFallback && embeddableVideos.length === 0 && !profile.portrait ? (
+        {profile.mediaFallback && embeddableVideos.length === 0 && !getCultureShaperImage(profile) ? (
           <aside className="profile-media-note" role="note" aria-label="Media note">
             <span>Media note</span>
             <p>{profile.mediaFallback}</p>

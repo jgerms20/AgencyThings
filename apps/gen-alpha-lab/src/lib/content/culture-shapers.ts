@@ -871,6 +871,28 @@ export const cultureShapers: CultureShaper[] = [
   ...coverageShapers.map((shaper) => "indicators" in shaper ? shaper : bespokeCoverage(shaper)),
 ];
 
+const portraitOverrides: Record<string, string> = {
+  mrbeast: "/culture/mrbeast.png",
+  "olivia-rodrigo": "/culture/olivia-rodrigo.jpg",
+  "sabrina-carpenter": "/culture/sabrina-carpenter.jpg",
+  "caitlin-clark": "/culture/caitlin-clark.jpg",
+  "simone-biles": "/culture/simone-biles.jpg",
+  "cristiano-ronaldo": "/culture/cristiano-ronaldo.jpg",
+  "angel-reese": "/culture/angel-reese.jpg",
+  "aja-wilson": "/culture/aja-wilson.jpg",
+  "lamine-yamal": "/culture/lamine-yamal.jpg",
+  barbie: "/culture/barbie.png",
+  pokemon: "/culture/pokemon.png",
+  "pokemon-franchise": "/culture/pokemon.png",
+};
+
+/** Use the primary video art before falling back to a monogram. */
+export function getCultureShaperImage(shaper: CultureShaper): string | undefined {
+  return portraitOverrides[shaper.id] ?? shaper.portrait ?? (
+    shaper.videos[0] ? `https://i.ytimg.com/vi/${shaper.videos[0].youtubeId}/hqdefault.jpg` : undefined
+  );
+}
+
 export function getCultureShaper(id: string): CultureShaper | undefined {
   return cultureShapers.find((shaper) => shaper.id === id);
 }

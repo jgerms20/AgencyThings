@@ -9,6 +9,8 @@ const topicTitles = [
   "Media & attention",
   "Play & belonging",
   "Learning & AI",
+  "Friendship & connection",
+  "Creation & expression",
   "Household influence",
 ];
 
@@ -34,6 +36,16 @@ const strategicDifferences = {
     genX: "Design verification and adult support around Alpha's current AI use; there is no matched Gen X learning measure in the canonical evidence.",
     boomers: "Use Alpha's AI-learning evidence to plan safeguards now, without inventing a Boomer learning-style opposite.",
   },
+  "friendship-connection": {
+    genZ: "Gen Alpha's connection pattern is best read as cross-context continuity: the same friendship can move from a game to a group chat to the playground. Gen Z provides an adjacent teen snapshot, not a finished version of that pattern.",
+    genX: "Treat Alpha's cross-context connection as a current design condition; this library does not support a quantified Gen X childhood comparison.",
+    boomers: "Plan for the connections children have now, rather than turning nostalgia about older childhoods into a behavioral claim.",
+  },
+  "creation-expression": {
+    genZ: "The useful insight is developmental rather than competitive: Gen Alpha encounters creation tools inside core play environments earlier. This library does not contain a clean Gen Z comparison measure for that claim.",
+    genX: "Use the current Alpha creation environment as the strategy input; a historical comparison would exceed the available evidence.",
+    boomers: "Do not make a nostalgia claim where the research library only supports the contemporary Alpha environment.",
+  },
   "household-influence": {
     genZ: "Alpha's influence is still routed through adult permission and payment; Gen Z purchase influence is useful context, not a like-for-like child comparison.",
     genX: "Separate child desire from adult decision power: Alpha evidence measures household participation, while a matched Gen X commerce comparison is absent.",
@@ -45,7 +57,7 @@ type TopicId = keyof typeof strategicDifferences;
 const comparisonTopics: ComparisonDimension[] = comparisonDimensions;
 
 describe("topic and cohort comparison", () => {
-  it("defines four high-value topics and an exact strategic difference for every cohort combination", () => {
+  it("defines six high-value topics and an exact strategic difference for every cohort combination", () => {
     expect(comparisonTopics.map((topic) => topic.title)).toEqual(topicTitles);
 
     for (const topic of comparisonTopics) {

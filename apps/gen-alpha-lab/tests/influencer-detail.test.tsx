@@ -33,7 +33,7 @@ describe("Influencer detail", () => {
     for (const moment of bluey.definingMoments) expect(screen.getByText(moment)).toBeVisible();
   });
 
-  it("renders official media when available and an intentional media fallback otherwise", () => {
+  it("renders official media when available and sourced local portraits for featured athletes", () => {
     const artist = getCultureShaper("taylor-swift")!;
     const athlete = getCultureShaper("angel-reese")!;
     const { unmount } = render(<InfluencerDetail influencer={artist} />);
@@ -48,11 +48,12 @@ describe("Influencer detail", () => {
 
     unmount();
     render(<InfluencerDetail influencer={athlete} />);
-    expect(screen.getByRole("note", { name: "Media note" })).toHaveTextContent(athlete.mediaFallback!);
+    expect(screen.getByRole("img", { name: "Angel Reese" })).toHaveAttribute("src", "/culture/angel-reese.jpg");
+    expect(screen.queryByRole("note", { name: "Media note" })).not.toBeInTheDocument();
     expect(screen.getByText(athlete.influenceMechanism)).toBeVisible();
   });
 
-  it("renders the media fallback when every listed video is non-embeddable", () => {
+  it("keeps the local portrait when every listed video is non-embeddable", () => {
     const profile = getCultureShaper("angel-reese")!;
     const originalVideos = profile.videos;
     profile.videos = [{ youtubeId: "rights-managed", title: "Official highlight", embeddable: false }];
@@ -61,7 +62,7 @@ describe("Influencer detail", () => {
       render(<InfluencerDetail influencer={profile} />);
 
       expect(screen.queryByTitle(/Official highlight/i)).not.toBeInTheDocument();
-      expect(screen.getByRole("note", { name: "Media note" })).toHaveTextContent(profile.mediaFallback!);
+      expect(screen.getByRole("img", { name: "Angel Reese" })).toHaveAttribute("src", "/culture/angel-reese.jpg");
     } finally {
       profile.videos = originalVideos;
     }

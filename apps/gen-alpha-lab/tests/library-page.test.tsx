@@ -55,7 +55,8 @@ describe("LibraryPage", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
 
     expect(css).toMatch(/\.library-row-featured\s*\{[^}]*outline:/s);
-    expect(css).toMatch(/\.library-row-featured\s*\{[^}]*box-shadow:/s);
+    expect(css).toMatch(/\.library-row-featured\s*\{[^}]*background:\s*var\(--surface\)/s);
+    expect(css).not.toMatch(/\.library-row-featured\s*\{[^}]*background:\s*var\(--acid\)/s);
   });
 
   it("uses privacy-enhanced embeds for every supplied researched video", async () => {
