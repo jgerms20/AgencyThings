@@ -127,6 +127,10 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
           <p className="detail-eyebrow">Responsible action</p>
           <h2>Agency implication</h2>
           <p className="detail-lede">{insight.agencyImplication}</p>
+          <Link className="text-link" href="/reach-them" style={{ marginTop: "24px" }}>
+            Open the Reach Them strategy
+            <ArrowUpRight aria-hidden="true" size={16} />
+          </Link>
         </section>
       </article>
     </main>

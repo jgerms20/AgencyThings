@@ -112,8 +112,8 @@ describe("forty-insight evidence graph", () => {
     const agencyImplication = screen.getByTestId("agency-implication");
     expect(agencyImplication).toHaveAttribute("data-upgrade-target", "reach-them");
     expect(within(agencyImplication).getByRole("heading", { name: "Agency implication" })).toBeInTheDocument();
-    expect(within(agencyImplication).queryByRole("link")).not.toBeInTheDocument();
-    expect(document.querySelector('a[href="/reach-them"]')).not.toBeInTheDocument();
+    expect(within(agencyImplication).getByRole("link", { name: "Open the Reach Them strategy" }))
+      .toHaveAttribute("href", "/reach-them");
 
     for (const evidence of getEvidenceForInsight(insight!.id)) {
       const source = getSource(evidence.sourceId)!;
