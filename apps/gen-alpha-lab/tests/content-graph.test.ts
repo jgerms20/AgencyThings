@@ -98,10 +98,20 @@ describe("canonical content graph", () => {
   it.each([
     ["themes", { themes: themes.slice(0, 3) }, "Expected exactly 4 themes, received 3"],
     ["insights in a theme", { insights: insights.filter((insight) => insight.themeId !== "play-belonging" || insight.sequence !== 10) }, "Theme must have exactly 10 insights: play-belonging (9)"],
-    ["spaces", { spaces: spaces.slice(0, 49) }, "Expected exactly 50 spaces, received 49"],
-    ["comparisons", { comparisons: comparisonDimensions.slice(0, 9) }, "Expected exactly 10 comparisons, received 9"],
+    ["spaces", { spaces: spaces.slice(0, 53) }, "Expected exactly 54 spaces, received 53"],
+    ["comparisons", { comparisons: comparisonDimensions.slice(0, 3) }, "Expected exactly 4 comparison topics, received 3"],
   ] as const)("rejects a non-canonical %s count", (_label, changes, expectedIssue) => {
     const issueList = validateContentGraph({ ...canonicalGraph, ...changes } as ContentGraph);
+
+    expect(issueList).toContain(expectedIssue);
+  });
+
+  it.each([
+    ["artists", cultureShapers.filter((shaper) => shaper.type !== "artist"), "Expected at least 30 artist culture shapers, received 0"],
+    ["athletes", cultureShapers.filter((shaper) => shaper.type !== "athlete"), "Expected at least 12 athlete culture shapers, received 0"],
+    ["IP records", cultureShapers.filter((shaper) => shaper.type !== "screen-ip" && shaper.type !== "franchise"), "Expected at least 12 IP culture shapers, received 0"],
+  ] as const)("rejects a graph below the %s coverage floor", (_label, cultureShapers, expectedIssue) => {
+    const issueList = validateContentGraph({ ...canonicalGraph, cultureShapers });
 
     expect(issueList).toContain(expectedIssue);
   });
@@ -182,14 +192,91 @@ describe("canonical content graph", () => {
 
   it("rejects an invalid comparison class", () => {
     const comparison = comparisonDimensions[0];
+    const comparisonOptions = (comparison as unknown as {
+      comparisons?: Record<string, { comparisonClass: string }>;
+    }).comparisons;
+    expect(comparisonOptions, "comparison topic must define cohort options").toBeDefined();
+    if (!comparisonOptions) return;
+
     const issueList = validateContentGraph({
       ...canonicalGraph,
       comparisons: comparisonDimensions.map((candidate) => candidate.id === comparison.id
-        ? { ...candidate, comparisonClass: "unsupported ranking" }
+        ? {
+          ...candidate,
+          comparisons: {
+            ...comparisonOptions,
+            genZ: { ...comparisonOptions.genZ, comparisonClass: "unsupported ranking" },
+          },
+        }
         : candidate),
     } as unknown as ContentGraph);
 
-    expect(issueList).toContain(`Comparison has invalid comparisonClass: ${comparison.id}`);
+    expect(issueList).toContain(`Comparison has invalid comparisonClass: ${comparison.id} -> Gen Z`);
+  });
+
+  it("rejects a comparison combination without exact strategic difference copy", () => {
+    const comparison = comparisonDimensions[0];
+    const comparisonOptions = (comparison as unknown as {
+      comparisons?: Record<string, { realDifference: string }>;
+    }).comparisons;
+    expect(comparisonOptions, "comparison topic must define cohort options").toBeDefined();
+    if (!comparisonOptions) return;
+
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      comparisons: comparisonDimensions.map((candidate) => candidate.id === comparison.id
+        ? {
+          ...candidate,
+          comparisons: {
+            ...comparisonOptions,
+            genX: { ...comparisonOptions.genX, realDifference: "" },
+          },
+        }
+        : candidate),
+    } as unknown as ContentGraph);
+
+    expect(issueList).toContain(`Comparison is missing realDifference: ${comparison.id} -> Gen X`);
+  });
+
+  it("requires Gen X and Boomer claims to use an adult proxy or an explicit evidence gap", () => {
+    const comparison = comparisonDimensions[0];
+    const comparisonOptions = (comparison as unknown as {
+      comparisons?: Record<string, { cohort: { evidenceStatus: string } }>;
+    }).comparisons;
+    expect(comparisonOptions, "comparison topic must define cohort options").toBeDefined();
+    if (!comparisonOptions) return;
+
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      comparisons: comparisonDimensions.map((candidate) => candidate.id === comparison.id
+        ? {
+          ...candidate,
+          comparisons: {
+            ...comparisonOptions,
+            boomers: {
+              ...comparisonOptions.boomers,
+              cohort: { ...comparisonOptions.boomers.cohort, evidenceStatus: "direct cohort evidence" },
+            },
+          },
+        }
+        : candidate),
+    } as unknown as ContentGraph);
+
+    expect(issueList).toContain(`Comparison adult cohort must use an age-band proxy or evidence gap: ${comparison.id} -> Boomers`);
+  });
+
+  it("includes canonical Deloitte and Pew comparison evidence with honest scope", () => {
+    const deloitte = sources.find((source) => source.id === "deloitte-digital-media-trends-2025");
+    const pew = sources.find((source) => source.id === "pew-adult-social-media-2025");
+    const deloitteEvidence = evidenceItems.find((item) => item.id === "evidence-compare-deloitte-genz-media-1");
+    const pewEvidence = evidenceItems.find((item) => item.id === "evidence-compare-pew-adult-platforms-1");
+
+    expect(deloitte?.sampleSize).toBe("3,595 U.S. consumers");
+    expect(deloitte?.fieldworkPeriod).toBe("October 2024");
+    expect(pew?.sampleSize).toBe("5,022 U.S. adults");
+    expect(pew?.fieldworkPeriod).toBe("February 5-June 18, 2025");
+    expect(deloitteEvidence?.claim).toMatch(/54% more time.*26% less time/i);
+    expect(pewEvidence?.claim).toMatch(/95%.*18-29.*64%.*65\+.*TikTok.*63%.*12%/i);
   });
 
   it("rejects duplicate strategy IDs", () => {
@@ -208,7 +295,7 @@ describe("canonical content graph", () => {
     });
     const duplicateShaperIssues = validateContentGraph({
       ...emptyGraph,
-      cultureShapers: [{ id: "duplicate-shaper" }, { id: "duplicate-shaper" }],
+      cultureShapers: [{ id: "duplicate-shaper", type: "creator" }, { id: "duplicate-shaper", type: "creator" }],
     });
 
     expect(duplicateSpaceIssues).toContain("Duplicate space ID: duplicate-space");
@@ -219,7 +306,7 @@ describe("canonical content graph", () => {
     const issueList = validateContentGraph({
       ...emptyGraph,
       spaces: [{ id: "shared-environment" }],
-      cultureShapers: [{ id: "shared-environment" }],
+      cultureShapers: [{ id: "shared-environment", type: "creator" }],
     });
 
     expect(issueList).toContain(
@@ -547,13 +634,13 @@ describe("canonical content graph", () => {
   it("rejects IDs reused across graph types", () => {
     const issueList = validateContentGraph({
       ...emptyStrategyContext,
-      sources,
-      themes: [{ id: "pwc-alpha-2026", title: "Duplicate ID", description: "Test theme" }],
+      sources: [{ ...sources[0], id: "play-belonging" }],
+      themes: [{ id: "play-belonging", title: "Duplicate ID", description: "Test theme" }],
       insights: [],
       evidenceItems: [],
     });
 
-    expect(issueList).toContain("Duplicate graph ID across source and theme: pwc-alpha-2026");
+    expect(issueList).toContain("Duplicate graph ID across source and theme: play-belonging");
   });
 
   it("rejects unsupported insight claims and evidence links", () => {

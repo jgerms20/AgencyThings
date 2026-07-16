@@ -16,9 +16,15 @@ const sourceMetadataClaimPattern = /^(?:(?:the|this|a|an)\s+)?(?:study|report|su
 const canonicalThemeIds = ["play-belonging", "media-influence", "time-routines", "learning-becoming"] as const;
 const indicatorKeys = ["reach", "participation", "commercialPull", "audienceCenter"] as const;
 const expectedInsightsPerTheme = 10;
-const expectedSpaces = 50;
-const expectedComparisons = 10;
+const expectedSpaces = 54;
+const expectedComparisons = 4;
 const comparisonClasses = new Set(["age-matched observed evidence", "current cohort snapshot", "directional interpretation"]);
+const comparisonEvidenceStatuses = new Set(["direct cohort evidence", "near-age proxy", "adult age-band proxy", "evidence gap"]);
+const comparisonCohorts = [
+  ["genZ", "Gen Z"],
+  ["genX", "Gen X"],
+  ["boomers", "Boomers"],
+] as const;
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 const defaultGraph: ContentGraph = {
@@ -124,14 +130,23 @@ const validateComparisonCohort = (
   evidenceById: Map<string, ContentGraph["evidenceItems"][number]>,
   issues: string[],
 ): void => {
-  for (const field of ["summary", "ageRange", "geography", "sourceYear"] as const) {
+  for (const field of ["mentality", "ageRange", "geography", "sourceYear"] as const) {
     if (!hasText(cohort[field])) issues.push(`Comparison is missing ${field}: ${comparisonId} -> ${cohortLabel}`);
+  }
+  if (!comparisonEvidenceStatuses.has(cohort.evidenceStatus)) {
+    issues.push(`Comparison has invalid evidenceStatus: ${comparisonId} -> ${cohortLabel}`);
   }
 
   const cohortSourceIds = referenceIds(cohort.sourceIds);
   const cohortEvidenceIds = referenceIds(cohort.evidenceIds);
-  if (!hasTextList(cohort.sourceIds)) issues.push(`Comparison is missing sourceIds: ${comparisonId} -> ${cohortLabel}`);
-  if (!hasTextList(cohort.evidenceIds)) issues.push(`Comparison is missing evidenceIds: ${comparisonId} -> ${cohortLabel}`);
+  if (cohort.evidenceStatus === "evidence gap") {
+    if (cohortSourceIds.length > 0 || cohortEvidenceIds.length > 0) {
+      issues.push(`Comparison evidence gap must not cite evidence: ${comparisonId} -> ${cohortLabel}`);
+    }
+  } else {
+    if (!hasTextList(cohort.sourceIds)) issues.push(`Comparison is missing sourceIds: ${comparisonId} -> ${cohortLabel}`);
+    if (!hasTextList(cohort.evidenceIds)) issues.push(`Comparison is missing evidenceIds: ${comparisonId} -> ${cohortLabel}`);
+  }
 
   for (const sourceId of cohortSourceIds) {
     if (!sourceIds.has(sourceId)) issues.push(`Comparison references missing source: ${comparisonId} -> ${cohortLabel} -> ${sourceId}`);
@@ -186,6 +201,21 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
   if (graph.themes.length !== canonicalThemeIds.length) {
     issues.push(`Expected exactly ${canonicalThemeIds.length} themes, received ${graph.themes.length}`);
   }
+
+  const cultureShaperCounts = {
+    artist: graph.cultureShapers.filter((shaper) => shaper.type === "artist").length,
+    athlete: graph.cultureShapers.filter((shaper) => shaper.type === "athlete").length,
+    ip: graph.cultureShapers.filter((shaper) => shaper.type === "screen-ip" || shaper.type === "franchise").length,
+  };
+  if (cultureShaperCounts.artist < 30) {
+    issues.push(`Expected at least 30 artist culture shapers, received ${cultureShaperCounts.artist}`);
+  }
+  if (cultureShaperCounts.athlete < 12) {
+    issues.push(`Expected at least 12 athlete culture shapers, received ${cultureShaperCounts.athlete}`);
+  }
+  if (cultureShaperCounts.ip < 12) {
+    issues.push(`Expected at least 12 IP culture shapers, received ${cultureShaperCounts.ip}`);
+  }
   if (graph.insights.length !== canonicalThemeIds.length * expectedInsightsPerTheme) {
     issues.push(`Expected exactly ${canonicalThemeIds.length * expectedInsightsPerTheme} insights, received ${graph.insights.length}`);
   }
@@ -193,7 +223,7 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     issues.push(`Expected exactly ${expectedSpaces} spaces, received ${graph.spaces.length}`);
   }
   if (comparisons.length !== expectedComparisons) {
-    issues.push(`Expected exactly ${expectedComparisons} comparisons, received ${comparisons.length}`);
+    issues.push(`Expected exactly ${expectedComparisons} comparison topics, received ${comparisons.length}`);
   }
   for (const themeId of canonicalThemeIds) {
     if (!themeIds.has(themeId)) issues.push(`Missing canonical theme: ${themeId}`);
@@ -329,10 +359,25 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
 
   for (const comparison of comparisons) {
     if (!hasText(comparison.title)) issues.push(`Comparison is missing title: ${comparison.id}`);
-    if (!hasText(comparison.caveat)) issues.push(`Comparison is missing caveat: ${comparison.id}`);
-    if (!comparisonClasses.has(comparison.comparisonClass)) issues.push(`Comparison has invalid comparisonClass: ${comparison.id}`);
     validateComparisonCohort(comparison.id, "Gen Alpha", comparison.genAlpha, sourceIds, evidenceById, issues);
-    validateComparisonCohort(comparison.id, "Gen Z", comparison.genZ, sourceIds, evidenceById, issues);
+    for (const [cohortKey, cohortLabel] of comparisonCohorts) {
+      const option = comparison.comparisons?.[cohortKey];
+      if (!option) {
+        issues.push(`Comparison is missing cohort option: ${comparison.id} -> ${cohortLabel}`);
+        continue;
+      }
+      if (!hasText(option.realDifference)) issues.push(`Comparison is missing realDifference: ${comparison.id} -> ${cohortLabel}`);
+      if (!hasText(option.caveat)) issues.push(`Comparison is missing caveat: ${comparison.id} -> ${cohortLabel}`);
+      if (!comparisonClasses.has(option.comparisonClass)) {
+        issues.push(`Comparison has invalid comparisonClass: ${comparison.id} -> ${cohortLabel}`);
+      }
+      validateComparisonCohort(comparison.id, cohortLabel, option.cohort, sourceIds, evidenceById, issues);
+      if ((cohortKey === "genX" || cohortKey === "boomers")
+        && option.cohort.evidenceStatus !== "adult age-band proxy"
+        && option.cohort.evidenceStatus !== "evidence gap") {
+        issues.push(`Comparison adult cohort must use an age-band proxy or evidence gap: ${comparison.id} -> ${cohortLabel}`);
+      }
+    }
   }
 
   for (const play of graph.strategyPlays) {

@@ -58,12 +58,16 @@ describe("SourceDetail", () => {
 });
 
 describe("Gen Alpha editorial overview", () => {
-  it("uses audience-focused podcast copy while preserving the Spotify destination", () => {
+  it("features the Eclectic Polymath episode with playback and its Spotify destination", () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
     expect(screen.queryByText("Joshua's point of view")).not.toBeInTheDocument();
-    expect(screen.getByText("Listen to understand them more")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /listen on spotify/i })).toHaveAttribute(
+    expect(screen.getByText("Featured listening / Eclectic Polymath")).toBeInTheDocument();
+    expect(screen.getByTitle(/podcast/i)).toHaveAttribute(
+      "src",
+      "https://open.spotify.com/embed/episode/7l1peATWasIYA07RvqKgwn",
+    );
+    expect(screen.getByRole("link", { name: /open the episode on spotify/i })).toHaveAttribute(
       "href",
       "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g"
     );

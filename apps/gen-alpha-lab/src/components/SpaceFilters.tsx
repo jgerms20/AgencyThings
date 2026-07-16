@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, RotateCcw } from "lucide-react";
+import { ExternalLink, PlaySquare, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   spaceAgeBands,
@@ -17,6 +17,7 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
   const [category, setCategory] = useState("all");
   const [environment, setEnvironment] = useState("all");
   const [age, setAge] = useState("all");
+  const [activeFormatReferenceSpaceId, setActiveFormatReferenceSpaceId] = useState<string | null>(null);
 
   const filtered = useMemo(
     () => spaces.filter((space) =>
@@ -81,6 +82,7 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
       {filtered.length === 0 ? <p role="note" style={{ padding: "2rem" }}>No spaces match these filters.</p> : null}
       {filtered.map((space) => {
         const index = spaces.findIndex((candidate) => candidate.id === space.id);
+        const formatReferenceIsActive = activeFormatReferenceSpaceId === space.id;
         return (
           <article
             aria-labelledby={`${space.id}-heading`}
@@ -120,6 +122,54 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
                 {space.evidenceStatus === "watchlist" ? <span>Watchlist: no qualifying source attached</span> : null}
               </div>
             </footer>
+            {space.relatedFormatReference ? (
+              <section className="space-related-format-reference" aria-label={`${space.name} related format reference`}>
+                <button
+                  aria-controls={`${space.id}-related-format-reference`}
+                  aria-expanded={formatReferenceIsActive}
+                  className="space-related-format-reference-trigger"
+                  id={`${space.id}-related-format-reference-trigger`}
+                  onClick={() => setActiveFormatReferenceSpaceId(formatReferenceIsActive ? null : space.id)}
+                  type="button"
+                >
+                  <PlaySquare aria-hidden="true" size={16} /> {formatReferenceIsActive ? "Hide" : "Show"} related format reference for {space.name}
+                </button>
+                <div
+                  aria-labelledby={`${space.id}-related-format-reference-trigger`}
+                  className="space-related-format-reference-panel"
+                  hidden={!formatReferenceIsActive}
+                  id={`${space.id}-related-format-reference`}
+                  role="region"
+                >
+                  {formatReferenceIsActive ? (
+                    <>
+                      <div className="space-related-format-reference-copy">
+                        <p><span>Related format reference</span><br />{space.relatedFormatReference.title}</p>
+                        <p>{space.relatedFormatReference.description}</p>
+                        <p><strong>Not evidence of usage</strong><br />{space.relatedFormatReference.nonEvidenceCaveat}</p>
+                        <p><span>Provenance</span><br />{space.relatedFormatReference.provenance}</p>
+                        <a
+                          aria-label={`Watch ${space.name} related format reference on YouTube`}
+                          href={`https://www.youtube.com/watch?v=${space.relatedFormatReference.youtubeId}`}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          Watch on YouTube <ExternalLink aria-hidden="true" size={14} />
+                        </a>
+                      </div>
+                      <iframe
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className="space-related-format-reference-embed"
+                        loading="lazy"
+                        src={`https://www.youtube-nocookie.com/embed/${space.relatedFormatReference.youtubeId}`}
+                        title={`${space.name} related format reference`}
+                      />
+                    </>
+                  ) : null}
+                </div>
+              </section>
+            ) : null}
           </article>
         );
       })}

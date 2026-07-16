@@ -355,7 +355,7 @@ export const insights: Insight[] = insightSeeds.map((seed) => ({
   ...editorialByInsightId[seed.id],
 }));
 
-export const evidenceItems: EvidenceItem[] = extractedFacts.map((item) => {
+const insightEvidenceItems: EvidenceItem[] = extractedFacts.map((item) => {
     const source = sourceById.get(item.sourceId);
     const insight = insightSeeds.find((candidate) => candidate.id === item.insightId);
     if (!source) {
@@ -382,3 +382,57 @@ export const evidenceItems: EvidenceItem[] = extractedFacts.map((item) => {
       insightIds: [item.insightId],
     };
   });
+
+const comparisonEvidence = (
+  id: string,
+  sourceId: string,
+  claim: string,
+  locator: string,
+  supportRationale: string,
+): EvidenceItem => {
+  const source = sourceById.get(sourceId);
+  if (!source) throw new Error(`Unknown comparison source ${sourceId}`);
+
+  return {
+    id,
+    sourceId,
+    claim,
+    claimKind: "metric",
+    supportRationale,
+    locator,
+    evidenceType: "self-reported",
+    population: source.population,
+    ageRange: source.ageRange,
+    geography: source.geography,
+    period: source.fieldworkPeriod,
+    methodology: source.methodology,
+    limitations: source.limitations,
+    insightIds: [],
+  };
+};
+
+const comparisonEvidenceItems: EvidenceItem[] = [
+  comparisonEvidence(
+    "evidence-compare-deloitte-genz-media-1",
+    "deloitte-digital-media-trends-2025",
+    "Gen Z respondents spent 54% more time than the average consumer on social platforms and user-generated content, and 26% less time watching TV and movies.",
+    "The changing faces of video entertainment section, figure 7 discussion.",
+    "Quantifies the reported Gen Z media mix used in the comparison without extending the finding to Gen Alpha or other generations.",
+  ),
+  comparisonEvidence(
+    "evidence-compare-deloitte-genz-commerce-1",
+    "deloitte-digital-media-trends-2025",
+    "Sixty-three percent of Gen Z respondents said social media ads or product reviews were most influential to their purchasing decisions.",
+    "Can studios compete for ad dollars section, figure 6 discussion.",
+    "Supplies a measured Gen Z purchasing-influence context while leaving the child household-decision measure explicitly non-comparable.",
+  ),
+  comparisonEvidence(
+    "evidence-compare-pew-adult-platforms-1",
+    "pew-adult-social-media-2025",
+    "YouTube use was 95% among ages 18-29, 92% among ages 30-49, 85% among ages 50-64, and 64% among ages 65+; TikTok use was 63%, 44%, 30%, and 12%, respectively.",
+    "Large age gaps in use of many platforms section, age-group figure and appendix table.",
+    "Provides scoped adult age-band media proxies for Gen X and Boomers without claiming the age bands are exact generation samples.",
+  ),
+];
+
+export const evidenceItems: EvidenceItem[] = [...insightEvidenceItems, ...comparisonEvidenceItems];

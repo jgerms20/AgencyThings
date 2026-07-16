@@ -1,62 +1,75 @@
 # Task 3 Implementation Report
 
-## Summary
+## Status
 
-- Added 42 canonical `CultureShaper` records: all 30 existing creators plus artists, athletes, screen/IP, and franchises.
-- Added women and girl-focused representation in every relevant type, including Olivia Rodrigo, Sabrina Carpenter, Caitlin Clark, Simone Biles, Bluey, KPop Demon Hunters, Barbie, and Disney Princess.
-- Added six local filter dimensions: type, audience age, topic, platform, format, and audience segment, with native keyboard controls, live result counts, and clear-all behavior.
-- Added four tiered editorial indicators with general rubric definitions, profile-specific rationale, canonical source IDs, hover/focus info controls, and persistent detail-page explanations.
-- Expanded profiles with audience confidence, topics, formats, influence mechanisms, defining moments, related internal entities, evidence notes, direct source links, official destinations, and privacy-enhanced media.
-- Updated static generation to produce all 42 internal culture-shaper profile routes.
+DONE_WITH_CONCERNS
 
-## Owned Files
+## Delivered
 
-- `apps/gen-alpha-lab/src/lib/content/culture-shapers.ts`
-- `apps/gen-alpha-lab/src/components/InfluencerFilters.tsx`
-- `apps/gen-alpha-lab/src/components/IndicatorTooltip.tsx`
-- `apps/gen-alpha-lab/src/lib/influencers.ts`
-- `apps/gen-alpha-lab/src/components/PeoplePage.tsx`
-- `apps/gen-alpha-lab/src/components/InfluencerDetail.tsx`
-- `apps/gen-alpha-lab/src/app/influencers/[influencerId]/page.tsx`
-- `apps/gen-alpha-lab/tests/culture-shapers.test.tsx`
-- `.superpowers/sdd/task-3-report.md`
+- Added a shared `MediaEmbed` component for Spotify episode, Apple Podcasts episode, and privacy-enhanced YouTube embeds. Every iframe is lazy-loaded, responsive, and paired with the existing external source link.
+- Expanded the library to ten podcast records: Eclectic Polymath remains the featured first item, alongside The Future Report and all eight supplied Apple Podcasts episodes.
+- Added the supplied eight YouTube records and changed the exact library filter order to All, Podcasts, Videos, Articles, Reports, Books.
+- Made the owned Eclectic Polymath synthesis remain first even when incoming podcast records are not pre-sorted.
 
 ## TDD Evidence
 
-- Red: `npm test -- --run tests/culture-shapers.test.tsx tests/people-page.test.tsx tests/influencer-detail.test.tsx` failed because `IndicatorTooltip` and the canonical culture-shaper module did not exist; both legacy test files still passed.
-- Green: the same focused command passed 3 files and 10 tests after implementation.
-- Accessibility edge red: the tooltip test failed when pointer leave hid a still-focused tooltip.
-- Accessibility edge green: separate hover and focus state passed the focused culture-shaper test.
+- Red: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` failed with the expected missing counts, old filter order, absent Spotify embed, and single-video-library behavior.
+- Green: the focused suite passed 2 files and 16 tests after adding the media component, records, ordering rule, and featured treatment.
+- Additional red: the shuffled podcast-order regression test failed because the Future Report record appeared first.
+- Additional green: the same focused suite passed after `getLibrarySections` guaranteed the owned synthesis first.
+
+## Self-Review
+
+- Confirmed every supplied Apple episode and YouTube ID is present in the seed set.
+- Confirmed Spotify uses the requested embed URL, Apple URLs are converted to `embed.podcasts.apple.com`, and YouTube uses `www.youtube-nocookie.com`.
+- Confirmed only Task 3-owned implementation and test files are staged; concurrent Task 1 report work remains untouched.
 
 ## Verification
 
-- Focused tests: 3 files, 10 tests passed.
-- Full suite: 16 files, 71 tests passed.
-- Production build: passed TypeScript and generated 98 static pages, including 42 influencer profiles.
-- Embed audit: all eight configured YouTube IDs returned valid oEmbed metadata; embeds use `youtube-nocookie.com`, descriptive titles, lazy loading, and the `embeddable` gate.
+- Focused: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` passed (2 files, 16 tests).
+- Full suite: failed on concurrent Task 1/4 work: the content graph expects 50 spaces but receives 54, and the Insight directory no longer supplies the legacy `Explore` links expected by `insight-graph.test.tsx`.
+- Build: application compiled, then failed TypeScript in concurrent Task 1 `culture-shapers.ts` because a readonly tuple cannot be assigned to mutable `CultureShaper[]`.
+
+## Concerns
+
+- Task 3-focused coverage is green. Repository-wide test and build verification is blocked by the current concurrent changes described above.
+
+## Review Remediation: Rejected Findings
+
+- Preserved all eight researched video records. The project threshold is at least seven, and the requested five additions leave this eight-record set valid.
+- Restricted YouTube embeds to HTTPS `youtube.com/watch?v=<11-character-id>` and `youtu.be/<11-character-id>` URL shapes. Channel URLs, incomplete watch URLs, invalid IDs, and unsupported paths now render no iframe while the library retains each record's external link.
+- Removed the duplicate Apple Podcasts copy of the Future Report episode and kept the existing Spotify record, which preserves the richer working embed.
+- Added direct coverage for Spotify, Apple Podcasts, and YouTube embed conversion; the `media-embed` class, responsive width, and provider aspect-ratio contract; malformed YouTube watch and channel fallback behavior; every supplied video ID; and the Future Report dedupe.
+
+### Review Remediation Verification
+
+- Red: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` failed on the duplicate Future Report podcast, absent media embed class, and malformed YouTube watch URL producing an iframe.
+- Green: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` passed 2 files and 19 tests.
 - `git diff --check`: passed with no whitespace errors.
 
-## Review Follow-up: Specific Evidence And Space Relations
+### Review Remediation Concerns
 
-- Added `relatedSpaceIds` to every culture shaper using the 12 stable IDs in the current space registry. The relation type is isolated as `CultureShaperSpaceId` so Task 4 can replace it with the canonical space ID type or remap records without changing profile structure.
-- Rendered resolved related-space names as internal `/spaces#<spaceId>` links on profile detail.
-- Replaced the shared migrated-creator prose generators with 60 explicit source notes and 120 explicit indicator rationales covering all 30 original creators.
-- Grounded each migrated profile in its named format, primary platform, first defining moment, audience behavior, and specific commercial or participation mechanism.
-- Added validation for current space references, missing relations, repeated source notes or rationales, forbidden boilerplate, profile naming, and six-word fragments repeated across four or more profiles.
+- Focused Task 3 verification is clean. Repository-wide checks remain outside this remediation because unrelated concurrent edits are present in the Space and validation workstreams.
 
-### Follow-up TDD And Verification
+## Second Remediation
 
-- Red: `npm test -- --run tests/culture-shapers.test.tsx tests/influencer-detail.test.tsx` failed on missing space relations, absent related-space UI, and templated evidence that did not name the primary platform.
-- Green: the focused command passed 2 files and 11 tests after the relation and prose changes.
-- Full suite: 16 files and 73 tests passed.
-- Production build: passed TypeScript and generated 98 pages, including all 42 culture-shaper profiles.
-- Boilerplate scan and `git diff --check`: passed with no matches or whitespace errors.
+### Status
 
-## Final Follow-up: Space Anchors
+DONE_WITH_CONCERNS
 
-- Added stable `id={space.id}` fragment targets to every current space article so culture-shaper `/spaces#<spaceId>` links resolve to rendered content.
-- Added `aria-labelledby` links to each space heading, `tabIndex={-1}` for programmatic focus, and a `6rem` scroll margin so anchored content clears persistent page chrome.
-- Red: the focused test found `null` for the first culture-shaper related-space fragment because no rendered article carried the matching ID.
-- Green: `npm test -- --run tests/spaces-page.test.tsx tests/culture-shapers.test.tsx` passed 2 files and 12 tests after the anchor change.
-- Full suite: 18 files and 83 tests passed.
-- Production build: passed TypeScript and generated 131 pages.
+### Delivered
+
+- Restored the library to exactly ten unique podcast records after retaining only the Spotify version of The Future Report episode. Added `Why Generation Alpha and the Age of AI Will Change Everything with Matt Britton` from Right About Now, using the official Apple Podcasts episode URL and publication date (August 26, 2025).
+- Rendered the owned Eclectic Polymath record's `Featured synthesis` status as visible card text. The featured card now has a 3px ink outline, a violet ring, and coral offset shadow, rather than relying on its acid background alone.
+- Tightened Apple Podcasts parsing to accept only HTTPS locale paths shaped as `/podcast[/<slug>]/id<showId>?i=<episodeId>`. The parser now rejects extra path suffixes, additional query parameters, duplicate episode IDs, invalid show IDs, and fragments; rejected records retain their normal external links without an iframe.
+
+### TDD And Verification
+
+- Red: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` failed with the expected nine-podcast count, absent visible synthesis label, absent featured-card outline, and rejected valid Apple slug-path URL.
+- Green: the focused suite passed with 2 files and 21 tests after the seed record, visible label/ring, and strict Apple parser were added.
+- Direct coverage asserts ten unique podcast IDs and URLs, retained Future Report dedupe, the new researched Apple record, a rendered `Featured synthesis` label, CSS outline/ring declarations, valid slug-path conversion, malformed Apple suffix/query/show-ID rejection, and external-link fallback.
+- `git diff --check` passed with no whitespace errors.
+
+### Concerns
+
+- Only the requested focused library/findings tests were run. The worktree contains unrelated active Task 1/4/6 changes, so repository-wide test/build status is intentionally not claimed by this remediation.

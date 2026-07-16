@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -47,6 +49,28 @@ const originalCreatorIds = [
   "jesser",
 ];
 
+const requiredArtistIds = [
+  "taylor-swift", "billie-eilish", "chappell-roan", "doechii", "tyla", "rose", "jennie", "lisa", "bts",
+  "stray-kids", "katseye", "enhypen", "aespa", "ive", "babymonster", "le-sserafim", "ado", "yoasobi",
+  "bad-bunny", "karol-g", "peso-pluma", "fuerza-regida", "burna-boy", "rema", "tems", "shakira", "sza",
+  "the-weeknd",
+];
+
+const requiredAthleteIds = [
+  "angel-reese", "aja-wilson", "trinity-rodman", "coco-gauff", "naomi-osaka", "rayssa-leal", "lamine-yamal",
+  "jude-bellingham", "kylian-mbappe", "shohei-ohtani", "stephen-curry", "erling-haaland",
+];
+
+const requiredCoverageIds = [...requiredArtistIds, ...requiredAthleteIds];
+const factoryIpIds = ["paw-patrol", "inside-out", "sonic-the-hedgehog", "lego", "spider-verse"];
+const factoryCoverageIds = [...requiredCoverageIds, ...factoryIpIds];
+const featuredIpAssets = {
+  bluey: "/culture/bluey.jpg",
+  "kpop-demon-hunters": "/culture/kpop-demon-hunters.jpg",
+  wednesday: "/culture/wednesday.jpg",
+  "disney-princess": "/culture/disney-princess.jpg",
+} as const;
+
 function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCount = 6) {
   const profilesByFragment = new Map<string, Set<string>>();
   for (const entry of entries) {
@@ -63,6 +87,36 @@ function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCou
     .map(([fragment]) => fragment);
 }
 
+function readJpegDimensions(image: Buffer) {
+  expect(image.subarray(0, 2)).toEqual(Buffer.from([0xff, 0xd8]));
+  expect(image.subarray(-2)).toEqual(Buffer.from([0xff, 0xd9]));
+
+  const startOfFrameMarkers = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+  let offset = 2;
+  while (offset < image.length - 1) {
+    expect(image[offset]).toBe(0xff);
+    while (image[offset] === 0xff) offset += 1;
+    const marker = image[offset];
+    offset += 1;
+
+    if (marker === 0xd8 || marker === 0xd9 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    if (marker === 0xda) break;
+
+    const segmentLength = image.readUInt16BE(offset);
+    expect(segmentLength).toBeGreaterThanOrEqual(2);
+    expect(offset + segmentLength).toBeLessThanOrEqual(image.length);
+    if (startOfFrameMarkers.has(marker)) {
+      return {
+        height: image.readUInt16BE(offset + 3),
+        width: image.readUInt16BE(offset + 5),
+      };
+    }
+    offset += segmentLength;
+  }
+
+  throw new Error("JPEG has no supported start-of-frame marker");
+}
+
 describe("canonical culture shapers", () => {
   it("preserves all thirty creators and expands to all five shaper types", () => {
     expect(cultureShapers.length).toBeGreaterThan(originalCreatorIds.length);
@@ -74,6 +128,121 @@ describe("canonical culture shapers", () => {
     );
     expect(getCultureShaper("bluey")?.type).toBe("screen-ip");
     expect(getCultureShaper("kpop-demon-hunters")?.type).toBe("screen-ip");
+  });
+
+  it("maintains the editorial coverage floor for artists, athletes, and IP", () => {
+    const countByType = (type: CultureShaperType) => cultureShapers.filter((shaper) => shaper.type === type).length;
+
+    expect(countByType("artist")).toBeGreaterThanOrEqual(30);
+    expect(countByType("athlete")).toBeGreaterThanOrEqual(12);
+    expect(countByType("screen-ip") + countByType("franchise")).toBeGreaterThanOrEqual(12);
+  });
+
+  it("includes the required globally diverse artist and athlete rosters", () => {
+    expect(cultureShapers.filter((shaper) => requiredArtistIds.includes(shaper.id))).toHaveLength(requiredArtistIds.length);
+    expect(cultureShapers.filter((shaper) => requiredAthleteIds.includes(shaper.id))).toHaveLength(requiredAthleteIds.length);
+  });
+
+  it("turns every required coverage profile into a bespoke, non-claiming record", () => {
+    const coverage = requiredCoverageIds.map((id) => getCultureShaper(id)!);
+    const summaries = coverage.map((shaper) => shaper.summary);
+    const roles = coverage.map((shaper) => shaper.role);
+    const mechanisms = coverage.map((shaper) => shaper.influenceMechanism);
+    const moments = coverage.flatMap((shaper) => shaper.definingMoments);
+
+    expect(coverage.every(Boolean)).toBe(true);
+    expect(new Set(summaries).size).toBe(summaries.length);
+    expect(new Set(roles).size).toBe(roles.length);
+    expect(new Set(mechanisms).size).toBe(mechanisms.length);
+    expect(new Set(moments).size).toBe(moments.length);
+    expect(repeatedFragments(coverage.map((shaper) => ({
+      id: shaper.id,
+      text: [shaper.summary, shaper.influenceMechanism, ...shaper.definingMoments].join(" "),
+    })))).toEqual([]);
+
+    for (const shaper of coverage) {
+      expect(shaper.definingMoments).toHaveLength(3);
+      expect(shaper.audience.center).toMatch(/not publicly segmented/i);
+      expect(shaper.audience.ageRange).toBe("Not publicly segmented");
+      expect(shaper.audience.confidence).toBe("low");
+      expect(shaper.audience.confidenceRationale).toMatch(/cohort-level.*not.*profile-specific/i);
+      expect(shaper.sourceNotes.every((note) => /cohort-level|not.*profile-specific|not.*audience/i.test(note.note))).toBe(true);
+      expect(shaper.officialUrl).toMatch(/^https:\/\//);
+      expect(new URL(shaper.officialUrl).pathname).not.toMatch(/\/{2,}/);
+      expect(shaper.portrait || shaper.videos.length > 0 || shaper.mediaFallback).toBeTruthy();
+    }
+  });
+
+  it("keeps every factory-backed editorial profile bespoke across every seeded dimension", () => {
+    const coverage = factoryCoverageIds.map((id) => getCultureShaper(id)!);
+    const signatures = {
+      category: coverage.map((shaper) => shaper.category),
+      topics: coverage.map((shaper) => JSON.stringify(shaper.topics)),
+      formats: coverage.map((shaper) => JSON.stringify(shaper.formats)),
+      platforms: coverage.map((shaper) => JSON.stringify(shaper.platforms)),
+      audienceSegments: coverage.map((shaper) => JSON.stringify(shaper.audienceSegments)),
+      relatedEntities: coverage.map((shaper) => JSON.stringify(shaper.relatedEntities)),
+      insightIds: coverage.map((shaper) => JSON.stringify(shaper.insightIds)),
+      sourceNotes: coverage.map((shaper) => JSON.stringify(shaper.sourceNotes)),
+      indicatorTiers: coverage.map((shaper) => JSON.stringify(
+        Object.values(shaper.indicators).map((indicator) => indicator.tier),
+      )),
+    };
+
+    for (const [dimension, values] of Object.entries(signatures)) {
+      const counts = values.reduce((occurrences, value) => {
+        occurrences.set(value, (occurrences.get(value) ?? 0) + 1);
+        return occurrences;
+      }, new Map<string, number>());
+      const maximumReuse = dimension === "indicatorTiers" ? 4 : 2;
+      expect(
+        Math.max(...counts.values()),
+        `${dimension} contains a boilerplate signature: ${JSON.stringify([...counts].filter(([, count]) => count > maximumReuse))}`,
+      ).toBeLessThanOrEqual(maximumReuse);
+    }
+
+    expect(repeatedFragments(coverage.map((shaper) => ({
+      id: shaper.id,
+      text: shaper.sourceNotes.map((note) => note.note).join(" "),
+    })))).toEqual([]);
+  });
+
+  it.each(Object.keys(featuredIpAssets))("does not claim an exact Gen Alpha age or gender center for %s", (id) => {
+    const shaper = getCultureShaper(id)!;
+
+    expect(shaper.audience.center).toMatch(/exact Gen Alpha (age|segmentation).*not (publicly )?available/i);
+    expect(shaper.audience.ageRange).toBe("Not publicly segmented");
+    expect(shaper.audienceSegments).not.toContain("girls");
+    expect(shaper.audience.confidence).toBe("low");
+    expect(shaper.audience.confidenceRationale).toMatch(/title-level.*not (publicly )?available/i);
+  });
+
+  it("gives featured IP local portraits and enriches the wider IP set", () => {
+    for (const [id, portrait] of Object.entries(featuredIpAssets)) {
+      expect(getCultureShaper(id)?.portrait).toBe(portrait);
+    }
+
+    for (const id of ["paw-patrol", "inside-out", "sonic-the-hedgehog", "lego", "spider-verse"]) {
+      const shaper = getCultureShaper(id)!;
+      expect(shaper.summary).not.toMatch(/recognisable reference point/i);
+      expect(shaper.definingMoments).toHaveLength(3);
+      expect(new Set(shaper.definingMoments).size).toBe(3);
+    }
+  });
+
+  it("keeps every featured local image present, decodable, and attributed", async () => {
+    const attribution = await readFile(join(process.cwd(), "public/culture/ATTRIBUTION.md"), "utf8");
+
+    for (const portrait of Object.values(featuredIpAssets)) {
+      const filename = portrait.split("/").at(-1)!;
+      const imagePath = join(process.cwd(), "public", portrait);
+      const image = await readFile(imagePath);
+      const dimensions = readJpegDimensions(image);
+
+      expect(dimensions.width).toBeGreaterThan(0);
+      expect(dimensions.height).toBeGreaterThan(0);
+      expect(attribution).toContain(`\`${filename}\``);
+    }
   });
 
   it("includes women and girl-focused culture across relevant categories", () => {
@@ -194,6 +363,22 @@ describe("canonical culture shapers", () => {
 });
 
 describe("culture shaper directory filters", () => {
+  it("offers one IP filter that merges screen and franchise results", async () => {
+    const user = userEvent.setup();
+    render(<PeoplePage />);
+
+    expect(screen.queryByRole("button", { name: "Screen / IP" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Franchise" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "IP" }));
+
+    const expectedProfiles = cultureShapers.filter((shaper) => shaper.type === "screen-ip" || shaper.type === "franchise");
+    expect(screen.getByRole("status")).toHaveTextContent(`${expectedProfiles.length} IP profiles shown`);
+    for (const shaper of expectedProfiles) {
+      expect(screen.getByRole("link", { name: `Explore ${shaper.name}` })).toBeVisible();
+    }
+  });
+
   it("filters all six dimensions, reports results, and clears without losing keyboard access", async () => {
     const user = userEvent.setup();
     render(<PeoplePage />);

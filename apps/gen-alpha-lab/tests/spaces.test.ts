@@ -56,6 +56,10 @@ const expectedRoster = [
   "After-school sports and clubs",
   "Cinemas and live entertainment",
   "Home and family routines",
+  "Public libraries and maker spaces",
+  "Parks, playgrounds, and pickup play",
+  "Youth arts, dance, and music studios",
+  "Retail, fandom, and collector spaces",
 ];
 
 const expectedCategories = [
@@ -68,11 +72,33 @@ const expectedCategories = [
 ];
 
 describe("canonical Gen Alpha spaces", () => {
-  it("defines the exact approved fifty-space roster in its editorial order", () => {
+  it("defines the expanded approved space roster in its editorial order", () => {
     expect(spaces.map((space) => space.name)).toEqual(expectedRoster);
-    expect(spaces).toHaveLength(50);
-    expect(new Set(spaces.map((space) => space.id))).toHaveProperty("size", 50);
+    expect(spaces).toHaveLength(54);
+    expect(new Set(spaces.map((space) => space.id))).toHaveProperty("size", 54);
     expect([...new Set(spaces.map((space) => space.category))]).toEqual(expectedCategories);
+  });
+
+  it("adds four meaningful physical or hybrid spaces with attributed related format references", () => {
+    const additions = [
+      "public-libraries-maker-spaces",
+      "parks-playgrounds-pickup-play",
+      "youth-arts-dance-music-studios",
+      "retail-fandom-collector-spaces",
+    ];
+    const physicalOrHybrid = spaces.filter((space) => space.environment !== "digital");
+
+    expect(physicalOrHybrid).toHaveLength(8);
+    expect(physicalOrHybrid.map((space) => space.id)).toEqual(expect.arrayContaining(additions));
+
+    for (const id of additions) {
+      const space = spaces.find((candidate) => candidate.id === id)!;
+      expect(space.evidenceStatus).toBe("watchlist");
+      expect(space.relatedFormatReference?.youtubeId).toMatch(/^[\w-]{11}$/);
+      expect(space.relatedFormatReference?.title.length).toBeGreaterThan(12);
+      expect(space.relatedFormatReference?.provenance).toMatch(/YouTube/i);
+      expect(space.relatedFormatReference?.nonEvidenceCaveat).toMatch(/not evidence/i);
+    }
   });
 
   it("stores complete, distinct context for every space", () => {
@@ -94,7 +120,7 @@ describe("canonical Gen Alpha spaces", () => {
     }
 
     for (const field of fields) {
-      expect(new Set(spaces.map((space) => space[field])).size).toBe(50);
+      expect(new Set(spaces.map((space) => space[field])).size).toBe(54);
     }
   });
 
@@ -174,7 +200,7 @@ describe("canonical Gen Alpha spaces", () => {
 
     for (const space of spaces) {
       space.relatedInsightIds.forEach((id) => expect(insightIds.has(id)).toBe(true));
-      space.relatedCultureShaperIds.forEach((id) => expect(shaperIds.has(id)).toBe(true));
+      space.relatedCultureShaperIds.forEach((id) => expect(shaperIds.has(id), `${space.id}: ${id}`).toBe(true));
     }
   });
 });

@@ -106,6 +106,45 @@ describe("Gen Alpha field-guide findings", () => {
     expect(seedRecords.find((record) => record.id === "owned-podcast-093")?.summary).not.toMatch(/Joshua/i);
   });
 
+  it("keeps Eclectic Polymath first in a deduplicated ten-episode podcast listening set", () => {
+    const podcasts = filterLibraryByFormat(seedRecords, "podcasts");
+
+    expect(podcasts).toHaveLength(10);
+    expect(new Set(podcasts.map((podcast) => podcast.id)).size).toBe(10);
+    expect(new Set(podcasts.map((podcast) => podcast.url)).size).toBe(10);
+    expect(podcasts[0]).toMatchObject({
+      id: "owned-podcast-093",
+      source: "Eclectic Polymath",
+      url: "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g"
+    });
+    expect(podcasts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "right-about-now-generation-alpha-ai",
+        url: "https://podcasts.apple.com/us/podcast/why-generation-alpha-and-the-age-of-ai/id1346054199?i=1000723571640"
+      }),
+      expect.objectContaining({ url: expect.stringContaining("id1733611380?i=1000649487888") })
+    ]));
+  });
+
+  it("keeps only the richer Spotify embed for the duplicated Future Report episode", () => {
+    const futureReportEpisodes = seedRecords.filter((record) => record.source === "The Future Report");
+
+    expect(futureReportEpisodes).toEqual([
+      expect.objectContaining({
+        id: "future-report-alpha-mccrindle-2025",
+        url: "https://open.spotify.com/episode/5WPGgs3LmLOAkxww8NwsKS"
+      })
+    ]);
+  });
+
+  it("keeps the owned synthesis first when the library receives podcast records in another order", () => {
+    const podcasts = filterLibraryByFormat(seedRecords, "podcasts");
+    const sections = getLibrarySections([...podcasts.slice(1), podcasts[0]]);
+    const podcastSection = sections.find((section) => section.id === "podcasts");
+
+    expect(podcastSection?.records[0]?.id).toBe("owned-podcast-093");
+  });
+
   it("organizes the library into one unique section per media format", () => {
     const sections = getLibrarySections(seedRecords);
 

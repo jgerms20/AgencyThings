@@ -17,6 +17,7 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
   const relatedSpaces = profile.relatedSpaceIds
     .map((spaceId) => spaces.find((space) => space.id === spaceId))
     .filter((space) => space !== undefined);
+  const embeddableVideos = profile.videos.filter((video) => video.embeddable);
 
   return (
     <main className="influencer-detail-page">
@@ -87,9 +88,21 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           </div>
         </section>
 
-        {profile.videos.filter((video) => video.embeddable).map((video) => (
+        {embeddableVideos.map((video) => (
           <section className="profile-video" key={video.youtubeId}>
-            <div><span>See the format</span><h2>{video.title}</h2></div>
+            <div>
+              <span>See the format</span>
+              <h2>{video.title}</h2>
+              <a
+                aria-label={`Open ${profile.name} video on YouTube`}
+                className="text-link"
+                href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open on YouTube <ArrowUpRight aria-hidden="true" size={17} />
+              </a>
+            </div>
             <iframe
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
@@ -99,6 +112,13 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
             />
           </section>
         ))}
+
+        {profile.mediaFallback && embeddableVideos.length === 0 && !profile.portrait ? (
+          <aside className="profile-media-note" role="note" aria-label="Media note">
+            <span>Media note</span>
+            <p>{profile.mediaFallback}</p>
+          </aside>
+        ) : null}
 
         <section className="profile-intelligence" aria-label="Related intelligence and sources">
           <div>
