@@ -172,7 +172,7 @@ const seeds: SpaceSeed[] = [
   {
     id: "tiktok", name: "TikTok", category: "Video, Streaming & Live Media", environment: "digital", ageContext: "Relevant mainly to older Gen Alpha ages 13-17; minimum ages apply.", ageBands: ["13-17"],
     whatItIs: "An algorithmic short-video network organized around creators, sounds, interests, and remix.", whyTheyGo: "The feed provides fast cultural orientation, niche discovery, humor, music, and social templates.", whatHappens: "Users watch, search, imitate, stitch, comment, message, and carry formats into other spaces.", whoIsThere: "Older teens, creators, artists, fandoms, brands, interest communities, and recommendation systems.",
-    evidence: backed("Adjacent teen research supports short-form platform context; it should not be generalized to children under thirteen or treated as Gen Alpha-wide proof.", ["oxford-brain-rot-2024"], ["evidence-media-short-form-shape-2"]),
+    evidence: backed("Pew's representative survey is adjacent teen evidence: about six in ten U.S. teens ages 13-17 visited TikTok daily, including 16% almost constantly; it does not support claims about younger children or Gen Alpha as a whole.", ["pew-teens-social-2024"], ["evidence-media-short-form-shape-2"]),
     strategyRelevance: "Contribute a useful, adaptable format and disclose intent rather than disguising advertising as peer culture.", safetyCaveat: "Minimum age, recommendation risk, private messaging, data collection, and persuasive commerce are central constraints.", relatedInsightIds: ["media-short-form-shape", "media-reach-risk"], relatedCultureShaperIds: ["charli-damelio", "sabrina-carpenter"],
   },
   {
