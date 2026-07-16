@@ -1,3 +1,5 @@
+import { insights as canonicalInsights } from "./content/insights";
+import { getEvidenceForInsight } from "./content/selectors";
 import type { ConfidenceLevel, ResearchRecord } from "./types";
 
 export type TopicLens = {
@@ -304,6 +306,25 @@ export const findings: Finding[] = [
   }
 ];
 
+const topicByTheme = {
+  "play-belonging": "play-create",
+  "media-influence": "media",
+  "time-routines": "time",
+  "learning-becoming": "learn",
+} as const satisfies Record<(typeof canonicalInsights)[number]["themeId"], TopicLens["id"]>;
+
+export const insightFindings: Finding[] = canonicalInsights.map((insight) => ({
+  id: insight.id,
+  topicId: topicByTheme[insight.themeId],
+  title: insight.title,
+  summary: insight.thesis,
+  interpretation: insight.interpretation,
+  observations: [insight.confidenceReason, insight.nuance],
+  genZJuxtaposition: insight.genZComparison ?? "No defensible comparison is available.",
+  supportIds: getEvidenceForInsight(insight.id).map((evidence) => evidence.sourceId),
+  confidence: insight.confidence,
+}));
+
 export function getSupportingRecords(
   finding: Finding,
   records: ResearchRecord[]
@@ -316,7 +337,7 @@ export function getSupportingRecords(
 }
 
 export function getFindingById(id: string): Finding | undefined {
-  return findings.find((finding) => finding.id === id);
+  return findings.find((finding) => finding.id === id) ?? insightFindings.find((finding) => finding.id === id);
 }
 
 export function getTopicById(id: string): TopicLens | undefined {

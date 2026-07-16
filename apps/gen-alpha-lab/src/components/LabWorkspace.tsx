@@ -16,8 +16,8 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
       <SiteHeader active="overview" />
       <section className="overview-opening">
         <h1>Gen Alpha, in ten truths.</h1>
-        <p>The first childhood shaped by participatory worlds, creator media, managed digital routines, and conversational AI is already here.</p>
-        <Link className="text-link" href="/insights">See all ten insights <ArrowUpRight aria-hidden="true" size={18} /></Link>
+        <p>Forty evidence-backed insights connect play, media, routines, and learning. AI cuts across them as a condition, never a theme of its own.</p>
+        <Link className="text-link" href="/insights">Explore all 40 insights <ArrowUpRight aria-hidden="true" size={18} /></Link>
       </section>
 
       <InsightTabs />
