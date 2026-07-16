@@ -318,37 +318,44 @@ export function getFindingsForTopic(topic: TopicLens): Finding[] {
 
 export function getLibrarySections(records: ResearchRecord[]): LibrarySection[] {
   const externalRecords = records.filter((record) => record.url && record.kind !== "interview");
+  const recordsForFormat = (format: Exclude<LibraryFormat, "all">) => {
+    const matchingRecords = externalRecords.filter((record) => getLibraryFormat(record) === format);
+
+    return format === "podcasts"
+      ? matchingRecords.sort((left, right) => Number(right.id === "owned-podcast-093") - Number(left.id === "owned-podcast-093"))
+      : matchingRecords;
+  };
 
   return [
     {
       id: "reports",
       title: "Reports",
       description: "Surveys, industry intelligence, policy documents, and research programs with a defined evidence base.",
-      records: externalRecords.filter((record) => getLibraryFormat(record) === "reports")
+      records: recordsForFormat("reports")
     },
     {
       id: "articles",
       title: "Articles",
       description: "Peer-reviewed studies, reported analysis, explainers, and platform briefings with direct source links.",
-      records: externalRecords.filter((record) => getLibraryFormat(record) === "articles")
+      records: recordsForFormat("articles")
     },
     {
       id: "books",
       title: "Books",
       description: "Long-form frameworks that help the lab pressure-test its point of view.",
-      records: externalRecords.filter((record) => getLibraryFormat(record) === "books")
+      records: recordsForFormat("books")
     },
     {
       id: "podcasts",
       title: "Podcasts",
       description: "Owned and external listening material for synthesis, contrast, and planning language.",
-      records: externalRecords.filter((record) => getLibraryFormat(record) === "podcasts")
+      records: recordsForFormat("podcasts")
     },
     {
       id: "videos",
       title: "Videos",
       description: "Video explainers and briefings that show how the conversation is being framed publicly.",
-      records: externalRecords.filter((record) => getLibraryFormat(record) === "videos")
+      records: recordsForFormat("videos")
     }
   ];
 }

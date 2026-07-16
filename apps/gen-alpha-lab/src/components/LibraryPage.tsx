@@ -4,6 +4,7 @@ import { BookOpen, ExternalLink, FileText, Headphones, Newspaper, PlaySquare } f
 import Link from "next/link";
 import type { Route } from "next";
 import { useMemo, useState } from "react";
+import MediaEmbed from "@/components/MediaEmbed";
 import SiteHeader from "@/components/SiteHeader";
 import { evidenceItems } from "@/lib/content/evidence";
 import { themes } from "@/lib/content/insights";
@@ -18,11 +19,11 @@ type LibraryPageProps = { initialRecords: ResearchRecord[] };
 
 const formatTabs: { id: LibraryFormat; label: string }[] = [
   { id: "all", label: "All" },
-  { id: "reports", label: "Reports" },
-  { id: "articles", label: "Articles" },
-  { id: "books", label: "Books" },
   { id: "podcasts", label: "Podcasts" },
-  { id: "videos", label: "Videos" }
+  { id: "videos", label: "Videos" },
+  { id: "articles", label: "Articles" },
+  { id: "reports", label: "Reports" },
+  { id: "books", label: "Books" }
 ];
 
 const libraryIcons: Record<LibrarySection["title"], typeof Newspaper> = {
@@ -56,18 +57,6 @@ const sourcePreviews = new Map(sources.map((source) => {
 }));
 
 const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
-
-function youtubeId(url: string | undefined): string | undefined {
-  if (!url) return undefined;
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname === "youtu.be") return parsed.pathname.slice(1) || undefined;
-    if (parsed.hostname.endsWith("youtube.com")) return parsed.searchParams.get("v") ?? undefined;
-  } catch {
-    return undefined;
-  }
-  return undefined;
-}
 
 export default function LibraryPage({ initialRecords }: LibraryPageProps) {
   const [activeFormat, setActiveFormat] = useState<LibraryFormat>("all");
@@ -135,14 +124,19 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
                 <div className="library-group-heading"><Icon aria-hidden="true" size={21} /><div><h2 id={`${section.id}-heading`}>{section.title}</h2><p>{section.description}</p></div></div>
                 <div className="library-list">
                   {section.records.map((record) => {
-                    const videoId = section.id === "videos" ? youtubeId(record.url) : undefined;
+                    const isPlayable = section.id === "podcasts" || section.id === "videos";
+                    const isFeatured = record.id === "owned-podcast-093";
                     return (
-                      <article className={`library-row${videoId ? " library-row-video" : ""}`} key={record.id}>
+                      <article
+                        className={`library-row${isPlayable ? " library-row-media" : ""}${isFeatured ? " library-row-featured" : ""}`}
+                        key={record.id}
+                        style={isFeatured ? { background: "var(--acid)", paddingInline: "12px" } : undefined}
+                      >
                         <div className="library-source"><span>{record.source}</span><small>{record.sourceClass}</small></div>
                         <div>
                           <h3>{record.title}</h3><p>{record.summary}</p>
                           <div className="library-meta" aria-label={`Topics for ${record.title}`}>{record.tags.slice(0, 3).map((tag) => <span key={tag}>{tag.replaceAll("-", " ")}</span>)}</div>
-                          {videoId ? <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" src={`https://www.youtube-nocookie.com/embed/${videoId}`} title={`${record.title} video`} /> : null}
+                          {isPlayable ? <MediaEmbed title={record.title} url={record.url} /> : null}
                         </div>
                         {record.url ? <a aria-label={`Open ${record.title}`} href={record.url} target="_blank" rel="noreferrer"><ExternalLink aria-hidden="true" size={17} /></a> : null}
                       </article>
