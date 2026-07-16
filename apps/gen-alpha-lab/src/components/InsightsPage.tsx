@@ -2,31 +2,42 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import SiteHeader from "@/components/SiteHeader";
-import { getInsightsForTab, insightTabs } from "@/lib/editorial";
+import { getInsightsForTheme, themes } from "@/lib/content/insights";
+
+const toneByTheme = {
+  "play-belonging": "acid",
+  "media-influence": "coral",
+  "time-routines": "cyan",
+  "learning-becoming": "violet",
+} as const;
 
 export default function InsightsPage() {
   return (
     <main className="insights-page">
       <SiteHeader active="insights" />
       <section className="page-opening insights-opening">
-        <h1>Ten truths shaping Gen Alpha now.</h1>
-        <p>Four connected systems explain more than a list of platforms ever could. Open any truth for its evidence and implications.</p>
+        <h1>Forty sourced insights shaping Gen Alpha now.</h1>
+        <p>Four connected systems organize the evidence, limits, comparisons, and responsible agency implications.</p>
       </section>
 
       <div className="insight-directory">
-        {insightTabs.map((tab) => (
-          <section className={`insight-cluster insight-cluster-${tab.tone}`} key={tab.id}>
+        {themes.map((theme) => (
+          <section
+            className={`insight-cluster insight-cluster-${toneByTheme[theme.id]}`}
+            id={theme.id}
+            key={theme.id}
+          >
             <header>
-              <h2>{tab.label}</h2>
-              <p>{tab.thesis}</p>
+              <h2>{theme.title}</h2>
+              <p>{theme.description}</p>
             </header>
             <div>
-              {getInsightsForTab(tab.id).map((insight) => (
+              {getInsightsForTheme(theme.id).map((insight) => (
                 <article data-testid="insight-directory-item" key={insight.id}>
-                  <span>{insight.number}</span>
+                  <span>{String(insight.sequence).padStart(2, "0")}</span>
                   <h3>{insight.title}</h3>
                   <p>{insight.interpretation}</p>
-                  <Link href={insight.href as Route} aria-label={`Explore ${insight.title}`}>
+                  <Link href={`/insights/${insight.id}` as Route} aria-label={`Explore ${insight.title}`}>
                     <ArrowUpRight aria-hidden="true" size={20} />
                   </Link>
                 </article>
@@ -35,6 +46,7 @@ export default function InsightsPage() {
           </section>
         ))}
       </div>
+
     </main>
   );
 }

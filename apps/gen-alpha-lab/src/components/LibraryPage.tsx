@@ -1,10 +1,17 @@
 "use client";
 
 import { BookOpen, ExternalLink, FileText, Headphones, Newspaper, PlaySquare } from "lucide-react";
+import Link from "next/link";
+import type { Route } from "next";
 import { useMemo, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
+import { evidenceItems } from "@/lib/content/evidence";
+import { themes } from "@/lib/content/insights";
+import { getInsight } from "@/lib/content/selectors";
+import { sources } from "@/lib/content/sources";
 import { libraryTakeaways } from "@/lib/editorial";
 import { filterLibraryByFormat, getLibrarySections, type LibraryFormat, type LibrarySection } from "@/lib/findings";
+import type { Source } from "@/lib/content/types";
 import type { ResearchRecord } from "@/lib/types";
 
 type LibraryPageProps = { initialRecords: ResearchRecord[] };
@@ -26,6 +33,30 @@ const libraryIcons: Record<LibrarySection["title"], typeof Newspaper> = {
   Videos: PlaySquare
 };
 
+const sourceFormatForLibraryFormat: Partial<Record<LibraryFormat, Source["format"]>> = {
+  reports: "report",
+  articles: "article",
+  books: "book",
+  videos: "video"
+};
+
+const sourcePreviews = new Map(sources.map((source) => {
+  const sourceEvidence = evidenceItems.filter((item) => item.sourceId === source.id);
+  const themeIds = new Set(
+    sourceEvidence.flatMap((item) => item.insightIds).flatMap((insightId) => {
+      const insight = getInsight(insightId);
+      return insight ? [insight.themeId] : [];
+    })
+  );
+
+  return [source.id, {
+    evidenceCount: sourceEvidence.length,
+    themeTitles: themes.filter((theme) => themeIds.has(theme.id)).map((theme) => theme.title)
+  }] as const;
+}));
+
+const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
 function youtubeId(url: string | undefined): string | undefined {
   if (!url) return undefined;
   try {
@@ -40,8 +71,12 @@ function youtubeId(url: string | undefined): string | undefined {
 
 export default function LibraryPage({ initialRecords }: LibraryPageProps) {
   const [activeFormat, setActiveFormat] = useState<LibraryFormat>("all");
+  const canonicalSources = useMemo(
+    () => activeFormat === "all" ? sources : sources.filter((source) => source.format === sourceFormatForLibraryFormat[activeFormat]),
+    [activeFormat]
+  );
   const sections = useMemo(
-    () => getLibrarySections(filterLibraryByFormat(initialRecords, activeFormat)).filter((section) => section.records.length > 0),
+    () => getLibrarySections(filterLibraryByFormat(initialRecords.filter((record) => !sources.some((source) => source.id === record.id)), activeFormat)).filter((section) => section.records.length > 0),
     [activeFormat, initialRecords]
   );
 
@@ -65,6 +100,34 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
         </div>
 
         <div className="library-groups">
+          {canonicalSources.length > 0 ? (
+            <section className="library-group" aria-labelledby="canonical-sources-heading">
+              <div className="library-group-heading"><FileText aria-hidden="true" size={21} /><div><h2 id="canonical-sources-heading">Source records</h2><p>Directly linked source records with extracted evidence, scope, strength, and related conclusions.</p></div></div>
+              <div className="library-list">
+                {canonicalSources.map((source) => {
+                  const preview = sourcePreviews.get(source.id)!;
+
+                  return (
+                    <article className="library-row" key={source.id}>
+                      <div className="library-source"><span>{source.organization}</span><small>{source.sourceClass}</small></div>
+                      <div>
+                        <h3>{source.title}</h3><p>{source.summary}</p>
+                        <p><strong>Population</strong> {source.population}; ages {source.ageRange}; {source.geography}.</p>
+                        <p><strong>Methodology</strong> {source.methodology}</p>
+                        <div className="library-meta">
+                          <strong>{source.format}</strong>
+                          <span>{preview.evidenceCount} extracted evidence {preview.evidenceCount === 1 ? "item" : "items"}</span>
+                          <span>Themes: {preview.themeTitles.length > 0 ? preview.themeTitles.join(", ") : "None connected yet"}</span>
+                          <span>Strength: {titleCase(source.confidence)}</span>
+                        </div>
+                      </div>
+                      <Link aria-label={`Open source detail for ${source.title}`} href={`/library/${source.id}` as Route}><ExternalLink aria-hidden="true" size={17} /></Link>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
           {sections.map((section) => {
             const Icon = libraryIcons[section.title];
             return (

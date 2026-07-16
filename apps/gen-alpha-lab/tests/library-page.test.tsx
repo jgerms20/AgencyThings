@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import LibraryPage from "../src/components/LibraryPage";
+import { sources } from "../src/lib/content/sources";
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("LibraryPage", () => {
@@ -25,7 +26,34 @@ describe("LibraryPage", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Books" }));
-    expect(screen.getByRole("heading", { name: "Books" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open source detail for Generation Alpha" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Videos" })).not.toBeInTheDocument();
+  });
+
+  it("links canonical source cards to their extracted-evidence details", () => {
+    const source = sources.find((item) => item.id === "pwc-alpha-2026")!;
+    render(<LibraryPage initialRecords={seedRecords} />);
+
+    expect(screen.getByRole("heading", { name: source.title })).toBeInTheDocument();
+    expect(screen.getByText(source.population, { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: `Open source detail for ${source.title}` })).toHaveAttribute(
+      "href",
+      "/library/pwc-alpha-2026"
+    );
+  });
+
+  it("previews the evidence context for every canonical source card", () => {
+    const source = sources.find((item) => item.id === "walton-creation-gaming-2024")!;
+    render(<LibraryPage initialRecords={seedRecords} />);
+
+    const link = screen.getByRole("link", { name: `Open source detail for ${source.title}` });
+    const card = link.closest("article");
+
+    expect(card).not.toBeNull();
+    expect(within(card!).getByText(source.population, { exact: false })).toBeInTheDocument();
+    expect(within(card!).getByText(source.methodology, { exact: false })).toBeInTheDocument();
+    expect(card).toHaveTextContent("8 extracted evidence items");
+    expect(card).toHaveTextContent("Themes: Play & Belonging, Learning & Becoming");
+    expect(card).toHaveTextContent("Strength: High");
   });
 });

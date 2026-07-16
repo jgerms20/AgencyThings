@@ -201,7 +201,7 @@ export const seedRecords: ResearchRecord[] = [
     title: "#093 Gen Alpha: AI, Gaming, and the First Fully Digital Childhood",
     source: "Eclectic Polymath",
     url: "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g",
-    summary: "Joshua's owned synthesis on how AI, gaming, and always-on media shape the first fully digital childhood.",
+    summary: "A podcast conversation exploring how AI, gaming, and always-on media shape the first fully digital childhood.",
     synthesisStatus: "Featured synthesis",
     tags: ["owned", "ai", "gaming", "digital-childhood"],
     useModes: ["think"],

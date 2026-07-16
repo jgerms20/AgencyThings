@@ -1,7 +1,9 @@
+import { insights as canonicalInsights } from "./content/insights";
+import { getEvidenceForInsight } from "./content/selectors";
 import type { ConfidenceLevel, ResearchRecord } from "./types";
 
 export type TopicLens = {
-  id: "connect" | "media" | "influence" | "time" | "learn" | "play-create" | "ai";
+  id: "connect" | "media" | "influence" | "time" | "learn" | "play-create";
   label: string;
   href: string;
   description: string;
@@ -151,25 +153,6 @@ export const findingTopics: TopicLens[] = [
     agencyQuestion:
       "What can they shape, customize, remix, or show to someone else?",
     findingIds: ["creation-gaming-is-participatory"]
-  },
-  {
-    id: "ai",
-    label: "How they use AI",
-    href: "/topics/ai",
-    description: "Ambient assistants, discovery, trust, safety, and literacy.",
-    pageTitle: "How they use AI",
-    thesis:
-      "AI is becoming a normal interface for asking, comparing, discovering, and creating, not a separate future-tech category.",
-    visualAnatomy: [
-      "Conversational search and entertainment discovery",
-      "Homework, explanation, and creative scaffolding",
-      "Trust, verification, and adult guidance built into the workflow"
-    ],
-    genZContrast:
-      "Gen Z adapted to algorithmic feeds; Gen Alpha is learning to navigate systems that answer back.",
-    agencyQuestion:
-      "Where should the interface encourage checking, comparison, and useful skepticism?",
-    findingIds: ["ai-is-a-normal-interface"]
   }
 ];
 
@@ -284,25 +267,27 @@ export const findings: Finding[] = [
       "Gen Z popularized creator tools; Gen Alpha meets creation as a default part of the play environment.",
     supportIds: ["walton-creation-gaming-2024", "pew-teens-video-games-2024"],
     confidence: "high"
-  },
-  {
-    id: "ai-is-a-normal-interface",
-    topicId: "ai",
-    title: "AI is becoming a normal interface, not a separate category.",
-    summary:
-      "Older Gen Alpha is already using chatbots in entertainment discovery, while family guidance and safety literacy remain part of the experience.",
-    interpretation:
-      "Design for useful skepticism: children need ways to ask, compare, create, and check what a system gives back.",
-    observations: [
-      "AI is entering the everyday discovery and homework toolset rather than arriving as a standalone novelty.",
-      "Guidance and verification become part of the interface experience."
-    ],
-    genZJuxtaposition:
-      "Gen Z adapted to algorithmic feeds; Gen Alpha is learning to navigate systems that answer back.",
-    supportIds: ["nielsen-ai-discovery-2026", "common-sense-chatgpt-video"],
-    confidence: "high"
   }
 ];
+
+const topicByTheme = {
+  "play-belonging": "play-create",
+  "media-influence": "media",
+  "time-routines": "time",
+  "learning-becoming": "learn",
+} as const satisfies Record<(typeof canonicalInsights)[number]["themeId"], TopicLens["id"]>;
+
+export const insightFindings: Finding[] = canonicalInsights.map((insight) => ({
+  id: insight.id,
+  topicId: topicByTheme[insight.themeId],
+  title: insight.title,
+  summary: insight.thesis,
+  interpretation: insight.interpretation,
+  observations: [insight.confidenceReason, insight.nuance],
+  genZJuxtaposition: insight.genZComparison ?? "No defensible comparison is available.",
+  supportIds: getEvidenceForInsight(insight.id).map((evidence) => evidence.sourceId),
+  confidence: insight.confidence,
+}));
 
 export function getSupportingRecords(
   finding: Finding,
@@ -316,7 +301,7 @@ export function getSupportingRecords(
 }
 
 export function getFindingById(id: string): Finding | undefined {
-  return findings.find((finding) => finding.id === id);
+  return findings.find((finding) => finding.id === id) ?? insightFindings.find((finding) => finding.id === id);
 }
 
 export function getTopicById(id: string): TopicLens | undefined {
