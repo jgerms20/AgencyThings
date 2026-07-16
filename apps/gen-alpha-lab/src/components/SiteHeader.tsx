@@ -2,12 +2,14 @@ import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
 type SiteHeaderProps = {
-  active?: "overview" | "people" | "library";
+  active?: "overview" | "insights" | "influencers" | "spaces" | "library";
 };
 
 const links = [
   { id: "overview", label: "Overview", href: "/" },
-  { id: "people", label: "People", href: "/people" },
+  { id: "insights", label: "Insights", href: "/insights" },
+  { id: "influencers", label: "Influencers", href: "/influencers" },
+  { id: "spaces", label: "Spaces", href: "/spaces" },
   { id: "library", label: "Library", href: "/library" }
 ] as const;
 

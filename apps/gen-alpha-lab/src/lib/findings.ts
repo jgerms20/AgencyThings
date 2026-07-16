@@ -1,4 +1,4 @@
-import type { ConfidenceLevel, LibraryUseMode, ResearchRecord } from "./types";
+import type { ConfidenceLevel, ResearchRecord } from "./types";
 
 export type TopicLens = {
   id: "connect" | "media" | "influence" | "time" | "learn" | "play-create" | "ai";
@@ -14,13 +14,13 @@ export type TopicLens = {
 };
 
 export type LibrarySection = {
-  id: "articles" | "podcasts" | "books" | "youtube";
-  title: "Articles" | "Podcasts" | "Books" | "YouTube";
+  id: Exclude<LibraryFormat, "all">;
+  title: "Reports" | "Articles" | "Books" | "Podcasts" | "Videos";
   description: string;
   records: ResearchRecord[];
 };
 
-export type LibraryUseFilter = LibraryUseMode | "all";
+export type LibraryFormat = "all" | "reports" | "articles" | "books" | "podcasts" | "videos";
 
 export type Finding = {
   id: string;
@@ -333,46 +333,55 @@ export function getFindingsForTopic(topic: TopicLens): Finding[] {
 
 export function getLibrarySections(records: ResearchRecord[]): LibrarySection[] {
   const externalRecords = records.filter((record) => record.url && record.kind !== "interview");
-  const articles = externalRecords.filter((record) => record.kind === "report" || record.kind === "article");
-  const podcasts = externalRecords.filter((record) => record.kind === "podcast");
-  const books = externalRecords.filter((record) => record.kind === "book");
-  const youtube = externalRecords.filter((record) => record.kind === "youtube" || record.sourceClass === "video");
 
   return [
     {
-      id: "articles",
-      title: "Articles",
-      description: "Research reports, peer-reviewed studies, and reported analysis with direct source links.",
-      records: articles
+      id: "reports",
+      title: "Reports",
+      description: "Surveys, industry intelligence, policy documents, and research programs with a defined evidence base.",
+      records: externalRecords.filter((record) => getLibraryFormat(record) === "reports")
     },
     {
-      id: "podcasts",
-      title: "Podcasts",
-      description: "Owned and external listening material for synthesis, contrast, and planning language.",
-      records: podcasts
+      id: "articles",
+      title: "Articles",
+      description: "Peer-reviewed studies, reported analysis, explainers, and platform briefings with direct source links.",
+      records: externalRecords.filter((record) => getLibraryFormat(record) === "articles")
     },
     {
       id: "books",
       title: "Books",
       description: "Long-form frameworks that help the lab pressure-test its point of view.",
-      records: books
+      records: externalRecords.filter((record) => getLibraryFormat(record) === "books")
     },
     {
-      id: "youtube",
-      title: "YouTube",
+      id: "podcasts",
+      title: "Podcasts",
+      description: "Owned and external listening material for synthesis, contrast, and planning language.",
+      records: externalRecords.filter((record) => getLibraryFormat(record) === "podcasts")
+    },
+    {
+      id: "videos",
+      title: "Videos",
       description: "Video explainers and briefings that show how the conversation is being framed publicly.",
-      records: youtube
+      records: externalRecords.filter((record) => getLibraryFormat(record) === "videos")
     }
   ];
 }
 
-export function filterLibraryRecords(
-  records: ResearchRecord[],
-  mode: LibraryUseFilter
-): ResearchRecord[] {
-  if (mode === "all") return records;
+export function getLibraryFormat(record: ResearchRecord): Exclude<LibraryFormat, "all"> | undefined {
+  if (record.kind === "report") return "reports";
+  if (record.kind === "book") return "books";
+  if (record.kind === "podcast") return "podcasts";
+  if (record.kind === "youtube" || record.sourceClass === "video") return "videos";
+  if (record.kind === "article") return "articles";
+  return undefined;
+}
 
-  return records.filter((record) => record.useModes?.includes(mode));
+export function filterLibraryByFormat(records: ResearchRecord[], format: LibraryFormat): ResearchRecord[] {
+  const externalRecords = records.filter((record) => record.url && record.kind !== "interview");
+  if (format === "all") return externalRecords;
+
+  return externalRecords.filter((record) => getLibraryFormat(record) === format);
 }
 
 export function validateFindings(

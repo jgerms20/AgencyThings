@@ -5,39 +5,27 @@ import LibraryPage from "../src/components/LibraryPage";
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("LibraryPage", () => {
-  it("opens with conclusions and keeps resources grouped by format", () => {
-    render(<LibraryPage initialRecords={seedRecords} />);
-
-    expect(
-      screen.getByRole("heading", {
-        name: "Start with the conclusion. Open the source when you need the proof."
-      })
-    ).toBeInTheDocument();
-    for (const section of ["Articles", "Podcasts", "Books", "YouTube"]) {
-      expect(screen.getByRole("heading", { name: section })).toBeInTheDocument();
-    }
-  });
-
-  it("filters individual records exactly by Make, Think, and Learn", async () => {
+  it("filters research by media format instead of Make, Think, and Learn", async () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
 
-    const make = screen.getByRole("button", { name: "Make" });
-    const think = screen.getByRole("button", { name: "Think" });
-    const learn = screen.getByRole("button", { name: "Learn" });
+    for (const filter of ["All", "Reports", "Articles", "Books", "Podcasts", "Videos"]) {
+      expect(screen.getByRole("button", { name: filter })).toBeInTheDocument();
+    }
+    for (const removed of ["Make", "Think", "Learn"]) {
+      expect(screen.queryByRole("button", { name: removed })).not.toBeInTheDocument();
+    }
 
-    await user.click(make);
-    expect(make).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText(/Roblox Releases New Data Decoding Search and Style Trends/i)).toBeInTheDocument();
-    expect(screen.queryByText("Protecting Young Users on Social Media")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Videos" }));
+    expect(screen.getByRole("heading", { name: "Videos" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Reports" })).not.toBeInTheDocument();
+    expect(screen.getByTitle(/Media and Young Kids/i)).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/3mnan0zpxAo"
+    );
 
-    await user.click(think);
-    expect(think).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Understanding Generation Alpha")).toBeInTheDocument();
-
-    await user.click(learn);
-    expect(learn).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Protecting Young Users on Social Media")).toBeInTheDocument();
-    expect(screen.queryByText(/Roblox Releases New Data Decoding Search and Style Trends/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Books" }));
+    expect(screen.getByRole("heading", { name: "Books" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Videos" })).not.toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   findingTopics,
-  filterLibraryRecords,
+  filterLibraryByFormat,
   findings,
   getLibrarySections,
   getFindingById,
@@ -103,34 +103,25 @@ describe("Gen Alpha field-guide findings", () => {
     );
   });
 
-  it("organizes the library into articles, podcasts, books, and youtube", () => {
+  it("organizes the library into one unique section per media format", () => {
     const sections = getLibrarySections(seedRecords);
 
     expect(sections.map((section) => section.title)).toEqual([
+      "Reports",
       "Articles",
-      "Podcasts",
       "Books",
-      "YouTube"
+      "Podcasts",
+      "Videos"
     ]);
     expect(sections.every((section) => section.records.length > 0)).toBe(true);
     expect(sections.flatMap((section) => section.records).every((record) => record.url)).toBe(true);
   });
 
-  it("filters library records by their explicit Make, Think, and Learn purpose", () => {
-    for (const mode of ["make", "think", "learn"] as const) {
-      const filtered = filterLibraryRecords(seedRecords, mode);
-
-      expect(filtered.length).toBeGreaterThan(0);
-      expect(filtered.every((record) => record.useModes?.includes(mode))).toBe(true);
-    }
-
-    expect(filterLibraryRecords(seedRecords, "all")).toEqual(seedRecords);
-    expect(filterLibraryRecords(seedRecords, "make").map((record) => record.id)).toContain(
-      "roblox-search-style-trends-2025"
-    );
-    expect(filterLibraryRecords(seedRecords, "make").map((record) => record.id)).not.toContain(
-      "arxiv-young-user-safety-2025"
-    );
+  it("filters library records by format", () => {
+    expect(filterLibraryByFormat(seedRecords, "all")).toEqual(seedRecords.filter((record) => record.url && record.kind !== "interview"));
+    expect(filterLibraryByFormat(seedRecords, "reports").every((record) => record.kind === "report")).toBe(true);
+    expect(filterLibraryByFormat(seedRecords, "books").every((record) => record.kind === "book")).toBe(true);
+    expect(filterLibraryByFormat(seedRecords, "videos").map((record) => record.id)).toContain("common-sense-media-youtube-2025");
   });
 
   it("includes the supplied deep-reading sources with direct links and explicit purposes", () => {

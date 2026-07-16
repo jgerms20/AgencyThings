@@ -1,5 +1,5 @@
-import PeoplePage from "@/components/PeoplePage";
+import { redirect } from "next/navigation";
 
 export default function PeopleRoute() {
-  return <PeoplePage />;
+  redirect("/influencers");
 }
