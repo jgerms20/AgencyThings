@@ -29,7 +29,7 @@ export type Source = {
   author?: string;
   url: string;
   format: SourceFormat;
-  publishedAt?: string;
+  publishedAt: string;
   sourceClass: SourceClass;
   summary: string;
   methodology: string;

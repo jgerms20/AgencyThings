@@ -70,7 +70,10 @@ describe("canonical content graph", () => {
       expect(source.geography).not.toMatch(/not fully disclosed/i);
       expect(source.fieldworkPeriod).toBeTruthy();
       expect(source.fieldworkPeriod).not.toBe(source.publishedAt);
+      expect(source.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
+
+    expect(new Set(evidenceItems.map((item) => item.supportRationale))).toHaveProperty("size", evidenceItems.length);
 
     expect(sources.find((source) => source.id === "arxiv-young-user-safety-2025")?.sourceClass)
       .toBe("primary research");
@@ -140,6 +143,24 @@ describe("canonical content graph", () => {
     expect(issueList).toContain(`Culture shaper is missing indicator: ${shaper.id} -> reach`);
   });
 
+  it("rejects a culture-shaper indicator with the wrong tier definition", () => {
+    const shaper = cultureShapers[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      cultureShapers: cultureShapers.map((candidate) => candidate.id === shaper.id
+        ? {
+          ...candidate,
+          indicators: {
+            ...candidate.indicators,
+            reach: { ...candidate.indicators.reach, definition: "A mismatched rubric definition." },
+          },
+        }
+        : candidate),
+    });
+
+    expect(issueList).toContain(`Culture shaper indicator has wrong rubric definition: ${shaper.id} -> reach`);
+  });
+
   it("rejects an incomplete comparison evidence record", () => {
     const comparison = comparisonDimensions[0];
     const evidenceId = comparison.genAlpha.evidenceIds[0];
@@ -157,6 +178,18 @@ describe("canonical content graph", () => {
     } as ContentGraph);
 
     expect(issueList).toContain(`Comparison evidence is missing support: ${comparison.id} -> ${evidenceId}`);
+  });
+
+  it("rejects an invalid comparison class", () => {
+    const comparison = comparisonDimensions[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      comparisons: comparisonDimensions.map((candidate) => candidate.id === comparison.id
+        ? { ...candidate, comparisonClass: "unsupported ranking" }
+        : candidate),
+    } as unknown as ContentGraph);
+
+    expect(issueList).toContain(`Comparison has invalid comparisonClass: ${comparison.id}`);
   });
 
   it("rejects duplicate strategy IDs", () => {

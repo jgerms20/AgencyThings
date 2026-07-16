@@ -1,5 +1,5 @@
 import { comparisonDimensions } from "./comparisons";
-import { cultureShapers } from "./culture-shapers";
+import { cultureShaperRubric, cultureShapers } from "./culture-shapers";
 import { evidenceItems } from "./evidence";
 import { insights, themes } from "./insights";
 import { sources } from "./sources";
@@ -8,7 +8,7 @@ import { strategyPlays } from "./strategy";
 import type { ComparisonCohort, ContentGraph } from "./types";
 
 const requiredEvidenceFields = ["population", "ageRange", "geography", "period", "methodology", "limitations"] as const;
-const requiredSourceFields = ["population", "ageRange", "geography", "fieldworkPeriod", "methodology", "limitations"] as const;
+const requiredSourceFields = ["publishedAt", "population", "ageRange", "geography", "fieldworkPeriod", "methodology", "limitations"] as const;
 const placeholderScope = /^(?:not fully disclosed|not stated|unknown|n\/?a|tbd)$/i;
 const locatorPattern = /\b(?:sections?|tables?|figures?|pages?|paragraphs?|chapters?|abstract|methods|methodology|headline|opening|overview|description|guidance|key findings|executive summary)\b/i;
 const claimKinds = new Set(["metric", "finding", "observed claim", "editorial inference"]);
@@ -18,6 +18,8 @@ const indicatorKeys = ["reach", "participation", "commercialPull", "audienceCent
 const expectedInsightsPerTheme = 10;
 const expectedSpaces = 50;
 const expectedComparisons = 10;
+const comparisonClasses = new Set(["age-matched observed evidence", "current cohort snapshot", "directional interpretation"]);
+const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 const defaultGraph: ContentGraph = {
   sources,
@@ -179,6 +181,7 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
   const sourceById = new Map(graph.sources.map((source) => [source.id, source]));
   const insightById = new Map(graph.insights.map((insight) => [insight.id, insight]));
   const evidenceById = new Map(graph.evidenceItems.map((item) => [item.id, item]));
+  const rationaleOwners = new Map<string, string>();
 
   if (graph.themes.length !== canonicalThemeIds.length) {
     issues.push(`Expected exactly ${canonicalThemeIds.length} themes, received ${graph.themes.length}`);
@@ -210,6 +213,7 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     for (const field of requiredSourceFields) {
       if (!hasMeaningfulScope(source[field])) issues.push(`Source has placeholder ${field}: ${source.id}`);
     }
+    if (!isoDatePattern.test(source.publishedAt)) issues.push(`Source has invalid publishedAt: ${source.id}`);
     if (source.publishedAt === source.fieldworkPeriod) issues.push(`Source substitutes publication date for fieldworkPeriod: ${source.id}`);
   }
 
@@ -224,6 +228,10 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     if (source && item.period === source.publishedAt) issues.push(`Evidence substitutes publication date for measurement period: ${item.id}`);
     if (!claimKinds.has(item.claimKind)) issues.push(`Evidence has no claim-level kind: ${item.id}`);
     if (!item.supportRationale?.trim()) issues.push(`Evidence has no support rationale: ${item.id}`);
+    if (item.supportRationale.trim().length < 48) issues.push(`Evidence support rationale is too thin: ${item.id}`);
+    const rationaleOwner = rationaleOwners.get(item.supportRationale.trim());
+    if (rationaleOwner) issues.push(`Evidence repeats support rationale: ${item.id} -> ${rationaleOwner}`);
+    rationaleOwners.set(item.supportRationale.trim(), item.id);
     if (sourceMetadataClaimPattern.test(item.claim.trim())) {
       issues.push(`Evidence claim describes source metadata rather than a finding: ${item.id}`);
     }
@@ -309,6 +317,9 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
       if (indicator.indicator !== indicatorKey) issues.push(`Culture shaper indicator has wrong key: ${shaper.id} -> ${indicatorKey}`);
       if (!hasText(indicator.label)) issues.push(`Culture shaper indicator is missing label: ${shaper.id} -> ${indicatorKey}`);
       if (!hasText(indicator.definition)) issues.push(`Culture shaper indicator is missing definition: ${shaper.id} -> ${indicatorKey}`);
+      if (isIndicatorTier(indicator.tier) && indicator.definition !== cultureShaperRubric[indicatorKey].tiers[indicator.tier]) {
+        issues.push(`Culture shaper indicator has wrong rubric definition: ${shaper.id} -> ${indicatorKey}`);
+      }
       if (!hasText(indicator.rationale)) issues.push(`Culture shaper indicator is missing rationale: ${shaper.id} -> ${indicatorKey}`);
       if (!isIndicatorTier(indicator.tier)) issues.push(`Culture shaper indicator has invalid tier: ${shaper.id} -> ${indicatorKey}`);
       if (!hasTextList(indicator.sourceIds)) issues.push(`Culture shaper indicator is missing sourceIds: ${shaper.id} -> ${indicatorKey}`);
@@ -319,6 +330,7 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
   for (const comparison of comparisons) {
     if (!hasText(comparison.title)) issues.push(`Comparison is missing title: ${comparison.id}`);
     if (!hasText(comparison.caveat)) issues.push(`Comparison is missing caveat: ${comparison.id}`);
+    if (!comparisonClasses.has(comparison.comparisonClass)) issues.push(`Comparison has invalid comparisonClass: ${comparison.id}`);
     validateComparisonCohort(comparison.id, "Gen Alpha", comparison.genAlpha, sourceIds, evidenceById, issues);
     validateComparisonCohort(comparison.id, "Gen Z", comparison.genZ, sourceIds, evidenceById, issues);
   }
