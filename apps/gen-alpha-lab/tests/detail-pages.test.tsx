@@ -19,7 +19,7 @@ describe("Insight-led detail pages", () => {
       "Insights",
       "Influencers",
       "Spaces",
-      "Reach Them",
+      "How to reach them",
       "Compare",
       "Library",
     ]);
