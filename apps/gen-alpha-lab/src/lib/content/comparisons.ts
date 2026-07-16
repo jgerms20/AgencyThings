@@ -1,29 +1,21 @@
 import { evidenceItems } from "./evidence";
 import { sources } from "./sources";
+import type {
+  ComparisonCohort,
+  ComparisonCohortKey,
+  ComparisonDimension,
+  ComparisonEvidenceStatus,
+  ComparisonOption,
+} from "./types";
 
-export type ComparisonClass =
-  | "age-matched observed evidence"
-  | "current cohort snapshot"
-  | "directional interpretation";
-
-export type ComparisonCohort = {
-  summary: string;
-  ageRange: string;
-  geography: string;
-  sourceYear: string;
-  sourceIds: string[];
-  evidenceIds: string[];
-  evidenceSupport: Record<string, string>;
-};
-
-export type ComparisonDimension = {
-  id: string;
-  title: string;
-  comparisonClass: ComparisonClass;
-  genAlpha: ComparisonCohort;
-  genZ: ComparisonCohort;
-  caveat: string;
-};
+export type {
+  ComparisonClass,
+  ComparisonCohort,
+  ComparisonCohortKey,
+  ComparisonDimension,
+  ComparisonEvidenceStatus,
+  ComparisonOption,
+} from "./types";
 
 export type ComparisonEvidenceRecord = {
   id: string;
@@ -35,124 +27,242 @@ export type ComparisonEvidenceRecord = {
   sourceUrl: string;
 };
 
+export const comparisonCohorts: Array<{ id: ComparisonCohortKey; label: string }> = [
+  { id: "genZ", label: "Gen Z" },
+  { id: "genX", label: "Gen X" },
+  { id: "boomers", label: "Boomers" },
+];
+
 const comparisonEvidenceSupport: Record<string, string> = {
-  "evidence-time-device-access-1": "Directly supplies the early tablet and cellphone access figures in the Gen Alpha summary.",
-  "evidence-time-private-day-1": "Directly supplies the teen smartphone access and almost-constant internet-use figures used as Gen Z context.",
+  "evidence-media-video-default-2": "Establishes the current Gen Alpha mix of YouTube, gaming platforms, and streaming services.",
+  "evidence-compare-deloitte-genz-media-1": "Quantifies the Gen Z shift toward social and user-generated media relative to the average consumer.",
+  "evidence-compare-pew-adult-platforms-1": "Supplies age-band platform-use figures that remain explicitly labeled as adult proxies.",
   "evidence-play-social-infrastructure-2": "Documents children's reported social learning, creativity, and problem-solving in creation games.",
   "evidence-play-social-infrastructure-1": "Documents teens' reported friendship benefits and online friendships through games.",
-  "evidence-media-video-default-2": "Directly supplies the Gen Alpha YouTube, gaming-platform, and streaming-service use figures.",
-  "evidence-time-youtube-rhythm-2": "Directly supplies the teen daily and almost-constant YouTube-use figures.",
-  "evidence-play-making-interface-1": "Directly supplies the child interest in learning coding, art, and design inside creation games.",
-  "evidence-play-friendship-travels-1": "Directly supplies the teen multiplayer and game-based friendship figures.",
-  "evidence-media-creators-templates-1": "Documents youth-native creator partnerships as a format for cultural participation.",
-  "evidence-media-creators-templates-2": "Directly supplies the Gen Alpha social-media purchase-prompt figure.",
-  "evidence-learning-assembled-2": "Documents children seeking explanations across video, social, and game environments.",
-  "evidence-learning-commercial-fluency-1": "Directly supplies the Gen Alpha independent-decision and wish-list figures.",
-  "evidence-learning-ai-discovery-2": "Directly supplies the reported growth and daily frequency of Gen Alpha chatbot use.",
-  "evidence-learning-ai-homework-1": "Documents entertainment and homework use in the Common Sense tween-and-teen sample.",
-  "evidence-media-ai-recommendation-1": "Directly supplies the Gen Alpha TV and movie recommendation preference stated in the summary.",
-  "evidence-time-parent-context-1": "Directly supplies the reported gap in parent or guardian conversations about AI safety.",
-  "evidence-time-family-needs-1": "Documents young children's device access and daily media use inside household routines.",
-  "evidence-play-safety-boundaries-2": "Directly supplies the current COPPA consent and data-retention protections.",
+  "evidence-learning-ai-discovery-2": "Supplies the reported growth and daily frequency of Gen Alpha chatbot use.",
+  "evidence-learning-ai-homework-1": "Documents entertainment and homework use in a tween-and-teen sample without presenting it as a Gen Z-only result.",
+  "evidence-learning-commercial-fluency-1": "Supplies the Gen Alpha independent-decision and wish-list figures used for household influence.",
+  "evidence-compare-deloitte-genz-commerce-1": "Supplies measured Gen Z purchasing-influence context from social media ads and reviews.",
 };
 
 const cohort = (
-  summary: string,
+  mentality: string,
   ageRange: string,
   geography: string,
   sourceYear: string,
+  evidenceStatus: ComparisonEvidenceStatus,
   sourceIds: string[],
   evidenceIds: string[],
 ): ComparisonCohort => ({
-  summary,
+  mentality,
   ageRange,
   geography,
   sourceYear,
+  evidenceStatus,
   sourceIds,
   evidenceIds,
-  evidenceSupport: Object.fromEntries(evidenceIds.map((evidenceId) => [evidenceId, comparisonEvidenceSupport[evidenceId]])),
+  evidenceSupport: Object.fromEntries(
+    evidenceIds.map((evidenceId) => [evidenceId, comparisonEvidenceSupport[evidenceId]]),
+  ),
 });
+
+const evidenceGap = (mentality: string): ComparisonCohort => cohort(
+  mentality,
+  "Generation label; no matched behavioral sample",
+  "No matched geography",
+  "No matched series",
+  "evidence gap",
+  [],
+  [],
+);
+
+const option = (
+  comparisonClass: ComparisonOption["comparisonClass"],
+  cohortRecord: ComparisonCohort,
+  realDifference: string,
+  caveat: string,
+): ComparisonOption => ({ comparisonClass, cohort: cohortRecord, realDifference, caveat });
 
 export const comparisonDimensions: ComparisonDimension[] = [
   {
-    id: "formative-technology",
-    title: "Formative technology",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("Personal access begins early: 40% had a tablet by age two and nearly one in four had a personal cellphone by age eight.", "0-8", "United States", "2025", ["common-sense-census-2025"], ["evidence-time-device-access-1"]),
-    genZ: cohort("Today's teens report near-universal smartphone access, describing a more private and portable media environment.", "13-17", "United States", "2024", ["pew-teens-social-2024"], ["evidence-time-private-day-1"]),
-    caveat: "These are different life stages measured in different studies. Early access and teen access describe a developmental sequence, not a settled generational difference.",
+    id: "media-attention",
+    title: "Media & attention",
+    genAlpha: cohort(
+      "Media is a participatory mix: video, games, streaming, and conversational discovery sit close together.",
+      "7-14",
+      "United States",
+      "2026",
+      "direct cohort evidence",
+      ["pwc-alpha-2026"],
+      ["evidence-media-video-default-2"],
+    ),
+    comparisons: {
+      genZ: option(
+        "current cohort snapshot",
+        cohort(
+          "Social and user-generated video take a larger share of the media day than traditional TV and movies in this current Gen Z snapshot.",
+          "Gen Z, defined as 1997-2010",
+          "United States",
+          "2025",
+          "direct cohort evidence",
+          ["deloitte-digital-media-trends-2025"],
+          ["evidence-compare-deloitte-genz-media-1"],
+        ),
+        "Gen Alpha enters a creator-led, algorithmic video mix earlier; Gen Z provides the clearest near-age precedent, not a fixed endpoint.",
+        "The Gen Alpha and Gen Z figures come from different surveys, years, age scopes, and measures. They establish adjacent media environments, not a causal cohort shift.",
+      ),
+      genX: option(
+        "current cohort snapshot",
+        cohort(
+          "The adult proxy spans two Pew bands: YouTube use remains broad at 92% for ages 30-49 and 85% for ages 50-64, while TikTok use is 44% and 30%.",
+          "30-49 and 50-64 adult age bands; not a Gen X sample",
+          "United States",
+          "2025",
+          "adult age-band proxy",
+          ["pew-adult-social-media-2025"],
+          ["evidence-compare-pew-adult-platforms-1"],
+        ),
+        "Plan for different discovery defaults: child-first participatory video for Alpha, with the 30-49 adult band used only as a directional media proxy.",
+        "Gen X was ages 43-59 in 2025, crossing Pew's 30-49 and 50-64 bands. The figures are scoped adult proxies and cannot be read as an exact Gen X estimate.",
+      ),
+      boomers: option(
+        "current cohort snapshot",
+        cohort(
+          "The 65+ adult proxy still shows broad YouTube reach but much lower TikTok use: 64% versus 12%.",
+          "65+ adult age band; not a Boomer sample",
+          "United States",
+          "2025",
+          "adult age-band proxy",
+          ["pew-adult-social-media-2025"],
+          ["evidence-compare-pew-adult-platforms-1"],
+        ),
+        "Do not force one channel plan across the household: Alpha's video discovery is participatory, while the 65+ adult proxy retains a larger traditional-video context.",
+        "The 65+ band excludes younger Boomers and includes adults older than the Boomer definition. It is a directional adult proxy, not a generation estimate.",
+      ),
+    },
   },
   {
-    id: "primary-social-behavior",
-    title: "Primary social behavior",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("Creation-game research among children finds Roblox and Minecraft supporting team-based social learning, creativity, and problem-solving.", "5-13", "United States", "2024", ["walton-creation-gaming-2024"], ["evidence-play-social-infrastructure-2"]),
-    genZ: cohort("Teen gamers describe games as a friendship space: 47% said gaming helped friendships and 47% had made an online friend through a game.", "13-17", "United States", "2024", ["pew-teens-video-games-2024"], ["evidence-play-social-infrastructure-1"]),
-    caveat: "The age ranges overlap only at age 13, and the constructs differ: child creation-game social learning versus teen friendship outcomes. Treat the shared social role of games as directional context, not a point-for-point cohort score.",
+    id: "compare-play-belonging",
+    title: "Play & belonging",
+    genAlpha: cohort(
+      "Play is also a place to make, learn, and maintain relationships, not only a finished thing to consume.",
+      "5-13",
+      "United States",
+      "2024",
+      "direct cohort evidence",
+      ["walton-creation-gaming-2024"],
+      ["evidence-play-social-infrastructure-2"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        cohort(
+          "Teen players describe games as friendship spaces, with reported benefits to existing friendships and new online connections.",
+          "13-17 teen sample; overlaps cohort boundaries",
+          "United States",
+          "2024",
+          "near-age proxy",
+          ["pew-teens-video-games-2024"],
+          ["evidence-play-social-infrastructure-1"],
+        ),
+        "Design for continuity, not a generation contest: both cohorts use games socially, while Alpha's evidence places making and learning inside the play space earlier.",
+        "The studies use different age ranges and constructs: child creation-game social learning versus teen friendship outcomes. The contrast is directional, not a score.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Gen X childhood play occurred in a different media environment, but this graph has no matched behavioral measure."),
+        "The useful contrast is developmental, not stereotypical: Alpha's play evidence is platformed and collaborative; no matched Gen X childhood measure is available.",
+        "No canonical source measures Gen X childhood play against today's Gen Alpha construct. The gap is visible so historical intuition does not become a claim.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Boomer childhood play cannot be reconstructed from the current adult evidence in this graph."),
+        "Treat Alpha's creation-game behavior as a current child snapshot; the evidence base does not support a scored comparison with Boomer childhood play.",
+        "No matched Boomer childhood-play series is present. The page does not infer sociality, creativity, or independence from nostalgia about earlier play.",
+      ),
+    },
   },
   {
-    id: "media-discovery",
-    title: "Media discovery",
-    comparisonClass: "current cohort snapshot",
-    genAlpha: cohort("YouTube is a leading regular-use surface for children ages seven to fourteen, alongside gaming platforms and streaming services.", "7-14", "United States", "2026", ["pwc-alpha-2026"], ["evidence-media-video-default-2"]),
-    genZ: cohort("U.S. teens visit YouTube daily at high rates, with a minority reporting almost constant use.", "13-17", "United States", "2024", ["pew-teens-social-2024"], ["evidence-time-youtube-rhythm-2"]),
-    caveat: "Both snapshots establish YouTube's importance, but the samples, field years, and measures are not a common time series. They do not establish whether one cohort is more platform-dependent.",
+    id: "learning-ai",
+    title: "Learning & AI",
+    genAlpha: cohort(
+      "Conversational AI is arriving while learning habits, trust, and verification routines are still being formed.",
+      "Gen Alpha; exact public age band not published",
+      "Countries not named in public release",
+      "2026",
+      "direct cohort evidence",
+      ["nielsen-ai-discovery-2026"],
+      ["evidence-learning-ai-discovery-2"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        cohort(
+          "A tween-and-teen proxy shows AI already used for entertainment and homework, but the result is not published as a Gen Z-only cut.",
+          "Tweens and teens; exact public ages not published",
+          "United States",
+          "2026",
+          "near-age proxy",
+          ["common-sense-ai-2026"],
+          ["evidence-learning-ai-homework-1"],
+        ),
+        "Alpha is forming learning habits with conversational AI present; the teen proxy shows adjacent adoption, not proof of a unique generational trait.",
+        "Neither public release provides a clean matched Alpha-versus-Z sample. The result supports planning context, not a quantified generation difference.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Gen X learning contexts changed across the life course, but this graph cannot isolate a Gen X learning mentality."),
+        "Design verification and adult support around Alpha's current AI use; there is no matched Gen X learning measure in the canonical evidence.",
+        "The graph contains no matched Gen X learning-and-AI measure. It would be misleading to turn adult technology adoption into a childhood-learning comparison.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: the available evidence cannot isolate a Boomer learning mentality for comparison with children using AI today."),
+        "Use Alpha's AI-learning evidence to plan safeguards now, without inventing a Boomer learning-style opposite.",
+        "The graph contains no matched Boomer learning-and-AI measure. The missing comparator is a research gap, not evidence of resistance or preference.",
+      ),
+    },
   },
   {
-    id: "play-and-creation",
-    title: "Play and creation",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("At least seven in ten children wanted subjects such as coding, art, or design taught in Roblox or Minecraft.", "5-13", "United States", "2024", ["walton-creation-gaming-2024"], ["evidence-play-making-interface-1"]),
-    genZ: cohort("Teen players commonly game with other people, and 40% of all U.S. teens had made an online friend through a shared game.", "13-17", "United States", "2024", ["pew-teens-video-games-2024"], ["evidence-play-friendship-travels-1"]),
-    caveat: "The age ranges overlap only at age 13, and the constructs differ: child interest in creation-based learning versus teen social play and friendship. This supports directional context, not a causal generation claim.",
-  },
-  {
-    id: "creator-relationships",
-    title: "Creator relationships",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("Social media is reported as a purchase prompt by 61% of Gen Alpha respondents, while youth-native creator formats translate culture into participation.", "7-14", "United States", "2026", ["pwc-alpha-2026", "ap-sports-alpha-2026"], ["evidence-media-creators-templates-1", "evidence-media-creators-templates-2"]),
-    genZ: cohort("Pew's teen research establishes high use of major video and social platforms, but the canonical evidence does not contain a directly comparable measure of creator influence on purchasing.", "13-17", "United States", "2024", ["pew-teens-social-2024"], ["evidence-time-youtube-rhythm-2"]),
-    caveat: "The Gen Z comparator is platform-use context, not a creator-relationship metric. The directional label prevents Gen Alpha's purchase-prompt measure from becoming an unsupported cohort ranking.",
-  },
-  {
-    id: "learning-and-search",
-    title: "Learning and search",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("Children report seeking explanations across YouTube, TikTok, and Minecraft when school instruction leaves gaps.", "5-13", "United States", "2024", ["walton-creation-gaming-2024"], ["evidence-learning-assembled-2"]),
-    genZ: cohort("Teen media research records high daily YouTube use, but it does not measure learning or search behavior in the same way as the child creation-gaming study.", "13-17", "United States", "2024", ["pew-teens-social-2024"], ["evidence-time-youtube-rhythm-2"]),
-    caveat: "The canonical source set has no matched learning-and-search series. This is an evidence-gap flag, not a claim that one generation learns more independently.",
-  },
-  {
-    id: "commerce-and-household-influence",
-    title: "Commerce and household influence",
-    comparisonClass: "current cohort snapshot",
-    genAlpha: cohort("Children report practical purchasing influence: 97% make decisions independently at least sometimes and 61% use wish lists to plan requests.", "7-14", "United States", "2026", ["pwc-alpha-2026"], ["evidence-learning-commercial-fluency-1"]),
-    genZ: cohort("The canonical Pew teen source measures platform access and frequency rather than household commerce, so it supplies age and geography context but no like-for-like purchase measure.", "13-17", "United States", "2024", ["pew-teens-social-2024"], ["evidence-time-private-day-1"]),
-    caveat: "There is no comparable Gen Z commerce measure in the canonical evidence. The page keeps that missing comparator visible instead of inferring an intergenerational shift from one cohort's snapshot.",
-  },
-  {
-    id: "ai-relationship",
-    title: "AI relationship",
-    comparisonClass: "current cohort snapshot",
-    genAlpha: cohort("Gen Alpha respondents report rapidly expanding chatbot use for entertainment, homework, discovery, and recommendations.", "Gen Alpha; exact band not published", "Countries not named in public release", "2026", ["nielsen-ai-discovery-2026", "common-sense-ai-2026"], ["evidence-learning-ai-discovery-2", "evidence-learning-ai-homework-1", "evidence-media-ai-recommendation-1"]),
-    genZ: cohort("Common Sense's tween-and-teen study reports AI users turning to it for entertainment and homework help, but it does not publish a Gen Z-only result.", "Tweens and teens; exact bands not published", "United States", "2026", ["common-sense-ai-2026"], ["evidence-learning-ai-homework-1"]),
-    caveat: "The public Gen Alpha AI release does not name respondent countries or an exact age band, and the tween-and-teen study does not publish a Gen Z-only split. Do not read this as a quantified cohort difference.",
-  },
-  {
-    id: "family-mediation",
-    title: "Family mediation",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("Young children use media inside household routines, and more than four in ten surveyed children said no parent or guardian had discussed AI safety with them.", "0-8 and tweens/teens", "United States", "2025-2026", ["common-sense-census-2025", "common-sense-ai-2026"], ["evidence-time-parent-context-1", "evidence-time-family-needs-1"]),
-    genZ: cohort("Common Sense's tween-and-teen study finds a substantial share of children reporting no parent or guardian conversation about AI safety, but it does not split out Gen Z.", "Tweens and teens; exact bands not published", "United States", "2026", ["common-sense-ai-2026"], ["evidence-time-parent-context-1"]),
-    caveat: "Family roles naturally shift with age, and the tween-and-teen evidence does not separate Gen Z. The comparison shows where adult context remains relevant, not whether one generation has better or worse parenting.",
-  },
-  {
-    id: "privacy-and-safety-environment",
-    title: "Privacy and safety environment",
-    comparisonClass: "directional interpretation",
-    genAlpha: cohort("Current child protections require parental opt-in for covered services to disclose children's data for targeted advertising and limit unnecessary collection.", "Under 13 under COPPA", "United States", "2025", ["ftc-coppa-2025"], ["evidence-play-safety-boundaries-2"]),
-    genZ: cohort("Teen platform research and current rules provide adolescent context, but the canonical evidence does not contain a matched experience-of-privacy measure.", "13-17", "United States", "2024-2026", ["pew-teens-social-2024", "pew-platform-experiences-2026"], ["evidence-time-private-day-1"]),
-    caveat: "Policy protections, platform exposure, and reported experience are different kinds of evidence. This dimension maps the changing environment; it does not score either cohort's safety.",
+    id: "household-influence",
+    title: "Household influence",
+    genAlpha: cohort(
+      "Influence often means proposing, wish-listing, and negotiating inside an adult-controlled purchase system.",
+      "7-14",
+      "United States",
+      "2026",
+      "direct cohort evidence",
+      ["pwc-alpha-2026"],
+      ["evidence-learning-commercial-fluency-1"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        cohort(
+          "Social ads and product reviews are a strong reported purchase influence for Gen Z, but this adult-oriented measure does not capture child-adult negotiation.",
+          "Gen Z, defined as 1997-2010",
+          "United States",
+          "2025",
+          "direct cohort evidence",
+          ["deloitte-digital-media-trends-2025"],
+          ["evidence-compare-deloitte-genz-commerce-1"],
+        ),
+        "Alpha's influence is still routed through adult permission and payment; Gen Z purchase influence is useful context, not a like-for-like child comparison.",
+        "The Alpha source measures children's participation in household decisions; Deloitte measures reported influences on Gen Z respondents. The constructs are not interchangeable.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Gen X may hold adult decision power in Alpha households, but this graph has no matched commerce measure for that role."),
+        "Separate child desire from adult decision power: Alpha evidence measures household participation, while a matched Gen X commerce comparison is absent.",
+        "No canonical source measures Gen X household decision behavior against the Alpha child measure. Family role is not inferred from generation alone.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Boomers may participate in multi-generational households, but the graph does not measure a shared purchase role."),
+        "Plan for a multi-generational decision system rather than opposing child and Boomer mentalities; the available evidence only measures Alpha's side.",
+        "No canonical source measures Boomer household influence against the Alpha child measure. Household composition and decision authority vary substantially.",
+      ),
+    },
   },
 ];
 
@@ -160,25 +270,26 @@ const sourceById = new Map(sources.map((source) => [source.id, source]));
 const evidenceById = new Map(evidenceItems.map((item) => [item.id, item]));
 
 for (const dimension of comparisonDimensions) {
-  for (const cohortEvidence of [dimension.genAlpha, dimension.genZ]) {
-    for (const sourceId of cohortEvidence.sourceIds) {
+  const cohortRecords = [dimension.genAlpha, ...Object.values(dimension.comparisons).map((comparison) => comparison.cohort)];
+  for (const cohortRecord of cohortRecords) {
+    for (const sourceId of cohortRecord.sourceIds) {
       if (!sourceById.has(sourceId)) throw new Error(`Unknown comparison source: ${sourceId}`);
     }
-    for (const evidenceId of cohortEvidence.evidenceIds) {
+    for (const evidenceId of cohortRecord.evidenceIds) {
       const evidence = evidenceById.get(evidenceId);
       if (!evidence) throw new Error(`Unknown comparison evidence: ${evidenceId}`);
-      if (!cohortEvidence.sourceIds.includes(evidence.sourceId)) {
+      if (!cohortRecord.sourceIds.includes(evidence.sourceId)) {
         throw new Error(`Comparison evidence ${evidenceId} uses undeclared source ${evidence.sourceId}`);
       }
-      if (!cohortEvidence.evidenceSupport[evidenceId]?.trim()) {
+      if (!cohortRecord.evidenceSupport[evidenceId]?.trim()) {
         throw new Error(`Comparison evidence ${evidenceId} has no cohort support rationale`);
       }
     }
   }
 }
 
-export const getComparisonEvidence = (cohortEvidence: ComparisonCohort): ComparisonEvidenceRecord[] =>
-  cohortEvidence.evidenceIds.map((evidenceId) => {
+export const getComparisonEvidence = (cohortRecord: ComparisonCohort): ComparisonEvidenceRecord[] =>
+  cohortRecord.evidenceIds.map((evidenceId) => {
     const evidence = evidenceById.get(evidenceId);
     if (!evidence) throw new Error(`Unknown comparison evidence: ${evidenceId}`);
     const source = sourceById.get(evidence.sourceId);
@@ -188,7 +299,7 @@ export const getComparisonEvidence = (cohortEvidence: ComparisonCohort): Compari
       id: evidence.id,
       claim: evidence.claim,
       locator: evidence.locator,
-      support: cohortEvidence.evidenceSupport[evidenceId],
+      support: cohortRecord.evidenceSupport[evidenceId],
       sourceTitle: source.title,
       sourceOrganization: source.organization,
       sourceUrl: source.url,

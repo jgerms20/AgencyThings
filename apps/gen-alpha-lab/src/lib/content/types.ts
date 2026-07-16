@@ -138,23 +138,42 @@ export type CultureShaperReference = ContentEntityReference & {
   type: CultureShaperType;
 };
 
+export type ComparisonClass =
+  | "age-matched observed evidence"
+  | "current cohort snapshot"
+  | "directional interpretation";
+
+export type ComparisonEvidenceStatus =
+  | "direct cohort evidence"
+  | "near-age proxy"
+  | "adult age-band proxy"
+  | "evidence gap";
+
+export type ComparisonCohortKey = "genZ" | "genX" | "boomers";
+
 export type ComparisonCohort = {
-  summary: string;
+  mentality: string;
   ageRange: string;
   geography: string;
   sourceYear: string;
+  evidenceStatus: ComparisonEvidenceStatus;
   sourceIds: string[];
   evidenceIds: string[];
   evidenceSupport: Record<string, string>;
 };
 
+export type ComparisonOption = {
+  comparisonClass: ComparisonClass;
+  cohort: ComparisonCohort;
+  realDifference: string;
+  caveat: string;
+};
+
 export type ComparisonDimension = {
   id: string;
   title: string;
-  comparisonClass: "age-matched observed evidence" | "current cohort snapshot" | "directional interpretation";
   genAlpha: ComparisonCohort;
-  genZ: ComparisonCohort;
-  caveat: string;
+  comparisons: Record<ComparisonCohortKey, ComparisonOption>;
 };
 
 export type CultureShaperType = "creator" | "artist" | "athlete" | "screen-ip" | "franchise";
