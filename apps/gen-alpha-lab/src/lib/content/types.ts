@@ -134,6 +134,10 @@ export type ContentEntityReference = {
   indicators?: Partial<Record<IndicatorKey, IndicatorAssessment>>;
 };
 
+export type CultureShaperReference = ContentEntityReference & {
+  type: CultureShaperType;
+};
+
 export type ComparisonCohort = {
   summary: string;
   ageRange: string;
@@ -163,6 +167,6 @@ export type ContentGraph = {
   evidenceItems: EvidenceItem[];
   strategyPlays: StrategyPlay[];
   spaces: ContentEntityReference[];
-  cultureShapers: ContentEntityReference[];
+  cultureShapers: CultureShaperReference[];
   comparisons?: ComparisonDimension[];
 };

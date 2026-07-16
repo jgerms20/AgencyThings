@@ -47,6 +47,15 @@ const originalCreatorIds = [
   "jesser",
 ];
 
+const generatedCoverageIds = [
+  "taylor-swift", "billie-eilish", "chappell-roan", "ariana-grande", "dua-lipa", "sza", "doja-cat",
+  "gracie-abrams", "charli-xcx", "benson-boone", "tate-mcrae", "the-weeknd", "bruno-mars", "bad-bunny",
+  "karol-g", "feid", "tyla", "pinkpantheress", "beabadoobee", "newjeans", "bts", "stray-kids",
+  "blackpink", "lisa", "marshmello", "alex-warren", "laufey", "kendrick-lamar", "lebron-james",
+  "lionel-messi", "vinicius-junior", "coco-gauff", "stephen-curry", "naomi-osaka", "ilona-maher",
+  "jude-bellingham", "aja-wilson", "paw-patrol", "inside-out", "sonic-the-hedgehog", "lego", "spider-verse",
+];
+
 function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCount = 6) {
   const profilesByFragment = new Map<string, Set<string>>();
   for (const entry of entries) {
@@ -82,6 +91,22 @@ describe("canonical culture shapers", () => {
     expect(countByType("artist")).toBeGreaterThanOrEqual(30);
     expect(countByType("athlete")).toBeGreaterThanOrEqual(12);
     expect(countByType("screen-ip") + countByType("franchise")).toBeGreaterThanOrEqual(12);
+  });
+
+  it("keeps generated coverage records non-claiming about Gen Alpha audiences", () => {
+    const generatedCoverage = cultureShapers.filter((shaper) => generatedCoverageIds.includes(shaper.id));
+
+    expect(generatedCoverage).toHaveLength(generatedCoverageIds.length);
+    for (const shaper of generatedCoverage) {
+      expect(shaper.audienceSegments).toEqual(["Audience not publicly segmented for Gen Alpha"]);
+      expect(shaper.audience).toMatchObject({
+        center: "Audience not publicly segmented for Gen Alpha",
+        ageRange: "Not publicly segmented",
+        confidence: "low",
+      });
+      expect(shaper.audience.confidenceRationale).toMatch(/cohort-level.*not.*profile-specific/i);
+      expect(shaper.sourceNotes.every((note) => /cohort|not.*directly/i.test(note.note))).toBe(true);
+    }
   });
 
   it("includes women and girl-focused culture across relevant categories", () => {

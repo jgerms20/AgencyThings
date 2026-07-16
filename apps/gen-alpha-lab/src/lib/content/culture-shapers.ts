@@ -661,9 +661,16 @@ function additional(seed: AdditionalSeed): CultureShaper {
 
 const sharedMediaInsight = "media-properties-travel";
 
-type CoverageSeed = Pick<CultureShaper, "id" | "name" | "pronouns" | "type" | "officialUrl">;
+type CoverageSeed = readonly [
+  id: string,
+  name: string,
+  pronouns: CultureShaperPronouns,
+  type: CultureShaperType,
+  officialUrl: string,
+];
 
-function coverageShaper(seed: CoverageSeed): CultureShaper {
+function coverageShaper([id, name, pronouns, type, officialUrl]: CoverageSeed): CultureShaper {
+  const seed = { id, name, pronouns, type, officialUrl };
   const isArtist = seed.type === "artist";
   const isAthlete = seed.type === "athlete";
   const role = isArtist
@@ -679,7 +686,7 @@ function coverageShaper(seed: CoverageSeed): CultureShaper {
   const topics = isArtist ? ["music", "fandom"] : isAthlete ? ["competition", "sports"] : ["fandom", "storytelling"];
   const formats = isArtist ? ["song", "live performance"] : isAthlete ? ["highlight", "live competition"] : ["screen story", "licensed play"];
   const platforms = isArtist ? ["Spotify", "YouTube"] : isAthlete ? ["YouTube", "Instagram"] : ["YouTube", "Streaming"];
-  const audienceSegments = isArtist ? ["music fans", "older Gen Alpha"] : isAthlete ? ["sports fans", "families"] : ["families", "fandom"];
+  const audienceSegments = ["Audience not publicly segmented for Gen Alpha"];
   const relation = isArtist
     ? { id: "olivia-rodrigo", label: "Olivia Rodrigo", kind: "culture-shaper" as const, href: "/influencers/olivia-rodrigo" }
     : isAthlete
@@ -696,11 +703,11 @@ function coverageShaper(seed: CoverageSeed): CultureShaper {
     platforms,
     audienceSegments,
     audience: {
-      center: "Youth and family audiences",
-      broader: "Broader entertainment and culture audiences",
-      ageRange: "6-17",
+      center: "Audience not publicly segmented for Gen Alpha",
+      broader: "Cohort-level cultural context, not profile-specific audience measurement",
+      ageRange: "Not publicly segmented",
       confidence: "low",
-      confidenceRationale: "this directory range is an editorial orientation based on format and public cultural visibility, not a claim of property-specific child audience measurement.",
+      confidenceRationale: "Cohort-level context does not establish a profile-specific Gen Alpha audience by age or demographic.",
     },
     influenceMechanism: `${seed.name} offers a shared set of references that can move between viewing, listening, play, conversation, and fan expression.`,
     definingMoments: [
@@ -712,8 +719,8 @@ function coverageShaper(seed: CoverageSeed): CultureShaper {
     insightIds: ["media-repeatable-formats", sharedMediaInsight],
     sourceIds: ["gwi-alpha-unfiltered", "pew-teens-social-2024"],
     sourceNotes: [
-      { sourceId: "gwi-alpha-unfiltered", note: `GWI provides broad youth-interest context for ${seed.name}; it does not measure this profile's audience directly.` },
-      { sourceId: "pew-teens-social-2024", note: `Pew provides adjacent platform context for ${seed.name}, not title-specific child demographics.` },
+      { sourceId: "gwi-alpha-unfiltered", note: `GWI provides cohort-level Gen Alpha interest context for ${seed.name}; it does not measure this profile's audience directly.` },
+      { sourceId: "pew-teens-social-2024", note: `Pew provides cohort-level platform context for ${seed.name}; it does not directly establish title-specific child demographics.` },
     ],
     videos: [],
     featured: false,
@@ -736,7 +743,7 @@ const additionalShapers: CultureShaper[] = [
   additional({ id: "minecraft", name: "Minecraft", pronouns: "they", type: "franchise", role: "Creation-world standard", category: "Games, making, video, and education", summary: "Block-based building connects play, collaboration, tutorials, storytelling, classroom use, and creator culture through one shared visual language.", topics: ["gaming", "creation", "learning"], formats: ["video game", "gameplay video", "collaborative build"], platforms: ["Minecraft", "YouTube", "Education"], audienceSegments: ["gamers", "families", "students"], audience: { center: "Ages 6-15 across builders, gamers, and learners", broader: "Families, educators, creators, and adult players", ageRange: "6-15", confidence: "high", confidenceRationale: "direct 5-13 creation-gaming research and the franchise's education system support a clear youth center." }, influenceMechanism: "A simple construction grammar lets players make, teach, narrate, collaborate, and turn their own worlds into media.", definingMoments: ["Survival and Creative modes supporting distinct play styles", "YouTube builders and roleplayers turning worlds into stories", "Games, Education Edition, merchandise, film, and live community events"], relatedEntities: [{ id: "aphmau", label: "Aphmau", kind: "culture-shaper", href: "/influencers/aphmau" }], insightIds: ["play-making-interface", "learning-creation-skills"], sourceIds: ["walton-creation-gaming-2024", "ofcom-children-media-lives-2025"], sourceNotes: [{ sourceId: "walton-creation-gaming-2024", note: "The Walton/Bodacious study directly includes Minecraft in research with 5- to 13-year-olds about creation gaming and learning." }, { sourceId: "ofcom-children-media-lives-2025", note: "Ofcom supplies qualitative context for games moving through children's friendship and media routines." }], officialUrl: "https://www.minecraft.net/", videos: [], featured: false, indicatorTiers: { reach: 4, participation: 4, commercialPull: 4, audienceCenter: 4 } }),
 ];
 
-const coverageShapers: CultureShaper[] = [
+const coverageShapers: readonly CoverageSeed[] = [
   ["taylor-swift", "Taylor Swift", "she", "artist", "https://www.taylorswift.com/"],
   ["billie-eilish", "Billie Eilish", "she", "artist", "https://www.billieeilish.com/"],
   ["chappell-roan", "Chappell Roan", "she", "artist", "https://www.iamchappellroan.com/"],
@@ -779,12 +786,12 @@ const coverageShapers: CultureShaper[] = [
   ["sonic-the-hedgehog", "Sonic the Hedgehog", "he", "franchise", "https://www.sonicthehedgehog.com/"],
   ["lego", "LEGO", "they", "franchise", "https://www.lego.com/"],
   ["spider-verse", "Spider-Verse", "they", "screen-ip", "https://www.sonypictures.com/movies/spider-man-acrossthespiderverse"],
-] as const satisfies ReadonlyArray<readonly [string, string, CultureShaperPronouns, CultureShaperType, string]>;
+];
 
 export const cultureShapers: CultureShaper[] = [
   ...migratedCreators,
   ...additionalShapers,
-  ...coverageShapers.map(([id, name, pronouns, type, officialUrl]) => coverageShaper({ id, name, pronouns, type, officialUrl })),
+  ...coverageShapers.map(coverageShaper),
 ];
 
 export function getCultureShaper(id: string): CultureShaper | undefined {

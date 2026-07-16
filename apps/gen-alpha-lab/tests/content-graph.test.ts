@@ -218,7 +218,7 @@ describe("canonical content graph", () => {
     });
     const duplicateShaperIssues = validateContentGraph({
       ...emptyGraph,
-      cultureShapers: [{ id: "duplicate-shaper" }, { id: "duplicate-shaper" }],
+      cultureShapers: [{ id: "duplicate-shaper", type: "creator" }, { id: "duplicate-shaper", type: "creator" }],
     });
 
     expect(duplicateSpaceIssues).toContain("Duplicate space ID: duplicate-space");
@@ -229,7 +229,7 @@ describe("canonical content graph", () => {
     const issueList = validateContentGraph({
       ...emptyGraph,
       spaces: [{ id: "shared-environment" }],
-      cultureShapers: [{ id: "shared-environment" }],
+      cultureShapers: [{ id: "shared-environment", type: "creator" }],
     });
 
     expect(issueList).toContain(

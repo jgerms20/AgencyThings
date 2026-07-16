@@ -43,6 +43,15 @@ git -C /private/tmp/gen-alpha-depth-pass diff --check
 
 Result: passed with no whitespace errors.
 
+Final recheck after concurrent work:
+
+```sh
+cd /private/tmp/gen-alpha-depth-pass/apps/gen-alpha-lab
+npm test -- --run tests/culture-shapers.test.tsx tests/content-graph.test.ts
+```
+
+Result: 86 passed and 1 failed. The failure is from concurrent Spaces work outside Task 1: `Expected exactly 50 spaces, received 54` and `Space references missing culture shaper: retail-fandom-collector-spaces -> pokemon`.
+
 ## Changed Files
 
 - `apps/gen-alpha-lab/src/lib/content/culture-shapers.ts`
@@ -61,8 +70,68 @@ Result: passed with no whitespace errors.
 
 ## Commit
 
-Pending commit at the time this report was written.
+Implementation commit: `352fa7e45e860f2155161462287c2d1ef7125090` (`Extend Gen Alpha culture taxonomy`).
 
 ## Concerns
 
-- A production build was started but did not produce a `BUILD_ID` artifact in this concurrent worktree; focused Task 1 tests are green. The build result is not included as acceptance evidence.
+- A production build was started but did not produce a `BUILD_ID` artifact in this concurrent worktree; the build result is not included as acceptance evidence.
+- The final focused-suite rerun is blocked by the concurrent Spaces validation failure documented above. The Task 1 implementation commit was green before those unrelated changes appeared.
+
+## Rejected findings repair
+
+### Red regression
+
+Command:
+
+```sh
+cd /private/tmp/gen-alpha-depth-pass/apps/gen-alpha-lab
+npm test -- --run tests/culture-shapers.test.tsx
+```
+
+Result: failed as intended. The generated Taylor Swift coverage record returned `audienceSegments` of `music fans` and `older Gen Alpha` instead of the required non-claiming audience contract.
+
+### Green regression
+
+Command:
+
+```sh
+cd /private/tmp/gen-alpha-depth-pass/apps/gen-alpha-lab
+npm test -- --run tests/culture-shapers.test.tsx
+```
+
+Result: passed, 1 test file and 13 tests.
+
+### Required focused suite
+
+Command:
+
+```sh
+cd /private/tmp/gen-alpha-depth-pass/apps/gen-alpha-lab
+npm test -- --run tests/culture-shapers.test.tsx tests/content-graph.test.ts
+```
+
+Result: 87 passed and 1 failed. The only failure is the concurrent Spaces change: `Expected exactly 50 spaces, received 54` at `tests/content-graph.test.ts:83`. The culture-shaper suite passed all 13 tests, and the remaining 74 content-graph tests passed.
+
+### TypeScript
+
+Command:
+
+```sh
+cd /private/tmp/gen-alpha-depth-pass/apps/gen-alpha-lab
+npx tsc --noEmit
+```
+
+Result: Task 1 type errors are resolved. Three non-Task-1 errors remain:
+
+- `tests/content-graph.test.ts:561` (`TS2322`) was introduced by `1034a034d` (`Harden Gen Alpha evidence validation`), before the Task 1 commit.
+- `tests/insight-graph.test.tsx:68-69` (`TS2367`, twice) was introduced by `00a5c202b` (`Polish forty-insight integration`), before the Task 1 commit.
+
+### Diff hygiene
+
+Command:
+
+```sh
+git -C /private/tmp/gen-alpha-depth-pass diff --check
+```
+
+Result: passed with no whitespace errors.
