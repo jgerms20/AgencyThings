@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -60,6 +62,14 @@ const requiredAthleteIds = [
 ];
 
 const requiredCoverageIds = [...requiredArtistIds, ...requiredAthleteIds];
+const factoryIpIds = ["paw-patrol", "inside-out", "sonic-the-hedgehog", "lego", "spider-verse"];
+const factoryCoverageIds = [...requiredCoverageIds, ...factoryIpIds];
+const featuredIpAssets = {
+  bluey: "/culture/bluey.jpg",
+  "kpop-demon-hunters": "/culture/kpop-demon-hunters.jpg",
+  wednesday: "/culture/wednesday.jpg",
+  "disney-princess": "/culture/disney-princess.jpg",
+} as const;
 
 function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCount = 6) {
   const profilesByFragment = new Map<string, Set<string>>();
@@ -75,6 +85,36 @@ function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCou
   return [...profilesByFragment.entries()]
     .filter(([, profileIds]) => profileIds.size >= 4)
     .map(([fragment]) => fragment);
+}
+
+function readJpegDimensions(image: Buffer) {
+  expect(image.subarray(0, 2)).toEqual(Buffer.from([0xff, 0xd8]));
+  expect(image.subarray(-2)).toEqual(Buffer.from([0xff, 0xd9]));
+
+  const startOfFrameMarkers = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+  let offset = 2;
+  while (offset < image.length - 1) {
+    expect(image[offset]).toBe(0xff);
+    while (image[offset] === 0xff) offset += 1;
+    const marker = image[offset];
+    offset += 1;
+
+    if (marker === 0xd8 || marker === 0xd9 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    if (marker === 0xda) break;
+
+    const segmentLength = image.readUInt16BE(offset);
+    expect(segmentLength).toBeGreaterThanOrEqual(2);
+    expect(offset + segmentLength).toBeLessThanOrEqual(image.length);
+    if (startOfFrameMarkers.has(marker)) {
+      return {
+        height: image.readUInt16BE(offset + 3),
+        width: image.readUInt16BE(offset + 5),
+      };
+    }
+    offset += segmentLength;
+  }
+
+  throw new Error("JPEG has no supported start-of-frame marker");
 }
 
 describe("canonical culture shapers", () => {
@@ -132,14 +172,52 @@ describe("canonical culture shapers", () => {
     }
   });
 
-  it("gives featured IP local portraits and enriches the wider IP set", () => {
-    const expectedPortraits = {
-      bluey: "/culture/bluey.jpg",
-      "kpop-demon-hunters": "/culture/kpop-demon-hunters.jpg",
-      wednesday: "/culture/wednesday.jpg",
-      "disney-princess": "/culture/disney-princess.jpg",
+  it("keeps every factory-backed editorial profile bespoke across every seeded dimension", () => {
+    const coverage = factoryCoverageIds.map((id) => getCultureShaper(id)!);
+    const signatures = {
+      category: coverage.map((shaper) => shaper.category),
+      topics: coverage.map((shaper) => JSON.stringify(shaper.topics)),
+      formats: coverage.map((shaper) => JSON.stringify(shaper.formats)),
+      platforms: coverage.map((shaper) => JSON.stringify(shaper.platforms)),
+      audienceSegments: coverage.map((shaper) => JSON.stringify(shaper.audienceSegments)),
+      relatedEntities: coverage.map((shaper) => JSON.stringify(shaper.relatedEntities)),
+      insightIds: coverage.map((shaper) => JSON.stringify(shaper.insightIds)),
+      sourceNotes: coverage.map((shaper) => JSON.stringify(shaper.sourceNotes)),
+      indicatorTiers: coverage.map((shaper) => JSON.stringify(
+        Object.values(shaper.indicators).map((indicator) => indicator.tier),
+      )),
     };
-    for (const [id, portrait] of Object.entries(expectedPortraits)) {
+
+    for (const [dimension, values] of Object.entries(signatures)) {
+      const counts = values.reduce((occurrences, value) => {
+        occurrences.set(value, (occurrences.get(value) ?? 0) + 1);
+        return occurrences;
+      }, new Map<string, number>());
+      const maximumReuse = dimension === "indicatorTiers" ? 4 : 2;
+      expect(
+        Math.max(...counts.values()),
+        `${dimension} contains a boilerplate signature: ${JSON.stringify([...counts].filter(([, count]) => count > maximumReuse))}`,
+      ).toBeLessThanOrEqual(maximumReuse);
+    }
+
+    expect(repeatedFragments(coverage.map((shaper) => ({
+      id: shaper.id,
+      text: shaper.sourceNotes.map((note) => note.note).join(" "),
+    })))).toEqual([]);
+  });
+
+  it.each(Object.keys(featuredIpAssets))("does not claim an exact Gen Alpha age or gender center for %s", (id) => {
+    const shaper = getCultureShaper(id)!;
+
+    expect(shaper.audience.center).toMatch(/exact Gen Alpha (age|segmentation).*not (publicly )?available/i);
+    expect(shaper.audience.ageRange).toBe("Not publicly segmented");
+    expect(shaper.audienceSegments).not.toContain("girls");
+    expect(shaper.audience.confidence).toBe("low");
+    expect(shaper.audience.confidenceRationale).toMatch(/title-level.*not (publicly )?available/i);
+  });
+
+  it("gives featured IP local portraits and enriches the wider IP set", () => {
+    for (const [id, portrait] of Object.entries(featuredIpAssets)) {
       expect(getCultureShaper(id)?.portrait).toBe(portrait);
     }
 
@@ -148,6 +226,21 @@ describe("canonical culture shapers", () => {
       expect(shaper.summary).not.toMatch(/recognisable reference point/i);
       expect(shaper.definingMoments).toHaveLength(3);
       expect(new Set(shaper.definingMoments).size).toBe(3);
+    }
+  });
+
+  it("keeps every featured local image present, decodable, and attributed", async () => {
+    const attribution = await readFile(join(process.cwd(), "public/culture/ATTRIBUTION.md"), "utf8");
+
+    for (const portrait of Object.values(featuredIpAssets)) {
+      const filename = portrait.split("/").at(-1)!;
+      const imagePath = join(process.cwd(), "public", portrait);
+      const image = await readFile(imagePath);
+      const dimensions = readJpegDimensions(image);
+
+      expect(dimensions.width).toBeGreaterThan(0);
+      expect(dimensions.height).toBeGreaterThan(0);
+      expect(attribution).toContain(`\`${filename}\``);
     }
   });
 

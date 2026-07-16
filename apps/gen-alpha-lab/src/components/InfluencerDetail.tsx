@@ -17,6 +17,7 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
   const relatedSpaces = profile.relatedSpaceIds
     .map((spaceId) => spaces.find((space) => space.id === spaceId))
     .filter((space) => space !== undefined);
+  const embeddableVideos = profile.videos.filter((video) => video.embeddable);
 
   return (
     <main className="influencer-detail-page">
@@ -87,7 +88,7 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           </div>
         </section>
 
-        {profile.videos.filter((video) => video.embeddable).map((video) => (
+        {embeddableVideos.map((video) => (
           <section className="profile-video" key={video.youtubeId}>
             <div><span>See the format</span><h2>{video.title}</h2></div>
             <iframe
@@ -100,7 +101,7 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           </section>
         ))}
 
-        {profile.mediaFallback && profile.videos.length === 0 && !profile.portrait ? (
+        {profile.mediaFallback && embeddableVideos.length === 0 && !profile.portrait ? (
           <aside className="profile-media-note" role="note" aria-label="Media note">
             <span>Media note</span>
             <p>{profile.mediaFallback}</p>

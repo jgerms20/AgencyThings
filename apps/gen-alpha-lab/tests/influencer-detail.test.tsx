@@ -47,4 +47,19 @@ describe("Influencer detail", () => {
     expect(screen.getByRole("note", { name: "Media note" })).toHaveTextContent(athlete.mediaFallback!);
     expect(screen.getByText(athlete.influenceMechanism)).toBeVisible();
   });
+
+  it("renders the media fallback when every listed video is non-embeddable", () => {
+    const profile = getCultureShaper("angel-reese")!;
+    const originalVideos = profile.videos;
+    profile.videos = [{ youtubeId: "rights-managed", title: "Official highlight", embeddable: false }];
+
+    try {
+      render(<InfluencerDetail influencer={profile} />);
+
+      expect(screen.queryByTitle(/Official highlight/i)).not.toBeInTheDocument();
+      expect(screen.getByRole("note", { name: "Media note" })).toHaveTextContent(profile.mediaFallback!);
+    } finally {
+      profile.videos = originalVideos;
+    }
+  });
 });

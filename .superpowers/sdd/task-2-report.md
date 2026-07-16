@@ -20,3 +20,20 @@
 
 - Athlete imagery intentionally uses explicit fallback notes because no durable, rights-cleared local portraits were available in scope. Each profile links to an official athlete, club, league, or governing destination for current media.
 - The working tree contains concurrent changes outside Task 2. They were not staged, edited, or reverted by this task.
+
+## Rejected Review Remediation
+
+- Replaced shared artist and athlete factory defaults with profile-keyed editorial metadata covering category, topics, formats, platforms, audience segments, related profiles, insight pairings, evidence sources, and calibrated indicator tiers. The five factory-backed IP records now provide those dimensions explicitly.
+- Added a cross-record boilerplate test over all 45 factory-backed artist, athlete, and IP records. It limits repeated signatures for every rejected dimension and scans source notes for repeated six-word filler.
+- Replaced precise age and gender centers for Bluey, KPop Demon Hunters, Wednesday, and Disney Princess with explicit language that exact Gen Alpha age and gender segmentation is not publicly available. All four now use low confidence and `Not publicly segmented` age ranges.
+- Updated `InfluencerDetail` to compute `embeddableVideos` once and use the filtered list for both iframe rendering and media fallback, while retaining the portrait guard. Added a regression test with only non-embeddable media.
+- Added `public/culture/ATTRIBUTION.md` and an asset-integrity test that reads every featured JPEG, validates JPEG start/end markers and segment bounds, extracts positive dimensions from a start-of-frame marker, and confirms filename attribution.
+
+## Final Evidence
+
+- TDD red: the focused run failed 7 tests for factory boilerplate, four unsupported IP audience centers, missing culture attribution, and non-embeddable media suppressing fallback.
+- Focused tests: `npm test -- --run tests/culture-shapers.test.tsx tests/influencer-detail.test.tsx` passed `25/25` tests across `2/2` files.
+- TypeScript: `npx tsc --noEmit` exited `0` with no diagnostics.
+- Whitespace: `git diff --check` exited `0` with no output.
+- Dependency scope: asset validation uses only Node `Buffer` and filesystem APIs; no direct image-decoder dependency was added.
+- Concurrent work: `apps/gen-alpha-lab/tests/lab-workspace.test.tsx` remained modified by another task and was not staged.
