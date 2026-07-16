@@ -100,6 +100,13 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           </section>
         ))}
 
+        {profile.mediaFallback && profile.videos.length === 0 && !profile.portrait ? (
+          <aside className="profile-media-note" role="note" aria-label="Media note">
+            <span>Media note</span>
+            <p>{profile.mediaFallback}</p>
+          </aside>
+        ) : null}
+
         <section className="profile-intelligence" aria-label="Related intelligence and sources">
           <div>
             <span>Related intelligence</span>

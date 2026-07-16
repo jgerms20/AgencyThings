@@ -47,14 +47,19 @@ const originalCreatorIds = [
   "jesser",
 ];
 
-const generatedCoverageIds = [
-  "taylor-swift", "billie-eilish", "chappell-roan", "ariana-grande", "dua-lipa", "sza", "doja-cat",
-  "gracie-abrams", "charli-xcx", "benson-boone", "tate-mcrae", "the-weeknd", "bruno-mars", "bad-bunny",
-  "karol-g", "feid", "tyla", "pinkpantheress", "beabadoobee", "newjeans", "bts", "stray-kids",
-  "blackpink", "lisa", "marshmello", "alex-warren", "laufey", "kendrick-lamar", "lebron-james",
-  "lionel-messi", "vinicius-junior", "coco-gauff", "stephen-curry", "naomi-osaka", "ilona-maher",
-  "jude-bellingham", "aja-wilson", "paw-patrol", "inside-out", "sonic-the-hedgehog", "lego", "spider-verse",
+const requiredArtistIds = [
+  "taylor-swift", "billie-eilish", "chappell-roan", "doechii", "tyla", "rose", "jennie", "lisa", "bts",
+  "stray-kids", "katseye", "enhypen", "aespa", "ive", "babymonster", "le-sserafim", "ado", "yoasobi",
+  "bad-bunny", "karol-g", "peso-pluma", "fuerza-regida", "burna-boy", "rema", "tems", "shakira", "sza",
+  "the-weeknd",
 ];
+
+const requiredAthleteIds = [
+  "angel-reese", "aja-wilson", "trinity-rodman", "coco-gauff", "naomi-osaka", "rayssa-leal", "lamine-yamal",
+  "jude-bellingham", "kylian-mbappe", "shohei-ohtani", "stephen-curry", "erling-haaland",
+];
+
+const requiredCoverageIds = [...requiredArtistIds, ...requiredAthleteIds];
 
 function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCount = 6) {
   const profilesByFragment = new Map<string, Set<string>>();
@@ -93,19 +98,56 @@ describe("canonical culture shapers", () => {
     expect(countByType("screen-ip") + countByType("franchise")).toBeGreaterThanOrEqual(12);
   });
 
-  it("keeps generated coverage records non-claiming about Gen Alpha audiences", () => {
-    const generatedCoverage = cultureShapers.filter((shaper) => generatedCoverageIds.includes(shaper.id));
+  it("includes the required globally diverse artist and athlete rosters", () => {
+    expect(cultureShapers.filter((shaper) => requiredArtistIds.includes(shaper.id))).toHaveLength(requiredArtistIds.length);
+    expect(cultureShapers.filter((shaper) => requiredAthleteIds.includes(shaper.id))).toHaveLength(requiredAthleteIds.length);
+  });
 
-    expect(generatedCoverage).toHaveLength(generatedCoverageIds.length);
-    for (const shaper of generatedCoverage) {
-      expect(shaper.audienceSegments).toEqual(["Audience not publicly segmented for Gen Alpha"]);
-      expect(shaper.audience).toMatchObject({
-        center: "Audience not publicly segmented for Gen Alpha",
-        ageRange: "Not publicly segmented",
-        confidence: "low",
-      });
+  it("turns every required coverage profile into a bespoke, non-claiming record", () => {
+    const coverage = requiredCoverageIds.map((id) => getCultureShaper(id)!);
+    const summaries = coverage.map((shaper) => shaper.summary);
+    const roles = coverage.map((shaper) => shaper.role);
+    const mechanisms = coverage.map((shaper) => shaper.influenceMechanism);
+    const moments = coverage.flatMap((shaper) => shaper.definingMoments);
+
+    expect(coverage.every(Boolean)).toBe(true);
+    expect(new Set(summaries).size).toBe(summaries.length);
+    expect(new Set(roles).size).toBe(roles.length);
+    expect(new Set(mechanisms).size).toBe(mechanisms.length);
+    expect(new Set(moments).size).toBe(moments.length);
+    expect(repeatedFragments(coverage.map((shaper) => ({
+      id: shaper.id,
+      text: [shaper.summary, shaper.influenceMechanism, ...shaper.definingMoments].join(" "),
+    })))).toEqual([]);
+
+    for (const shaper of coverage) {
+      expect(shaper.definingMoments).toHaveLength(3);
+      expect(shaper.audience.center).toMatch(/not publicly segmented/i);
+      expect(shaper.audience.ageRange).toBe("Not publicly segmented");
+      expect(shaper.audience.confidence).toBe("low");
       expect(shaper.audience.confidenceRationale).toMatch(/cohort-level.*not.*profile-specific/i);
-      expect(shaper.sourceNotes.every((note) => /cohort|not.*directly/i.test(note.note))).toBe(true);
+      expect(shaper.sourceNotes.every((note) => /cohort-level|not.*profile-specific|not.*audience/i.test(note.note))).toBe(true);
+      expect(shaper.officialUrl).toMatch(/^https:\/\//);
+      expect(shaper.portrait || shaper.videos.length > 0 || shaper.mediaFallback).toBeTruthy();
+    }
+  });
+
+  it("gives featured IP local portraits and enriches the wider IP set", () => {
+    const expectedPortraits = {
+      bluey: "/culture/bluey.jpg",
+      "kpop-demon-hunters": "/culture/kpop-demon-hunters.jpg",
+      wednesday: "/culture/wednesday.jpg",
+      "disney-princess": "/culture/disney-princess.jpg",
+    };
+    for (const [id, portrait] of Object.entries(expectedPortraits)) {
+      expect(getCultureShaper(id)?.portrait).toBe(portrait);
+    }
+
+    for (const id of ["paw-patrol", "inside-out", "sonic-the-hedgehog", "lego", "spider-verse"]) {
+      const shaper = getCultureShaper(id)!;
+      expect(shaper.summary).not.toMatch(/recognisable reference point/i);
+      expect(shaper.definingMoments).toHaveLength(3);
+      expect(new Set(shaper.definingMoments).size).toBe(3);
     }
   });
 
