@@ -23,6 +23,16 @@ const emptyStrategyContext: Pick<ContentGraph, "strategyPlays" | "spaces" | "cul
   cultureShapers: [],
 };
 
+const emptyGraph: ContentGraph = {
+  sources: [],
+  themes: [],
+  insights: [],
+  evidenceItems: [],
+  strategyPlays: [],
+  spaces: [],
+  cultureShapers: [],
+};
+
 const invalidStrategy = (field: keyof StrategyPlay, value: unknown): StrategyPlay => ({
   ...strategyPlays[0],
   [field]: value,
@@ -72,9 +82,41 @@ describe("canonical content graph", () => {
     expect(issueList).toContain(`Duplicate strategy ID: ${strategyPlays[0].id}`);
   });
 
+  it("rejects duplicate IDs within spaces and culture shapers", () => {
+    const duplicateSpaceIssues = validateContentGraph({
+      ...emptyGraph,
+      spaces: [{ id: "duplicate-space" }, { id: "duplicate-space" }],
+    });
+    const duplicateShaperIssues = validateContentGraph({
+      ...emptyGraph,
+      cultureShapers: [{ id: "duplicate-shaper" }, { id: "duplicate-shaper" }],
+    });
+
+    expect(duplicateSpaceIssues).toContain("Duplicate space ID: duplicate-space");
+    expect(duplicateShaperIssues).toContain("Duplicate culture shaper ID: duplicate-shaper");
+  });
+
+  it("rejects IDs reused across space and culture-shaper graph types", () => {
+    const issueList = validateContentGraph({
+      ...emptyGraph,
+      spaces: [{ id: "shared-environment" }],
+      cultureShapers: [{ id: "shared-environment" }],
+    });
+
+    expect(issueList).toContain(
+      "Duplicate graph ID across space and culture shaper: shared-environment",
+    );
+  });
+
   it.each([
+    ["whenAppropriate", undefined, "whenAppropriate"],
+    ["whenAppropriate", "   ", "whenAppropriate"],
     ["ageContext", undefined, "ageContext"],
     ["ageContext", "   ", "ageContext"],
+    ["directChildValue", undefined, "directChildValue"],
+    ["directChildValue", "   ", "directChildValue"],
+    ["adultDecisionContext", undefined, "adultDecisionContext"],
+    ["adultDecisionContext", "   ", "adultDecisionContext"],
     ["evidenceRationale", undefined, "evidenceRationale"],
     ["evidenceRationale", "   ", "evidenceRationale"],
     ["formats", undefined, "formats"],
@@ -83,6 +125,16 @@ describe("canonical content graph", () => {
     ["failureModes", [], "failureModes"],
     ["ethicalConstraints", undefined, "ethicalConstraints"],
     ["ethicalConstraints", [], "ethicalConstraints"],
+    ["evidenceIds", undefined, "evidenceIds"],
+    ["evidenceIds", [], "evidenceIds"],
+    ["insightIds", undefined, "insightIds"],
+    ["insightIds", [], "insightIds"],
+    ["sourceIds", undefined, "sourceIds"],
+    ["sourceIds", [], "sourceIds"],
+    ["relatedSpaceIds", undefined, "relatedSpaceIds"],
+    ["relatedSpaceIds", [], "relatedSpaceIds"],
+    ["relatedCultureShaperIds", undefined, "relatedCultureShaperIds"],
+    ["relatedCultureShaperIds", [], "relatedCultureShaperIds"],
   ] as Array<[keyof StrategyPlay, unknown, string]>)
   ("rejects a strategy with missing or empty %s", (field, value, issueField) => {
     const issueList = validateContentGraph({
@@ -94,6 +146,7 @@ describe("canonical content graph", () => {
   });
 
   it.each([
+    ["evidenceIds", "missing-evidence", "evidence"],
     ["insightIds", "missing-insight", "insight"],
     ["sourceIds", "missing-source", "source"],
     ["relatedSpaceIds", "missing-space", "space"],
@@ -110,32 +163,93 @@ describe("canonical content graph", () => {
     );
   });
 
-  it("rejects a declared strategy source that does not support any referenced insight", () => {
-    const unrelatedSourceId = "bedtime-screen-early-adolescents-2024";
+  it("rejects selected strategy evidence whose source is not declared", () => {
+    const evidenceId = "evidence-play-making-interface-2";
     const issueList = validateContentGraph({
       ...canonicalGraph,
-      strategyPlays: [{ ...strategyPlays[0], sourceIds: [unrelatedSourceId] }],
+      strategyPlays: [{ ...strategyPlays[0], evidenceIds: [evidenceId] }],
     });
 
     expect(issueList).toContain(
-      `Strategy source is not aligned to referenced insight evidence: ${strategyPlays[0].id} -> ${unrelatedSourceId}`,
+      `Strategy evidence uses undeclared source: ${strategyPlays[0].id} -> ${evidenceId} -> roblox-search-style-trends-2025`,
     );
   });
 
-  it("rejects a strategy insight with no evidence from its declared sources", () => {
-    const unrelatedInsightId = "time-nighttime-use";
+  it("rejects a declared strategy source with no selected evidence", () => {
+    const sourceId = "roblox-search-style-trends-2025";
     const issueList = validateContentGraph({
       ...canonicalGraph,
       strategyPlays: [{
         ...strategyPlays[0],
-        insightIds: [...strategyPlays[0].insightIds, unrelatedInsightId],
-        sourceIds: ["walton-creation-gaming-2024"],
+        evidenceIds: ["evidence-play-making-interface-1", "evidence-learning-creation-skills-1"],
+        sourceIds: [...strategyPlays[0].sourceIds, sourceId],
       }],
     });
 
     expect(issueList).toContain(
-      `Strategy insight has no evidence from declared sources: ${strategyPlays[0].id} -> ${unrelatedInsightId}`,
+      `Strategy source has no selected evidence: ${strategyPlays[0].id} -> ${sourceId}`,
     );
+  });
+
+  it("rejects selected strategy evidence that supports no declared insight", () => {
+    const evidenceId = "evidence-time-nighttime-use-1";
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [{
+        ...strategyPlays[0],
+        evidenceIds: [evidenceId],
+        sourceIds: ["bedtime-screen-early-adolescents-2024"],
+      }],
+    });
+
+    expect(issueList).toContain(
+      `Strategy evidence does not support a declared insight: ${strategyPlays[0].id} -> ${evidenceId}`,
+    );
+  });
+
+  it("rejects a declared strategy insight with no selected evidence", () => {
+    const insightId = "learning-creation-skills";
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      strategyPlays: [{
+        ...strategyPlays[0],
+        evidenceIds: ["evidence-play-making-interface-1"],
+      }],
+    });
+
+    expect(issueList).toContain(
+      `Strategy insight has no selected evidence: ${strategyPlays[0].id} -> ${insightId}`,
+    );
+  });
+
+  it("rejects evidence-to-insight links that are not reciprocated by the insight", () => {
+    const evidence = evidenceItems[0];
+    const insightId = evidence.insightIds[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      insights: insights.map((insight) => insight.id === insightId ? {
+        ...insight,
+        evidenceIds: insight.evidenceIds.filter((id) => id !== evidence.id),
+      } : insight),
+    });
+
+    expect(issueList).toContain(
+      `Evidence is not linked back from insight: ${evidence.id} -> ${insightId}`,
+    );
+  });
+
+  it("rejects insight-to-evidence links that are not reciprocated by the evidence", () => {
+    const evidence = evidenceItems[0];
+    const insightId = evidence.insightIds[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      evidenceItems: evidenceItems.map((item) => item.id === evidence.id ? {
+        ...item,
+        insightIds: item.insightIds.filter((id) => id !== insightId),
+      } : item),
+    });
+
+    expect(issueList).toContain(`Insight is not linked back from evidence: ${insightId}`);
   });
 
   it("rejects search endpoints and placeholder scope fields", () => {

@@ -621,7 +621,18 @@ type AdditionalSeed = Omit<CultureShaper, "indicators" | "relatedSpaceIds"> & {
   indicatorTiers: Record<IndicatorKey, IndicatorTier>;
 };
 
+const cultureShaperGraphIds: Record<string, string> = {
+  minecraft: "minecraft-franchise",
+  pokemon: "pokemon-franchise",
+};
+
 function additional(seed: AdditionalSeed): CultureShaper {
+  const id = cultureShaperGraphIds[seed.id] ?? seed.id;
+  const relatedEntities = seed.relatedEntities.map((entity) => {
+    if (entity.kind !== "culture-shaper" || !cultureShaperGraphIds[entity.id]) return entity;
+    const relatedId = cultureShaperGraphIds[entity.id];
+    return { ...entity, id: relatedId, href: `/influencers/${relatedId}` };
+  });
   const relatedSpaceIds = seed.relatedSpaceIds ?? [
     ...(seed.platforms.some((platform) => platform.includes("YouTube")) ? ["youtube" as const] : []),
     ...(seed.platforms.some((platform) => platform.includes("TikTok")) ? ["tiktok" as const] : []),
@@ -636,6 +647,8 @@ function additional(seed: AdditionalSeed): CultureShaper {
   };
   return {
     ...seed,
+    id,
+    relatedEntities,
     relatedSpaceIds,
     indicators: {
       reach: assessment("reach", seed.indicatorTiers.reach, rationales.reach, seed.sourceIds),

@@ -60,3 +60,22 @@ DONE
 - Build: `npm run build` passed TypeScript and generated 132 static pages, including `/reach-them`.
 - Final diff checks will be rerun against the staged tree before commit.
 - Commit message: `Validate Gen Alpha strategy graph`.
+
+## Review Follow-up: Complete Strategy Validation Invariants
+
+### Correction
+
+- Required non-empty `whenAppropriate`, `directChildValue`, and `adultDecisionContext` copy, plus non-empty strategy evidence, insight, source, space, and culture-shaper lists. Empty relations now fail before evidence alignment can run.
+- Added duplicate and global-ID validation for spaces and culture shapers, and included strategies in the shared graph namespace.
+- Assigned collision-free exported IDs to the Minecraft and Pokemon culture-shaper profiles while preserving `minecraft` and `pokemon` as the distinct space IDs; internal strategy and culture-shaper links use the new franchise IDs.
+- Added explicit selected `evidenceIds` to all eight strategy plays. Every selected evidence item must use a declared source and support a declared insight, while every declared strategy source and insight must be represented by selected evidence.
+- Enforced both sides of the canonical evidence relationship: `EvidenceItem.insightIds` must point to insights that link the evidence back through `Insight.evidenceIds`, and each insight evidence reference must point to evidence that links back to the insight.
+
+### TDD And Verification
+
+- Red: `npm test -- --run tests/content-graph.test.ts tests/reach-page.test.tsx` produced 24 targeted failures and 42 passing tests before implementation.
+- Green: the same focused command passed 2 files and 66 tests after implementation.
+- Full: `npm test` passed 19 files and 133 tests.
+- Build: `npm run build` passed TypeScript and generated 132 static pages, including `/reach-them` and the collision-free franchise profile paths.
+- Final focused, full, build, and diff checks will be rerun against the completed tree before commit.
+- Commit message: `Complete strategy validation invariants`.

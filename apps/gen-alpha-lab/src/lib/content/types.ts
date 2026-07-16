@@ -98,6 +98,7 @@ export type StrategyPlay = {
   formats: string[];
   failureModes: string[];
   ethicalConstraints: string[];
+  evidenceIds: string[];
   insightIds: string[];
   sourceIds: string[];
   relatedSpaceIds: string[];
