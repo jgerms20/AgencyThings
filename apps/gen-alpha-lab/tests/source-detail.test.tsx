@@ -6,6 +6,7 @@ import { sources } from "../src/lib/content/sources";
 import { seedRecords } from "../src/lib/seed-data";
 
 const source = sources.find((item) => item.id === "walton-creation-gaming-2024")!;
+const zeroEvidenceSource = sources.find((item) => item.id === "mccrindle-generation-alpha-book")!;
 
 describe("SourceDetail", () => {
   it("connects source scope, evidence, themes, and related insights", () => {
@@ -33,6 +34,14 @@ describe("SourceDetail", () => {
       "src",
       "https://www.youtube-nocookie.com/embed/3mnan0zpxAo"
     );
+  });
+
+  it("explains empty evidence, themes, and related insights", () => {
+    render(<SourceDetail source={zeroEvidenceSource} />);
+
+    expect(screen.getByText("No extracted evidence is linked yet. Use the direct source below to assess support before relying on this record.")).toBeInTheDocument();
+    expect(screen.getByText("No themes are connected yet. Themes appear here when extracted evidence supports a related insight.")).toBeInTheDocument();
+    expect(screen.getByText("No related insights are connected yet. This source is available for review but does not currently support a lab conclusion.")).toBeInTheDocument();
   });
 });
 

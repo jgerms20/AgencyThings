@@ -5,6 +5,9 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useMemo, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
+import { evidenceItems } from "@/lib/content/evidence";
+import { themes } from "@/lib/content/insights";
+import { getInsight } from "@/lib/content/selectors";
 import { sources } from "@/lib/content/sources";
 import { libraryTakeaways } from "@/lib/editorial";
 import { filterLibraryByFormat, getLibrarySections, type LibraryFormat, type LibrarySection } from "@/lib/findings";
@@ -36,6 +39,23 @@ const sourceFormatForLibraryFormat: Partial<Record<LibraryFormat, Source["format
   books: "book",
   videos: "video"
 };
+
+const sourcePreviews = new Map(sources.map((source) => {
+  const sourceEvidence = evidenceItems.filter((item) => item.sourceId === source.id);
+  const themeIds = new Set(
+    sourceEvidence.flatMap((item) => item.insightIds).flatMap((insightId) => {
+      const insight = getInsight(insightId);
+      return insight ? [insight.themeId] : [];
+    })
+  );
+
+  return [source.id, {
+    evidenceCount: sourceEvidence.length,
+    themeTitles: themes.filter((theme) => themeIds.has(theme.id)).map((theme) => theme.title)
+  }] as const;
+}));
+
+const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 function youtubeId(url: string | undefined): string | undefined {
   if (!url) return undefined;
@@ -84,17 +104,27 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
             <section className="library-group" aria-labelledby="canonical-sources-heading">
               <div className="library-group-heading"><FileText aria-hidden="true" size={21} /><div><h2 id="canonical-sources-heading">Source records</h2><p>Directly linked source records with extracted evidence, scope, strength, and related conclusions.</p></div></div>
               <div className="library-list">
-                {canonicalSources.map((source) => (
-                  <article className="library-row" key={source.id}>
-                    <div className="library-source"><span>{source.organization}</span><small>{source.sourceClass}</small></div>
-                    <div>
-                      <h3>{source.title}</h3><p>{source.summary}</p>
-                      <p><strong>Population</strong> {source.population}; ages {source.ageRange}; {source.geography}.</p>
-                      <div className="library-meta"><strong>{source.format}</strong><span>{source.confidence} evidence strength</span></div>
-                    </div>
-                    <Link aria-label={`Open source detail for ${source.title}`} href={`/library/${source.id}` as Route}><ExternalLink aria-hidden="true" size={17} /></Link>
-                  </article>
-                ))}
+                {canonicalSources.map((source) => {
+                  const preview = sourcePreviews.get(source.id)!;
+
+                  return (
+                    <article className="library-row" key={source.id}>
+                      <div className="library-source"><span>{source.organization}</span><small>{source.sourceClass}</small></div>
+                      <div>
+                        <h3>{source.title}</h3><p>{source.summary}</p>
+                        <p><strong>Population</strong> {source.population}; ages {source.ageRange}; {source.geography}.</p>
+                        <p><strong>Methodology</strong> {source.methodology}</p>
+                        <div className="library-meta">
+                          <strong>{source.format}</strong>
+                          <span>{preview.evidenceCount} extracted evidence {preview.evidenceCount === 1 ? "item" : "items"}</span>
+                          <span>Themes: {preview.themeTitles.length > 0 ? preview.themeTitles.join(", ") : "None connected yet"}</span>
+                          <span>Strength: {titleCase(source.confidence)}</span>
+                        </div>
+                      </div>
+                      <Link aria-label={`Open source detail for ${source.title}`} href={`/library/${source.id}` as Route}><ExternalLink aria-hidden="true" size={17} /></Link>
+                    </article>
+                  );
+                })}
               </div>
             </section>
           ) : null}

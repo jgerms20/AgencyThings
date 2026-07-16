@@ -69,39 +69,49 @@ export default function SourceDetail({ source }: SourceDetailProps) {
           <p className="detail-eyebrow">Trace the claim</p>
           <h2>Extracted evidence</h2>
           <div className="library-list">
-            {evidence.map((item) => (
-              <article className="library-row" key={item.id}>
-                <div className="library-source">
-                  <span>{item.claimKind}</span>
-                  <small>{item.evidenceType}</small>
-                </div>
-                <div>
-                  <h3>{item.claim}</h3>
-                  <p><strong>Locator</strong> {item.locator}</p>
-                  <p><strong>Scope</strong> {item.population}; {item.ageRange}; {item.geography}; {item.period}.</p>
-                  <p><strong>Limitations</strong> {item.limitations}</p>
-                </div>
-              </article>
-            ))}
+            {evidence.length > 0 ? evidence.map((item) => (
+                <article className="library-row" key={item.id}>
+                  <div className="library-source">
+                    <span>{item.claimKind}</span>
+                    <small>{item.evidenceType}</small>
+                  </div>
+                  <div>
+                    <h3>{item.claim}</h3>
+                    <p><strong>Locator</strong> {item.locator}</p>
+                    <p><strong>Scope</strong> {item.population}; {item.ageRange}; {item.geography}; {item.period}.</p>
+                    <p><strong>Limitations</strong> {item.limitations}</p>
+                  </div>
+                </article>
+              )) : (
+                <p className="detail-lede">No extracted evidence is linked yet. Use the direct source below to assess support before relying on this record.</p>
+              )}
           </div>
         </section>
 
         <section className="detail-section detail-know">
           <p className="detail-eyebrow">Connected conclusions</p>
           <h2>Themes</h2>
-          <div className="library-meta">
-            {sourceThemes.map((theme) => <strong key={theme.id}>{theme.title}</strong>)}
-          </div>
+          {sourceThemes.length > 0 ? (
+            <div className="library-meta">
+              {sourceThemes.map((theme) => <strong key={theme.id}>{theme.title}</strong>)}
+            </div>
+          ) : (
+            <p className="detail-lede">No themes are connected yet. Themes appear here when extracted evidence supports a related insight.</p>
+          )}
           <h2>Related insights</h2>
-          <div className="finding-links">
-            {relatedInsights.map((insight) => (
-              <Link aria-label={insight.title} href={`/insights/${insight.id}` as Route} key={insight.id}>
-                <strong>{insight.title}</strong>
-                <span>{insight.thesis}</span>
-                <ArrowUpRight aria-hidden="true" size={18} />
-              </Link>
-            ))}
-          </div>
+          {relatedInsights.length > 0 ? (
+            <div className="finding-links">
+              {relatedInsights.map((insight) => (
+                <Link aria-label={insight.title} href={`/insights/${insight.id}` as Route} key={insight.id}>
+                  <strong>{insight.title}</strong>
+                  <span>{insight.thesis}</span>
+                  <ArrowUpRight aria-hidden="true" size={18} />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="detail-lede">No related insights are connected yet. This source is available for review but does not currently support a lab conclusion.</p>
+          )}
         </section>
 
         {source.youtubeId ? (
