@@ -1,165 +1,50 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import LabWorkspace from "../src/components/LabWorkspace";
 import { seedRecords } from "../src/lib/seed-data";
 
-describe("LabWorkspace", () => {
-  afterEach(() => {
-    window.localStorage.clear();
-    vi.unstubAllGlobals();
-  });
+describe("Gen Alpha editorial overview", () => {
+  afterEach(() => window.localStorage.clear());
 
-  it("renders the field-guide thesis, required lens routes, library, and theme toggle", async () => {
+  it("renders four bold truths and a compact three-link navigation", async () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    await waitFor(() => {
-      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
-    });
-    expect(
-      screen.getByRole("heading", {
-        name: /understanding the first ai-native childhood/i
-      })
-    ).toBeInTheDocument();
-    for (const lens of [
-      ["How they connect", "/topics/connect"],
-      ["How they consume media", "/topics/media"],
-      ["How they are influenced", "/topics/influence"],
-      ["How they spend time", "/topics/time"],
-      ["How they learn", "/topics/learn"],
-      ["How they play and create", "/topics/play-create"],
-      ["How they use AI", "/topics/ai"]
-    ]) {
-      expect(screen.getAllByRole("link", { name: new RegExp(lens[0], "i") })[0]).toHaveAttribute(
-        "href",
-        lens[1]
-      );
-    }
-    expect(screen.getByText(/How their world fits together/i)).toBeInTheDocument();
-    expect(
-      screen.getAllByText("#093 Gen Alpha: AI, Gaming, and the First Fully Digital Childhood").length
-    ).toBeGreaterThan(0);
-    expect(screen.getByText("Library")).toBeInTheDocument();
-    for (const section of ["Articles", "Podcasts", "Books", "YouTube"]) {
-      expect(screen.getByRole("heading", { name: section })).toBeInTheDocument();
-    }
-    expect(screen.getByRole("button", { name: /switch to light theme/i })).toBeInTheDocument();
-    expect(screen.queryByText("/gen-alpha-culture-map.png")).not.toBeInTheDocument();
-    expect(screen.queryByAltText(/collage illustrating gen alpha culture/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /upload interview/i })).not.toBeInTheDocument();
-    expect(screen.queryByText(/interview archive/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/save interview/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/add source/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/research queue/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/demo mode/i)).not.toBeInTheDocument();
+    await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "dark"));
+    expect(screen.getByRole("heading", { name: "Gen Alpha, in four truths." })).toBeInTheDocument();
+    expect(screen.getAllByTestId("editorial-insight")).toHaveLength(4);
+
+    const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
+    expect(navigation).toHaveTextContent("Overview");
+    expect(navigation).toHaveTextContent("People");
+    expect(navigation).toHaveTextContent("Library");
+    expect(navigation).not.toHaveTextContent("How they");
   });
 
-  it("uses the approved finding imagery and navigates featured work to editorial routes", () => {
+  it("keeps creators and owned media concise while moving the full library away", () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    expect(screen.getByAltText("Friends moving between chat and shared play")).toHaveAttribute(
-      "src",
-      "/findings/connection.png"
+    for (const name of ["MrBeast", "IShowSpeed", "Kai Cenat", "Aphmau", "Salish Matter", "Ms. Rachel"]) {
+      expect(screen.getByAltText(name)).toBeInTheDocument();
+    }
+    expect(screen.getByText("#093 Gen Alpha: AI, Gaming, and the First Fully Digital Childhood")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open the research library" })).toHaveAttribute(
+      "href",
+      "/library"
     );
-    expect(screen.getByAltText("Kids discovering video, creators, and shared entertainment")).toHaveAttribute(
-      "src",
-      "/findings/creation.png"
-    );
-    expect(screen.getByAltText("A child learning with on-demand AI support")).toHaveAttribute(
-      "src",
-      "/findings/learning-ai.png"
-    );
-    expect(
-      screen.getByRole("link", { name: "Read Friendship moves across chat, play, and shared worlds. in full" })
-    ).toHaveAttribute("href", "/findings/friendship-portable");
+
+    expect(screen.queryByText("How their world fits together")).not.toBeInTheDocument();
+    expect(screen.queryByText("Editorial findings remain the proof layer.")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Articles" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Make" })).not.toBeInTheDocument();
   });
 
   it("switches between dark and light themes", async () => {
     const user = userEvent.setup();
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    await waitFor(() => {
-      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
-    });
+    await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "dark"));
     await user.click(screen.getByRole("button", { name: /switch to light theme/i }));
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
-    expect(screen.getByRole("button", { name: /switch to dark theme/i })).toBeInTheDocument();
-  });
-
-  it("does not hydrate visible interview records or call intake APIs", async () => {
-    window.localStorage.setItem(
-      "gen-alpha-lab-records",
-      JSON.stringify([
-        {
-          id: "local-interview",
-          kind: "interview",
-          sourceClass: "owned",
-          title: "Local interview",
-          source: "Browser",
-          summary: "Saved in this browser.",
-          tags: ["local"],
-          status: "new",
-          confidence: "medium",
-          createdAt: "2026-07-12T12:00:00.000Z"
-        }
-      ])
-    );
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        records: [
-          {
-            id: "field-cousin-placeholder",
-            kind: "interview",
-            sourceClass: "owned",
-            title: "Shared interview",
-            source: "Supabase",
-            summary: "Saved for the field guide.",
-            tags: ["shared"],
-            status: "reviewed",
-            confidence: "high",
-            createdAt: "2026-07-12T13:00:00.000Z"
-          }
-        ]
-      })
-    });
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<LabWorkspace initialRecords={seedRecords} />);
-
-    await waitFor(() => expect(screen.getByText("Library")).toBeInTheDocument());
-    expect(screen.queryByText("Local interview")).not.toBeInTheDocument();
-    expect(screen.queryByText("Shared interview")).not.toBeInTheDocument();
-    expect(screen.queryByText("Interview slot: cousin media diary")).not.toBeInTheDocument();
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("filters individual library records with accessible Make, Think, and Learn controls", async () => {
-    const user = userEvent.setup();
-    render(<LabWorkspace initialRecords={seedRecords} />);
-
-    const all = screen.getByRole("button", { name: "All resources" });
-    const make = screen.getByRole("button", { name: "Make" });
-    const think = screen.getByRole("button", { name: "Think" });
-    const learn = screen.getByRole("button", { name: "Learn" });
-    expect(all).toHaveAttribute("aria-pressed", "true");
-    expect(make).toHaveAttribute("aria-pressed", "false");
-
-    await user.click(make);
-
-    expect(all).toHaveAttribute("aria-pressed", "false");
-    expect(make).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Roblox Releases New Data Decoding Search and Style Trends in Digital Experiences")).toBeInTheDocument();
-    expect(screen.queryByText("Protecting Young Users on Social Media")).not.toBeInTheDocument();
-
-    await user.click(think);
-    expect(think).toHaveAttribute("aria-pressed", "true");
-    expect(make).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByText("Understanding Generation Alpha")).toBeInTheDocument();
-
-    await user.click(learn);
-    expect(learn).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Protecting Young Users on Social Media")).toBeInTheDocument();
-    expect(screen.queryByText("Roblox Releases New Data Decoding Search and Style Trends in Digital Experiences")).not.toBeInTheDocument();
   });
 });
