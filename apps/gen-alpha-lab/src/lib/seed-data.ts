@@ -323,6 +323,21 @@ export const seedRecords: ResearchRecord[] = [
     createdAt: "2026-07-12T14:12:30.000Z"
   },
   {
+    id: "right-about-now-generation-alpha-ai",
+    kind: "podcast",
+    sourceClass: "podcast",
+    title: "Why Generation Alpha and the Age of AI Will Change Everything with Matt Britton",
+    source: "Right About Now - Legendary Business Advice",
+    url: "https://podcasts.apple.com/us/podcast/why-generation-alpha-and-the-age-of-ai/id1346054199?i=1000723571640",
+    summary: "A business-and-culture conversation on how AI may reshape education, skills, and daily routines for Gen Alpha.",
+    tags: ["podcast", "ai", "education", "gen-alpha"],
+    useModes: ["think"],
+    status: "queued",
+    confidence: "medium",
+    publishedAt: "2025-08-26",
+    createdAt: "2026-07-16T13:00:00.000Z"
+  },
+  {
     id: "in-the-demo-meet-gen-alpha",
     kind: "podcast",
     sourceClass: "podcast",

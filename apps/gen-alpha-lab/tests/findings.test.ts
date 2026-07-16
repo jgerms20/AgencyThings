@@ -106,16 +106,22 @@ describe("Gen Alpha field-guide findings", () => {
     expect(seedRecords.find((record) => record.id === "owned-podcast-093")?.summary).not.toMatch(/Joshua/i);
   });
 
-  it("keeps Eclectic Polymath first in a deduplicated nine-episode podcast listening set", () => {
+  it("keeps Eclectic Polymath first in a deduplicated ten-episode podcast listening set", () => {
     const podcasts = filterLibraryByFormat(seedRecords, "podcasts");
 
-    expect(podcasts).toHaveLength(9);
+    expect(podcasts).toHaveLength(10);
+    expect(new Set(podcasts.map((podcast) => podcast.id)).size).toBe(10);
+    expect(new Set(podcasts.map((podcast) => podcast.url)).size).toBe(10);
     expect(podcasts[0]).toMatchObject({
       id: "owned-podcast-093",
       source: "Eclectic Polymath",
       url: "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g"
     });
     expect(podcasts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "right-about-now-generation-alpha-ai",
+        url: "https://podcasts.apple.com/us/podcast/why-generation-alpha-and-the-age-of-ai/id1346054199?i=1000723571640"
+      }),
       expect.objectContaining({ url: expect.stringContaining("id1733611380?i=1000649487888") })
     ]));
   });

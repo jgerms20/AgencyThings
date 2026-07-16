@@ -561,6 +561,26 @@ iframe { display: block; max-width: 100%; }
 .library-row > a { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; }
 .library-row > a:hover,
 .library-row > a:focus-visible { border-color: var(--acid); color: var(--acid); outline: none; }
+.library-row-featured {
+  padding: 25px 12px;
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+  box-shadow: 0 0 0 5px var(--violet), 9px 9px 0 var(--coral);
+  background: var(--acid);
+}
+.library-featured-label {
+  display: inline-block;
+  margin: 0 0 10px;
+  border: 2px solid var(--ink);
+  padding: 4px 7px;
+  background: var(--paper);
+  color: var(--ink) !important;
+  font-size: .64rem !important;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
 .library-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
 .library-meta span, .library-meta strong { border-left: 2px solid var(--line); padding-left: 7px; color: var(--muted); font-size: .64rem; font-weight: 800; text-transform: uppercase; }
 .library-meta strong { border-color: var(--acid); color: var(--ink); }

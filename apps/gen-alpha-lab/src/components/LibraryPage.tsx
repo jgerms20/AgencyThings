@@ -130,10 +130,10 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
                       <article
                         className={`library-row${isPlayable ? " library-row-media" : ""}${isFeatured ? " library-row-featured" : ""}`}
                         key={record.id}
-                        style={isFeatured ? { background: "var(--acid)", paddingInline: "12px" } : undefined}
                       >
                         <div className="library-source"><span>{record.source}</span><small>{record.sourceClass}</small></div>
                         <div>
+                          {isFeatured && record.synthesisStatus ? <p className="library-featured-label">{record.synthesisStatus}</p> : null}
                           <h3>{record.title}</h3><p>{record.summary}</p>
                           <div className="library-meta" aria-label={`Topics for ${record.title}`}>{record.tags.slice(0, 3).map((tag) => <span key={tag}>{tag.replaceAll("-", " ")}</span>)}</div>
                           {isPlayable ? <MediaEmbed title={record.title} url={record.url} /> : null}

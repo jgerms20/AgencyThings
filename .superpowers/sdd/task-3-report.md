@@ -50,3 +50,26 @@ DONE_WITH_CONCERNS
 ### Review Remediation Concerns
 
 - Focused Task 3 verification is clean. Repository-wide checks remain outside this remediation because unrelated concurrent edits are present in the Space and validation workstreams.
+
+## Second Remediation
+
+### Status
+
+DONE_WITH_CONCERNS
+
+### Delivered
+
+- Restored the library to exactly ten unique podcast records after retaining only the Spotify version of The Future Report episode. Added `Why Generation Alpha and the Age of AI Will Change Everything with Matt Britton` from Right About Now, using the official Apple Podcasts episode URL and publication date (August 26, 2025).
+- Rendered the owned Eclectic Polymath record's `Featured synthesis` status as visible card text. The featured card now has a 3px ink outline, a violet ring, and coral offset shadow, rather than relying on its acid background alone.
+- Tightened Apple Podcasts parsing to accept only HTTPS locale paths shaped as `/podcast[/<slug>]/id<showId>?i=<episodeId>`. The parser now rejects extra path suffixes, additional query parameters, duplicate episode IDs, invalid show IDs, and fragments; rejected records retain their normal external links without an iframe.
+
+### TDD And Verification
+
+- Red: `npm test -- --run tests/library-page.test.tsx tests/findings.test.ts` failed with the expected nine-podcast count, absent visible synthesis label, absent featured-card outline, and rejected valid Apple slug-path URL.
+- Green: the focused suite passed with 2 files and 21 tests after the seed record, visible label/ring, and strict Apple parser were added.
+- Direct coverage asserts ten unique podcast IDs and URLs, retained Future Report dedupe, the new researched Apple record, a rendered `Featured synthesis` label, CSS outline/ring declarations, valid slug-path conversion, malformed Apple suffix/query/show-ID rejection, and external-link fallback.
+- `git diff --check` passed with no whitespace errors.
+
+### Concerns
+
+- Only the requested focused library/findings tests were run. The worktree contains unrelated active Task 1/4/6 changes, so repository-wide test/build status is intentionally not claimed by this remediation.

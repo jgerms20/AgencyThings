@@ -11,6 +11,7 @@ type MediaEmbedConfig = {
 };
 
 const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/;
+const applePodcastPathPattern = /^\/[^/]+\/podcast(?:\/[^/]+)?\/id\d+$/;
 
 function getYouTubeVideoId(parsed: URL, host: string): string | undefined {
   const isValidVideoId = (value: string | null | undefined) => value && youtubeVideoIdPattern.test(value) ? value : undefined;
@@ -41,7 +42,15 @@ export function getMediaEmbedConfig(url: string | undefined): MediaEmbedConfig |
       return { src: `https://open.spotify.com/embed/episode/${pathSegments[1]}`, aspectRatio: "352 / 152" };
     }
 
-    if ((host === "podcasts.apple.com" || host === "embed.podcasts.apple.com") && /^\/[^/]+\/podcast\/id\d+/.test(parsed.pathname) && /^\d+$/.test(parsed.searchParams.get("i") ?? "")) {
+    const appleEpisodeId = parsed.searchParams.get("i");
+    if (
+      (host === "podcasts.apple.com" || host === "embed.podcasts.apple.com") &&
+      applePodcastPathPattern.test(parsed.pathname) &&
+      parsed.searchParams.size === 1 &&
+      parsed.searchParams.getAll("i").length === 1 &&
+      /^\d+$/.test(appleEpisodeId ?? "") &&
+      !parsed.hash
+    ) {
       return {
         src: `https://embed.podcasts.apple.com${parsed.pathname}${parsed.search}`,
         aspectRatio: "660 / 175"
