@@ -1,28 +1,48 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import MobileNav, { type NavigationItem } from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 
-type SiteHeaderProps = {
-  active?: "overview" | "insights" | "influencers" | "spaces" | "library";
-};
+type NavigationId = "overview" | "insights" | "influencers" | "spaces" | "reach-them" | "compare" | "library";
 
-const links = [
+type SiteHeaderProps = { active?: NavigationId };
+
+const links: readonly NavigationItem<NavigationId>[] = [
   { id: "overview", label: "Overview", href: "/" },
   { id: "insights", label: "Insights", href: "/insights" },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
+  { id: "reach-them", label: "Reach Them", href: "/reach-them" },
+  { id: "compare", label: "Compare", href: "/compare" },
   { id: "library", label: "Library", href: "/library" }
-] as const;
+];
+
+function navigationIdForPath(pathname: string): NavigationId | undefined {
+  return links.find((link) => link.href === "/" ? pathname === "/" : pathname.startsWith(`${link.href}/`) || pathname === link.href)?.id;
+}
 
 export default function SiteHeader({ active }: SiteHeaderProps) {
+  const [routeActive, setRouteActive] = useState<NavigationId>();
+  const current = active ?? routeActive;
+
+  useEffect(() => {
+    const updateActiveRoute = () => setRouteActive(navigationIdForPath(window.location.pathname));
+    updateActiveRoute();
+    window.addEventListener("popstate", updateActiveRoute);
+    return () => window.removeEventListener("popstate", updateActiveRoute);
+  }, []);
+
   return (
     <header className="site-header">
       <Link className="brand" href="/" aria-label="Gen Alpha Intelligence Lab home">
         Gen Alpha Intelligence Lab
       </Link>
-      <nav aria-label="Primary navigation">
+      <nav aria-label="Primary navigation" className="primary-nav">
         {links.map((link) => (
           <Link
-            aria-current={active === link.id ? "page" : undefined}
+            aria-current={current === link.id ? "page" : undefined}
             href={link.href}
             key={link.id}
           >
@@ -31,6 +51,7 @@ export default function SiteHeader({ active }: SiteHeaderProps) {
         ))}
       </nav>
       <ThemeToggle />
+      <MobileNav active={current} links={links} />
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import FindingDetail from "../src/components/FindingDetail";
 import TopicDetail from "../src/components/TopicDetail";
@@ -13,7 +13,16 @@ describe("Insight-led detail pages", () => {
     expect(screen.getByRole("heading", { name: "What we know" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Why it matters" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Evidence" })).toBeInTheDocument();
-    expect(screen.getAllByRole("navigation", { name: "Primary navigation" })).toHaveLength(1);
+    const primaryNavigation = screen.getByRole("navigation", { name: "Primary navigation" });
+    expect(within(primaryNavigation).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Overview",
+      "Insights",
+      "Influencers",
+      "Spaces",
+      "Reach Them",
+      "Compare",
+      "Library",
+    ]);
     expect(screen.queryByText(/Evidence confidence/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related findings" })).not.toBeInTheDocument();
   });
