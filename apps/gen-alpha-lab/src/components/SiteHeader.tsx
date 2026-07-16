@@ -14,7 +14,7 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "insights", label: "Insights", href: "/insights" },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
-  { id: "reach-them", label: "Reach Them", href: "/reach-them" },
+  { id: "reach-them", label: "How to reach them", href: "/reach-them" },
   { id: "compare", label: "Compare", href: "/compare" },
   { id: "library", label: "Library", href: "/library" }
 ];
