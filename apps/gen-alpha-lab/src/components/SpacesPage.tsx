@@ -13,11 +13,19 @@ export default function SpacesPage() {
 
       <section className="space-directory" aria-label="Digital spaces shaping Gen Alpha">
         {spaces.map((space, index) => (
-          <article className={`space-profile space-profile-${space.tone}`} data-testid="space-profile" key={space.id}>
+          <article
+            aria-labelledby={`${space.id}-heading`}
+            className={`space-profile space-profile-${space.tone}`}
+            data-testid="space-profile"
+            id={space.id}
+            key={space.id}
+            style={{ scrollMarginTop: "6rem" }}
+            tabIndex={-1}
+          >
             <header>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <div>
-                <h2>{space.name}</h2>
+                <h2 id={`${space.id}-heading`}>{space.name}</h2>
                 <p>{space.category}</p>
               </div>
               <strong>{space.audience}</strong>

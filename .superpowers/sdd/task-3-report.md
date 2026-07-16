@@ -51,3 +51,12 @@
 - Full suite: 16 files and 73 tests passed.
 - Production build: passed TypeScript and generated 98 pages, including all 42 culture-shaper profiles.
 - Boilerplate scan and `git diff --check`: passed with no matches or whitespace errors.
+
+## Final Follow-up: Space Anchors
+
+- Added stable `id={space.id}` fragment targets to every current space article so culture-shaper `/spaces#<spaceId>` links resolve to rendered content.
+- Added `aria-labelledby` links to each space heading, `tabIndex={-1}` for programmatic focus, and a `6rem` scroll margin so anchored content clears persistent page chrome.
+- Red: the focused test found `null` for the first culture-shaper related-space fragment because no rendered article carried the matching ID.
+- Green: `npm test -- --run tests/spaces-page.test.tsx tests/culture-shapers.test.tsx` passed 2 files and 12 tests after the anchor change.
+- Full suite: 18 files and 83 tests passed.
+- Production build: passed TypeScript and generated 131 pages.
