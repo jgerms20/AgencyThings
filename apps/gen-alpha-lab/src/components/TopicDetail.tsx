@@ -1,14 +1,13 @@
-import { ArrowLeft, ArrowUpRight, ExternalLink } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
-  findingTopics,
   getFindingsForTopic,
   getSupportingRecords,
   type TopicLens
 } from "@/lib/findings";
 import { seedRecords } from "@/lib/seed-data";
-import ThemeToggle from "@/components/ThemeToggle";
+import SiteHeader from "@/components/SiteHeader";
 
 type TopicDetailProps = {
   topic: TopicLens;
@@ -17,102 +16,61 @@ type TopicDetailProps = {
 export default function TopicDetail({ topic }: TopicDetailProps) {
   const topicFindings = getFindingsForTopic(topic);
   const support = topicFindings.flatMap((finding) => getSupportingRecords(finding, seedRecords));
-  const supportById = new Map(support.map((record) => [record.id, record]));
-  const sources = Array.from(supportById.values());
-  const siblingTopics = findingTopics.filter((item) => item.id !== topic.id).slice(0, 3);
+  const sources = Array.from(new Map(support.map((record) => [record.id, record])).values());
 
   return (
-    <main className="topic-detail-page">
-      <header className="detail-header">
-        <Link href="/" className="detail-brand">Gen Alpha Intelligence Lab</Link>
-        <div className="detail-actions">
-          <Link href="/" className="back-link"><ArrowLeft aria-hidden="true" size={16} /> Field guide</Link>
-          <ThemeToggle />
-        </div>
-      </header>
+    <main className={`topic-detail-page accent-${topic.id}`}>
+      <SiteHeader />
 
-      <article>
-        <section className="topic-hero">
-          <div>
-            <p>{topic.label}</p>
-            <h1>{topic.pageTitle}</h1>
-            <p>{topic.thesis}</p>
+      <article className="detail-article">
+        <section className="topic-lead">
+          <p>{topic.label}</p>
+          <h1>{topic.thesis}</h1>
+        </section>
+
+        <section className="detail-section detail-know">
+          <p className="detail-eyebrow">The pattern</p>
+          <h2>What we know</h2>
+          <ol className="anatomy-list">
+            {topic.visualAnatomy.map((item, index) => (
+              <li key={item}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{item}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="finding-links">
+            {topicFindings.map((finding) => (
+              <Link href={`/findings/${finding.id}` as Route} key={finding.id}>
+                <strong>{finding.title}</strong>
+                <span>{finding.summary}</span>
+                <ArrowUpRight aria-hidden="true" size={18} />
+              </Link>
+            ))}
           </div>
-          <aside>
-            <span>Agency question</span>
-            <strong>{topic.agencyQuestion}</strong>
+        </section>
+
+        <section className="detail-section detail-why">
+          <p className="detail-eyebrow">The strategic question</p>
+          <h2>Why it matters</h2>
+          <p className="detail-lede">{topic.agencyQuestion}</p>
+          <aside className="gen-z-contrast">
+            <span>Compared with Gen Z</span>
+            <p>{topic.genZContrast}</p>
           </aside>
         </section>
 
-        <section className="topic-anatomy" aria-labelledby="topic-anatomy-heading">
-          <div>
-            <p className="detail-eyebrow">Visual anatomy</p>
-            <h2 id="topic-anatomy-heading">What to look for</h2>
-          </div>
-          <div className="anatomy-grid">
-            {topic.visualAnatomy.map((item, index) => (
-              <article key={item}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <p>{item}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="topic-findings-page" aria-labelledby="topic-findings-heading">
-          <div>
-            <p className="detail-eyebrow">Findings</p>
-            <h2 id="topic-findings-heading">Editorial read</h2>
-          </div>
-          <div className="topic-finding-list">
-            {topicFindings.map((finding) => (
-              <article key={finding.id}>
-                {finding.heroImage ? <img src={finding.heroImage} alt={finding.heroAlt} /> : null}
-                <div>
-                  <h3>{finding.title}</h3>
-                  <p>{finding.summary}</p>
-                  <p>{finding.interpretation}</p>
-                  <Link href={`/findings/${finding.id}` as Route}>
-                    Open finding <ArrowUpRight aria-hidden="true" size={16} />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="topic-contrast" aria-labelledby="topic-contrast-heading">
-          <p className="detail-eyebrow">Gen Z contrast</p>
-          <h2 id="topic-contrast-heading">{topic.genZContrast}</h2>
-        </section>
-
-        <section className="topic-sources" aria-labelledby="topic-sources-heading">
-          <div>
-            <p className="detail-eyebrow">Supporting sources</p>
-            <h2 id="topic-sources-heading">Evidence to inspect</h2>
-          </div>
-          <div className="topic-source-list">
+        <section className="detail-section detail-evidence">
+          <p className="detail-eyebrow">Go deeper</p>
+          <h2>Evidence</h2>
+          <div className="source-list">
             {sources.map((record) => (
               <a href={record.url} target="_blank" rel="noreferrer" key={record.id}>
                 <span>{record.sourceClass}</span>
                 <strong>{record.title}</strong>
                 <small>{record.source}</small>
-                <ExternalLink aria-hidden="true" size={17} />
+                <ArrowUpRight aria-hidden="true" size={18} />
               </a>
-            ))}
-          </div>
-        </section>
-
-        <section className="related-findings">
-          <p className="detail-eyebrow">Other lenses</p>
-          <h2>Continue through the system</h2>
-          <div>
-            {siblingTopics.map((item) => (
-              <Link href={item.href as Route} key={item.id}>
-                <span>{item.label}</span>
-                <strong>{item.thesis}</strong>
-                <ArrowUpRight aria-hidden="true" size={17} />
-              </Link>
             ))}
           </div>
         </section>
