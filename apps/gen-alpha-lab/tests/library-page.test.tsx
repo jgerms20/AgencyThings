@@ -22,6 +22,7 @@ describe("LibraryPage", () => {
 
     await user.click(screen.getByRole("button", { name: "Videos" }));
     expect(screen.getByRole("heading", { name: "Videos" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "What Is ChatGPT?" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Reports" })).not.toBeInTheDocument();
     expect(screen.getByTitle(/Media and Young Kids/i)).toHaveAttribute(
       "src",

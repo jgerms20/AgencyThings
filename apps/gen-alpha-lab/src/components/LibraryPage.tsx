@@ -41,6 +41,8 @@ const sourceFormatForLibraryFormat: Partial<Record<LibraryFormat, Source["format
   videos: "video"
 };
 
+const browsableSources = sources.filter((source) => source.id !== "common-sense-chatgpt-video");
+
 const sourcePreviews = new Map(sources.map((source) => {
   const sourceEvidence = evidenceItems.filter((item) => item.sourceId === source.id);
   const themeIds = new Set(
@@ -61,7 +63,7 @@ const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice
 export default function LibraryPage({ initialRecords }: LibraryPageProps) {
   const [activeFormat, setActiveFormat] = useState<LibraryFormat>("all");
   const canonicalSources = useMemo(
-    () => activeFormat === "all" ? sources : sources.filter((source) => source.format === sourceFormatForLibraryFormat[activeFormat]),
+    () => activeFormat === "all" ? browsableSources : browsableSources.filter((source) => source.format === sourceFormatForLibraryFormat[activeFormat]),
     [activeFormat]
   );
   const sections = useMemo(
