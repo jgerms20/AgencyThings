@@ -5,6 +5,7 @@ import IndicatorTooltip from "@/components/IndicatorTooltip";
 import SiteHeader from "@/components/SiteHeader";
 import { getCultureShaper, type CultureShaper } from "@/lib/content/culture-shapers";
 import { getSource } from "@/lib/content/selectors";
+import { spaces } from "@/lib/spaces";
 
 type InfluencerDetailProps = {
   influencer: CultureShaper | { id: string };
@@ -13,6 +14,9 @@ type InfluencerDetailProps = {
 export default function InfluencerDetail({ influencer }: InfluencerDetailProps) {
   const profile = getCultureShaper(influencer.id);
   if (!profile) return null;
+  const relatedSpaces = profile.relatedSpaceIds
+    .map((spaceId) => spaces.find((space) => space.id === spaceId))
+    .filter((space) => space !== undefined);
 
   return (
     <main className="influencer-detail-page">
@@ -101,6 +105,8 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
             <span>Related intelligence</span>
             <h2>Follow the connections</h2>
             <ul>{profile.relatedEntities.map((entity) => <li key={entity.id}><Link href={entity.href as Route}>{entity.label}</Link></li>)}</ul>
+            <h3>Related spaces</h3>
+            <ul>{relatedSpaces.map((space) => <li key={space.id}><Link href={`/spaces#${space.id}` as Route}>{space.name}</Link></li>)}</ul>
           </div>
           <div>
             <span>Evidence notes</span>

@@ -12,6 +12,7 @@ import {
 } from "../src/lib/content/culture-shapers";
 import { insights } from "../src/lib/content/insights";
 import { sources } from "../src/lib/content/sources";
+import { spaces } from "../src/lib/spaces";
 
 const originalCreatorIds = [
   "mrbeast",
@@ -46,6 +47,22 @@ const originalCreatorIds = [
   "jesser",
 ];
 
+function repeatedFragments(entries: Array<{ id: string; text: string }>, wordCount = 6) {
+  const profilesByFragment = new Map<string, Set<string>>();
+  for (const entry of entries) {
+    const words = entry.text.toLowerCase().replace(/[^a-z0-9' ]/g, " ").split(/\s+/).filter(Boolean);
+    for (let index = 0; index <= words.length - wordCount; index += 1) {
+      const fragment = words.slice(index, index + wordCount).join(" ");
+      const profileIds = profilesByFragment.get(fragment) ?? new Set<string>();
+      profileIds.add(entry.id);
+      profilesByFragment.set(fragment, profileIds);
+    }
+  }
+  return [...profilesByFragment.entries()]
+    .filter(([, profileIds]) => profileIds.size >= 4)
+    .map(([fragment]) => fragment);
+}
+
 describe("canonical culture shapers", () => {
   it("preserves all thirty creators and expands to all five shaper types", () => {
     expect(cultureShapers.length).toBeGreaterThan(originalCreatorIds.length);
@@ -79,6 +96,7 @@ describe("canonical culture shapers", () => {
   it("stores profile-specific intelligence and valid graph references", () => {
     const sourceIds = new Set(sources.map((source) => source.id));
     const insightIds = new Set(insights.map((insight) => insight.id));
+    const spaceIds = new Set(spaces.map((space) => space.id));
 
     for (const shaper of cultureShapers) {
       expect(shaper.topics.length).toBeGreaterThan(0);
@@ -91,12 +109,50 @@ describe("canonical culture shapers", () => {
       expect(shaper.influenceMechanism).toBeTruthy();
       expect(shaper.definingMoments.length).toBeGreaterThanOrEqual(3);
       expect(shaper.relatedEntities.length).toBeGreaterThan(0);
+      expect(shaper.relatedSpaceIds.length).toBeGreaterThan(0);
       expect(shaper.officialUrl).toMatch(/^https:\/\//);
       expect(shaper.sourceNotes.length).toBeGreaterThan(0);
       expect(shaper.sourceIds.length).toBeGreaterThan(0);
       shaper.sourceIds.forEach((id) => expect(sourceIds.has(id)).toBe(true));
       shaper.insightIds.forEach((id) => expect(insightIds.has(id)).toBe(true));
+      shaper.relatedSpaceIds.forEach((id) => expect(spaceIds.has(id)).toBe(true));
     }
+  });
+
+  it("grounds migrated creator evidence in profile-specific formats, platforms, and moments", () => {
+    const migrated = originalCreatorIds.map((id) => getCultureShaper(id)!);
+    const entries = migrated.map((shaper) => ({
+      id: shaper.id,
+      text: [
+        ...shaper.sourceNotes.map((sourceNote) => sourceNote.note),
+        ...Object.values(shaper.indicators).map((indicator) => indicator.rationale),
+      ].join(" "),
+    }));
+    const forbiddenFiller = [
+      "read beside research",
+      "entity-specific editorial observation",
+      "rather than creator analytics",
+      "position is visible through",
+      "gives audiences a repeatable action through",
+      "shows how attention can extend",
+      "editorial range grounded in format",
+    ];
+
+    for (const shaper of migrated) {
+      const entry = entries.find((candidate) => candidate.id === shaper.id)!.text.toLowerCase();
+      expect(entry).toContain(shaper.formats[0].toLowerCase());
+      expect(entry).toContain(shaper.platforms[0].toLowerCase());
+      expect(entry).toContain(shaper.definingMoments[0].toLowerCase());
+      expect(shaper.sourceNotes.every((sourceNote) => sourceNote.note.includes(shaper.name))).toBe(true);
+      expect(Object.values(shaper.indicators).every((indicator) => indicator.rationale.includes(shaper.name))).toBe(true);
+      for (const phrase of forbiddenFiller) expect(entry).not.toContain(phrase);
+    }
+
+    const allNotes = migrated.flatMap((shaper) => shaper.sourceNotes.map((sourceNote) => sourceNote.note));
+    const allRationales = migrated.flatMap((shaper) => Object.values(shaper.indicators).map((indicator) => indicator.rationale));
+    expect(new Set(allNotes).size).toBe(allNotes.length);
+    expect(new Set(allRationales).size).toBe(allRationales.length);
+    expect(repeatedFragments(entries)).toEqual([]);
   });
 
   it("uses complete tiered assessments and profile rationale", () => {
@@ -214,5 +270,14 @@ describe("indicator explanations", () => {
       "href",
       bluey.officialUrl,
     );
+  });
+
+  it("renders related spaces as stable internal relations", () => {
+    const aphmau = getCultureShaper("aphmau")!;
+    render(<InfluencerDetail influencer={aphmau} />);
+
+    expect(screen.getByRole("heading", { name: "Related spaces" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Minecraft" })).toHaveAttribute("href", "/spaces#minecraft");
+    expect(screen.getByRole("link", { name: "YouTube" })).toHaveAttribute("href", "/spaces#youtube");
   });
 });
