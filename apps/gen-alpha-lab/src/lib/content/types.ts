@@ -20,6 +20,8 @@ export type EvidenceType =
   | "platform-wide metric"
   | "editorial inference";
 
+export type EvidenceClaimKind = "metric" | "finding" | "observed claim" | "editorial inference";
+
 export type Source = {
   id: string;
   title: string;
@@ -46,6 +48,8 @@ export type EvidenceItem = {
   id: string;
   sourceId: string;
   claim: string;
+  claimKind: EvidenceClaimKind;
+  supportRationale: string;
   locator: string;
   evidenceType: EvidenceType;
   population: string;

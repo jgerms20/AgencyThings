@@ -5,7 +5,9 @@ import type { ContentGraph } from "./types";
 const requiredEvidenceFields = ["population", "ageRange", "geography", "period", "methodology", "limitations"] as const;
 const requiredSourceFields = ["population", "ageRange", "geography", "fieldworkPeriod", "methodology", "limitations"] as const;
 const placeholderScope = /^(?:not fully disclosed|not stated|unknown|n\/?a|tbd)$/i;
-const locatorPattern = /\b(?:section|table|figure|page|paragraph|chapter|abstract|methods|methodology|headline|opening|overview|description|guidance|key findings|executive summary)\b/i;
+const locatorPattern = /\b(?:sections?|tables?|figures?|pages?|paragraphs?|chapters?|abstract|methods|methodology|headline|opening|overview|description|guidance|key findings|executive summary)\b/i;
+const claimKinds = new Set(["metric", "finding", "observed claim", "editorial inference"]);
+const sourceMetadataClaimPattern = /^(?:(?:the|this|a|an)\s+)?(?:study|report|survey|review|census|article|release|research|panel|book|announcement)\s+(?:covers?|examines?|includes?|uses?|combines?|synthesizes?|follows?|measures?|surveys?|surveyed|evaluates?|focuses?|records?|is based on)\b/i;
 
 const defaultGraph: ContentGraph = { sources, themes, insights, evidenceItems };
 
@@ -47,8 +49,13 @@ const hasDirectEditorialUrl = (value: string): boolean => {
     const url = new URL(value);
     const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
     const searchHost = /(?:^|\.)(?:google|bing|duckduckgo|yahoo)\./.test(hostname) || /(?:^|\.)search\./.test(hostname);
-    const searchPath = /\/(?:search|results|find)(?:\/|$)/i.test(url.pathname);
-    const searchQuery = ["q", "query", "search"].some((key) => url.searchParams.has(key));
+    const searchPath = url.pathname
+      .split("/")
+      .filter(Boolean)
+      .map((segment) => segment.toLowerCase().replace(/[-_]/g, ""))
+      .some((segment) => /^(?:search|sitesearch|searchresults|results|find)(?:\.(?:aspx?|html?))?$/.test(segment));
+    const searchQueryKeys = new Set(["q", "query", "search", "s", "term", "keyword", "keywords", "search_query", "search_term", "searchterm", "searchword"]);
+    const searchQuery = [...url.searchParams.keys()].some((key) => searchQueryKeys.has(key.toLowerCase()));
 
     return url.protocol === "https:" && Boolean(hostname) && !searchHost && !searchPath && !searchQuery;
   } catch {
@@ -57,6 +64,8 @@ const hasDirectEditorialUrl = (value: string): boolean => {
 };
 
 const hasMeaningfulScope = (value: string): boolean => Boolean(value.trim()) && !placeholderScope.test(value.trim());
+const isClaimLevelEvidence = (item: ContentGraph["evidenceItems"][number]): boolean =>
+  claimKinds.has(item.claimKind) && Boolean(item.supportRationale?.trim()) && !sourceMetadataClaimPattern.test(item.claim.trim());
 
 export const validateContentGraph = (graph: ContentGraph = defaultGraph): string[] => {
   const issues = [
@@ -88,6 +97,11 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     if (!locatorPattern.test(item.locator)) issues.push(`Evidence has no specific locator: ${item.id}`);
     if (source && item.claim.trim() === source.summary.trim()) issues.push(`Evidence repeats source summary instead of an extracted claim: ${item.id}`);
     if (source && item.period === source.publishedAt) issues.push(`Evidence substitutes publication date for measurement period: ${item.id}`);
+    if (!claimKinds.has(item.claimKind)) issues.push(`Evidence has no claim-level kind: ${item.id}`);
+    if (!item.supportRationale?.trim()) issues.push(`Evidence has no support rationale: ${item.id}`);
+    if (sourceMetadataClaimPattern.test(item.claim.trim())) {
+      issues.push(`Evidence claim describes source metadata rather than a finding: ${item.id}`);
+    }
     for (const insightId of item.insightIds) {
       if (!insightIds.has(insightId)) issues.push(`Evidence references missing insight: ${item.id}`);
     }
@@ -96,12 +110,14 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
   for (const insight of graph.insights) {
     if (!themeIds.has(insight.themeId)) issues.push(`Insight references missing theme: ${insight.id}`);
     const evidence = insight.evidenceIds.map((id) => evidenceById.get(id)).filter(Boolean);
+    const claimLevelEvidence = evidence.filter((item) => isClaimLevelEvidence(item!));
     if (evidence.length !== insight.evidenceIds.length) issues.push(`Insight references missing evidence: ${insight.id}`);
     if (evidence.length < 2) issues.push(`Insight lacks two evidence items: ${insight.id}`);
+    if (claimLevelEvidence.length < 2) issues.push(`Insight lacks two claim-level evidence items: ${insight.id}`);
 
-    const sourceIds = new Set(evidence.map((item) => item!.sourceId));
+    const sourceIds = new Set(claimLevelEvidence.map((item) => item!.sourceId));
     if (sourceIds.size < 2) issues.push(`Insight lacks two distinct sources: ${insight.id}`);
-    if (!evidence.some((item) => sourceById.get(item!.sourceId)?.sourceClass !== "community signal")) {
+    if (!claimLevelEvidence.some((item) => sourceById.get(item!.sourceId)?.sourceClass !== "community signal")) {
       issues.push(`Insight lacks non-community evidence: ${insight.id}`);
     }
     if (evidence.some((item) => !item!.insightIds.includes(insight.id))) {
