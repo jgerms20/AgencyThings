@@ -80,4 +80,6 @@ export function getInfluencerById(id: string): InfluencerProfile | undefined {
   return influencers.find((influencer) => influencer.id === id);
 }
 
+// Compatibility surface for overview and legacy tests; expanded experiences use culture-shapers.ts.
+export const legacyCreatorIds = influencers.map((influencer) => influencer.id);
 export const featuredInfluencers = influencers.filter((influencer) => influencer.featured);
