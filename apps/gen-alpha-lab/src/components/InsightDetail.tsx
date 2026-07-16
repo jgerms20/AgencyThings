@@ -2,9 +2,9 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import SiteHeader from "@/components/SiteHeader";
+import { getCultureShaper } from "@/lib/content/culture-shapers";
 import { getEvidenceForInsight, getSource } from "@/lib/content/selectors";
 import { themes } from "@/lib/content/insights";
-import { getInfluencerById } from "@/lib/influencers";
 import { spaces } from "@/lib/spaces";
 import type { Insight } from "@/lib/content/types";
 
@@ -18,7 +18,7 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
   const leadEvidence = evidence[0];
   const leadSource = getSource(leadEvidence.sourceId)!;
   const relatedCreators = insight.relatedCreatorIds.flatMap((id) => {
-    const creator = getInfluencerById(id);
+    const creator = getCultureShaper(id);
     return creator ? [creator] : [];
   });
   const relatedSpaces = insight.relatedSpaceIds.flatMap((id) => {
@@ -103,7 +103,7 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
           <h2>Related culture shapers and spaces</h2>
           <div className="finding-links">
             {relatedCreators.map((creator) => (
-              <Link href={`/influencers/${creator.id}` as Route} key={creator.id}>
+              <Link aria-label={creator.name} href={`/influencers/${creator.id}` as Route} key={creator.id}>
                 <strong>{creator.name}</strong>
                 <span>{creator.role}</span>
                 <ArrowUpRight aria-hidden="true" size={18} />

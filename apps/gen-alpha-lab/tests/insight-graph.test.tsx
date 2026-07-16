@@ -133,4 +133,13 @@ describe("forty-insight evidence graph", () => {
       expect(screen.getByRole("link", { name: source.title })).toHaveAttribute("href", source.url);
     }
   });
+
+  it("resolves related profiles from the expanded culture-shaper graph", () => {
+    const insight = getInsight("play-family-coplay");
+    expect(insight).toBeDefined();
+
+    render(<InsightDetail insight={insight!} />);
+
+    expect(screen.getByRole("link", { name: "Bluey" })).toHaveAttribute("href", "/influencers/bluey");
+  });
 });
