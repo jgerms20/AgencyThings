@@ -35,7 +35,7 @@ export type Source = {
   ageRange: string;
   geography: string;
   sampleSize?: string;
-  fieldworkPeriod?: string;
+  fieldworkPeriod: string;
   confidence: ConfidenceLevel;
   limitations: string;
   youtubeId?: string;
@@ -81,4 +81,11 @@ export type Insight = {
   relatedCreatorIds: string[];
   relatedSpaceIds: string[];
   tags: string[];
+};
+
+export type ContentGraph = {
+  sources: Source[];
+  themes: Theme[];
+  insights: Insight[];
+  evidenceItems: EvidenceItem[];
 };

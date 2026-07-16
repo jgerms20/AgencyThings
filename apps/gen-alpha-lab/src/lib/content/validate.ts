@@ -1,7 +1,13 @@
 import { evidenceItems, insights, themes } from "./evidence";
 import { sources } from "./sources";
+import type { ContentGraph } from "./types";
 
 const requiredEvidenceFields = ["population", "ageRange", "geography", "period", "methodology", "limitations"] as const;
+const requiredSourceFields = ["population", "ageRange", "geography", "fieldworkPeriod", "methodology", "limitations"] as const;
+const placeholderScope = /^(?:not fully disclosed|not stated|unknown|n\/?a|tbd)$/i;
+const locatorPattern = /\b(?:section|table|figure|page|paragraph|chapter|abstract|methods|methodology|headline|opening|overview|description|guidance|key findings|executive summary)\b/i;
+
+const defaultGraph: ContentGraph = { sources, themes, insights, evidenceItems };
 
 const duplicateIds = (items: { id: string }[], label: string): string[] => {
   const seen = new Set<string>();
@@ -15,42 +21,79 @@ const duplicateIds = (items: { id: string }[], label: string): string[] => {
   return issues;
 };
 
-const hasDirectUrl = (value: string): boolean => {
+const duplicateGraphIds = (graph: ContentGraph): string[] => {
+  const types = [
+    ["source", graph.sources],
+    ["theme", graph.themes],
+    ["insight", graph.insights],
+    ["evidence", graph.evidenceItems],
+  ] as const;
+  const ownerById = new Map<string, string>();
+  const issues: string[] = [];
+
+  for (const [type, items] of types) {
+    for (const item of items) {
+      const owner = ownerById.get(item.id);
+      if (owner && owner !== type) issues.push(`Duplicate graph ID across ${owner} and ${type}: ${item.id}`);
+      ownerById.set(item.id, type);
+    }
+  }
+
+  return issues;
+};
+
+const hasDirectEditorialUrl = (value: string): boolean => {
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && Boolean(url.hostname);
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+    const searchHost = /(?:^|\.)(?:google|bing|duckduckgo|yahoo)\./.test(hostname) || /(?:^|\.)search\./.test(hostname);
+    const searchPath = /\/(?:search|results|find)(?:\/|$)/i.test(url.pathname);
+    const searchQuery = ["q", "query", "search"].some((key) => url.searchParams.has(key));
+
+    return url.protocol === "https:" && Boolean(hostname) && !searchHost && !searchPath && !searchQuery;
   } catch {
     return false;
   }
 };
 
-export const validateContentGraph = (): string[] => {
-  const issues = [
-    ...duplicateIds(themes, "theme"),
-    ...duplicateIds(insights, "insight"),
-    ...duplicateIds(sources, "source"),
-    ...duplicateIds(evidenceItems, "evidence"),
-  ];
-  const themeIds = new Set(themes.map((theme) => theme.id));
-  const insightIds = new Set(insights.map((insight) => insight.id));
-  const sourceById = new Map(sources.map((source) => [source.id, source]));
-  const evidenceById = new Map(evidenceItems.map((item) => [item.id, item]));
+const hasMeaningfulScope = (value: string): boolean => Boolean(value.trim()) && !placeholderScope.test(value.trim());
 
-  for (const source of sources) {
-    if (!hasDirectUrl(source.url)) issues.push(`Source has no direct HTTPS URL: ${source.id}`);
+export const validateContentGraph = (graph: ContentGraph = defaultGraph): string[] => {
+  const issues = [
+    ...duplicateIds(graph.themes, "theme"),
+    ...duplicateIds(graph.insights, "insight"),
+    ...duplicateIds(graph.sources, "source"),
+    ...duplicateIds(graph.evidenceItems, "evidence"),
+    ...duplicateGraphIds(graph),
+  ];
+  const themeIds = new Set(graph.themes.map((theme) => theme.id));
+  const insightIds = new Set(graph.insights.map((insight) => insight.id));
+  const sourceById = new Map(graph.sources.map((source) => [source.id, source]));
+  const evidenceById = new Map(graph.evidenceItems.map((item) => [item.id, item]));
+
+  for (const source of graph.sources) {
+    if (!hasDirectEditorialUrl(source.url)) issues.push(`Source has no direct editorial URL: ${source.id}`);
+    for (const field of requiredSourceFields) {
+      if (!hasMeaningfulScope(source[field])) issues.push(`Source has placeholder ${field}: ${source.id}`);
+    }
+    if (source.publishedAt === source.fieldworkPeriod) issues.push(`Source substitutes publication date for fieldworkPeriod: ${source.id}`);
   }
 
-  for (const item of evidenceItems) {
-    if (!sourceById.has(item.sourceId)) issues.push(`Evidence references missing source: ${item.id}`);
+  for (const item of graph.evidenceItems) {
+    const source = sourceById.get(item.sourceId);
+    if (!source) issues.push(`Evidence references missing source: ${item.id}`);
     for (const field of requiredEvidenceFields) {
-      if (!item[field].trim()) issues.push(`Evidence is missing ${field}: ${item.id}`);
+      if (!hasMeaningfulScope(item[field])) issues.push(`Evidence is missing ${field}: ${item.id}`);
     }
+    if (!locatorPattern.test(item.locator)) issues.push(`Evidence has no specific locator: ${item.id}`);
+    if (source && item.claim.trim() === source.summary.trim()) issues.push(`Evidence repeats source summary instead of an extracted claim: ${item.id}`);
+    if (source && item.period === source.publishedAt) issues.push(`Evidence substitutes publication date for measurement period: ${item.id}`);
     for (const insightId of item.insightIds) {
       if (!insightIds.has(insightId)) issues.push(`Evidence references missing insight: ${item.id}`);
     }
   }
 
-  for (const insight of insights) {
+  for (const insight of graph.insights) {
     if (!themeIds.has(insight.themeId)) issues.push(`Insight references missing theme: ${insight.id}`);
     const evidence = insight.evidenceIds.map((id) => evidenceById.get(id)).filter(Boolean);
     if (evidence.length !== insight.evidenceIds.length) issues.push(`Insight references missing evidence: ${insight.id}`);
