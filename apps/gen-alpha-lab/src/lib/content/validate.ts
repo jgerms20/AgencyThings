@@ -54,8 +54,11 @@ const hasDirectEditorialUrl = (value: string): boolean => {
       .filter(Boolean)
       .map((segment) => segment.toLowerCase().replace(/[-_]/g, ""))
       .some((segment) => /^(?:search|sitesearch|searchresults|results|find)(?:\.(?:aspx?|html?))?$/.test(segment));
-    const searchQueryKeys = new Set(["q", "query", "search", "s", "term", "keyword", "keywords", "search_query", "search_term", "searchterm", "searchword"]);
-    const searchQuery = [...url.searchParams.keys()].some((key) => searchQueryKeys.has(key.toLowerCase()));
+    const searchQueryKeys = new Set(["q", "query", "search", "s", "term", "keyword", "keywords", "searchquery", "searchterm", "searchword"]);
+    const searchQuery = [...url.searchParams.keys()].some((key) => {
+      const normalizedKey = key.toLowerCase().replace(/[-_]/g, "");
+      return searchQueryKeys.has(normalizedKey);
+    });
 
     return url.protocol === "https:" && Boolean(hostname) && !searchHost && !searchPath && !searchQuery;
   } catch {

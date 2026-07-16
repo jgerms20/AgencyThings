@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evidenceItems } from "@/lib/content/evidence";
+import { evidenceItems, insights } from "@/lib/content/evidence";
 import { sources } from "@/lib/content/sources";
 import { validateContentGraph } from "@/lib/content/validate";
 
@@ -71,6 +71,12 @@ describe("canonical content graph", () => {
 
   it.each([
     "https://publisher.example/?s=gen-alpha",
+    "https://publisher.example/?searchQuery=gen-alpha",
+    "https://publisher.example/?SearchQuery=gen-alpha",
+    "https://publisher.example/?searchquery=gen-alpha",
+    "https://publisher.example/?search-query=gen-alpha",
+    "https://publisher.example/?search_query=gen-alpha",
+    "https://publisher.example/?searchTerm=gen-alpha",
     "https://publisher.example/search-results?term=gen-alpha",
     "https://publisher.example/searchresults?keyword=gen-alpha",
     "https://publisher.example/content/search/?query=gen-alpha",
@@ -168,6 +174,34 @@ describe("canonical content graph", () => {
       expect(item.claim).toMatch(/youtube/i);
       expect(item.claim).toMatch(/daily|every day|routine|regular/i);
       expect(["metric", "finding", "observed claim"]).toContain(item.claimKind);
+    }
+  });
+
+  it("supports nighttime use with direct bedtime or overnight findings", () => {
+    const nighttimeEvidence = evidenceItems.filter((item) => item.insightIds.includes("time-nighttime-use"));
+
+    expect(nighttimeEvidence).toHaveLength(2);
+    for (const item of nighttimeEvidence) {
+      expect(item.claim).toMatch(/bedtime|before bed|overnight|in bed/i);
+      expect(item.locator).toMatch(/abstract|results|table|section|paragraph/i);
+      expect(["metric", "finding", "observed claim"]).toContain(item.claimKind);
+    }
+  });
+
+  it("frames offline play rebound as a limited directional inference", () => {
+    const insight = insights.find((item) => item.id === "play-offline-rebound");
+    const reboundEvidence = evidenceItems.filter((item) => item.insightIds.includes("play-offline-rebound"));
+
+    expect(insight?.title).toBe("Offline play is rebounding rather than disappearing.");
+    expect(insight?.confidence).toBe("low");
+    expect(insight?.confidenceReason).toMatch(/directional|partial|narrow/i);
+    expect(insight?.nuance).toMatch(/sport|outdoor|not all offline play/i);
+    expect(reboundEvidence).toHaveLength(2);
+    for (const item of reboundEvidence) {
+      expect(item.claim).toMatch(/increase|increased|grew|growth|rose|rebound|up from|uptick/i);
+      expect(item.claim).toMatch(/202[0-9]/);
+      expect(item.claimKind).toBe("editorial inference");
+      expect(item.limitations).toMatch(/partial|narrow|not all|frequency|organized sport|outdoor recreation/i);
     }
   });
 
