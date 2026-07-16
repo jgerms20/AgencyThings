@@ -111,7 +111,7 @@ describe("topic and cohort comparison", () => {
     render(<ComparePage />);
 
     const result = screen.getByRole("region", { name: "Comparison result" });
-    expect(within(result).getByText("The real difference")).toBeInTheDocument();
+    expect(within(result).getByText("Strategic interpretation")).toBeInTheDocument();
     expect(within(result).getByText("Comparison class")).toBeInTheDocument();
     expect(within(result).getByText("Methodology caveat")).toBeInTheDocument();
     expect(within(result).getByText(/54% more time.*26% less time/i)).toBeInTheDocument();

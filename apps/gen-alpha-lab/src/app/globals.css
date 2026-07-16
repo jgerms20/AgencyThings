@@ -610,6 +610,7 @@ iframe { display: block; max-width: 100%; }
 .profile-intelligence h2,
 .profile-moments h2,
 .profile-video h2 { margin-top: 20px; font-size: 2.8rem; line-height: 1; }
+.profile-video .text-link { margin-top: 24px; }
 .profile-intelligence p { max-width: 620px; margin-top: 22px; color: var(--muted); line-height: 1.6; }
 .profile-intelligence ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 0; padding: 0; list-style: none; }
 .profile-intelligence li { border-bottom: 2px solid var(--acid); padding: 6px 0; font-size: .72rem; font-weight: 900; text-transform: uppercase; }

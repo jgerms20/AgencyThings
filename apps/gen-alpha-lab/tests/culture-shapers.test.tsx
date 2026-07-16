@@ -168,6 +168,7 @@ describe("canonical culture shapers", () => {
       expect(shaper.audience.confidenceRationale).toMatch(/cohort-level.*not.*profile-specific/i);
       expect(shaper.sourceNotes.every((note) => /cohort-level|not.*profile-specific|not.*audience/i.test(note.note))).toBe(true);
       expect(shaper.officialUrl).toMatch(/^https:\/\//);
+      expect(new URL(shaper.officialUrl).pathname).not.toMatch(/\/{2,}/);
       expect(shaper.portrait || shaper.videos.length > 0 || shaper.mediaFallback).toBeTruthy();
     }
   });

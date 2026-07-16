@@ -42,7 +42,7 @@ export default function OverviewComparison() {
           <h3>{genZComparison.cohort.mentality}</h3>
         </div>
         <div className="overview-real-difference">
-          <strong>Real difference</strong>
+          <strong>Strategic interpretation</strong>
           <p>{genZComparison.realDifference}</p>
         </div>
       </div>

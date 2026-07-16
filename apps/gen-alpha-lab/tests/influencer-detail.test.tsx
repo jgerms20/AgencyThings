@@ -18,6 +18,10 @@ describe("Influencer detail", () => {
       "src",
       expect.stringContaining("youtube-nocookie.com/embed/")
     );
+    expect(screen.getByRole("link", { name: "Open MrBeast video on YouTube" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("youtube.com/watch?v="),
+    );
   });
 
   it("renders local IP portrait imagery and its bespoke influence reasoning", () => {

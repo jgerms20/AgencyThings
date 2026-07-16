@@ -43,6 +43,9 @@ Every checked route rendered meaningful content with no application error overla
 - Related-format disclosure opened with provenance, usage caveat, and YouTube fallback link.
 - Reach page exposed eight native strategy disclosures and opened a closed play.
 - Compare switched to Boomers and showed the 65+ proxy, 64% figure, and Pew source.
+- Compare labels the synthesized contrast as `Strategic interpretation`, not measured fact.
+- Influencer videos include a direct YouTube fallback beside the privacy-enhanced embed.
+- A'ja Wilson's official WNBA destination was checked without a duplicated path separator.
 - Library switched among Podcasts and Videos; the featured podcast remained first and eight privacy-enhanced YouTube embeds rendered.
 - The removed `What Is ChatGPT?` item no longer appears in the browsable Videos tab.
 - Mobile navigation opened with all seven destinations and no horizontal overflow.

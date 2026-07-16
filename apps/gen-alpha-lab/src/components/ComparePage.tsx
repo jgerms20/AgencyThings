@@ -114,7 +114,7 @@ export default function ComparePage() {
           </div>
 
           <section className="comparison-difference" aria-label="Strategic difference">
-            <p className="comparison-eyebrow">The real difference</p>
+            <p className="comparison-eyebrow">Strategic interpretation</p>
             <p><strong>{activeComparison.realDifference}</strong></p>
           </section>
 

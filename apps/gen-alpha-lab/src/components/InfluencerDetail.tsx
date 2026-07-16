@@ -90,7 +90,19 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
 
         {embeddableVideos.map((video) => (
           <section className="profile-video" key={video.youtubeId}>
-            <div><span>See the format</span><h2>{video.title}</h2></div>
+            <div>
+              <span>See the format</span>
+              <h2>{video.title}</h2>
+              <a
+                aria-label={`Open ${profile.name} video on YouTube`}
+                className="text-link"
+                href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open on YouTube <ArrowUpRight aria-hidden="true" size={17} />
+              </a>
+            </div>
             <iframe
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
