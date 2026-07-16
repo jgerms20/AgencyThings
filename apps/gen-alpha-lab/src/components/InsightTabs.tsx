@@ -5,17 +5,13 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useRef, useState } from "react";
 import { getEvidenceForInsight } from "@/lib/content/selectors";
-import {
-  getOverviewInsightsForTheme,
-  overviewTabs,
-  type OverviewThemeId,
-} from "@/lib/editorial";
+import { getInsightsForTab, insightTabs, type InsightTabId } from "@/lib/editorial";
 
 export default function InsightTabs() {
-  const [activeTab, setActiveTab] = useState<OverviewThemeId>(overviewTabs[0].id);
+  const [activeTab, setActiveTab] = useState<InsightTabId>(insightTabs[0].id);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const active = overviewTabs.find((tab) => tab.id === activeTab) ?? overviewTabs[0];
-  const insights = getOverviewInsightsForTheme(active.id);
+  const active = insightTabs.find((tab) => tab.id === activeTab) ?? insightTabs[0];
+  const insights = getInsightsForTab(active.id);
   const leadInsight = insights[0];
   const leadEvidence = getEvidenceForInsight(leadInsight.id)[0];
   const supportingInsights = insights.slice(1, 5);
@@ -25,8 +21,8 @@ export default function InsightTabs() {
   );
 
   const selectTab = (index: number) => {
-    const nextIndex = (index + overviewTabs.length) % overviewTabs.length;
-    const nextTab = overviewTabs[nextIndex];
+    const nextIndex = (index + insightTabs.length) % insightTabs.length;
+    const nextTab = insightTabs[nextIndex];
     setActiveTab(nextTab.id);
     tabRefs.current[nextIndex]?.focus();
   };
@@ -34,7 +30,7 @@ export default function InsightTabs() {
   return (
     <section className={`insight-tabs insight-tabs-${active.tone}`} aria-label="Gen Alpha insight themes">
       <div className="insight-tab-list" role="tablist" aria-label="Insight themes">
-        {overviewTabs.map((tab, index) => (
+        {insightTabs.map((tab, index) => (
           <button
             aria-controls={`insight-panel-${tab.id}`}
             aria-selected={activeTab === tab.id}
@@ -45,7 +41,7 @@ export default function InsightTabs() {
               if (event.key === "ArrowRight") selectTab(index + 1);
               else if (event.key === "ArrowLeft") selectTab(index - 1);
               else if (event.key === "Home") selectTab(0);
-              else if (event.key === "End") selectTab(overviewTabs.length - 1);
+              else if (event.key === "End") selectTab(insightTabs.length - 1);
               else return;
               event.preventDefault();
             }}

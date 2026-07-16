@@ -3,19 +3,20 @@ import { editorialInsights, insightTabs, libraryTakeaways } from "../src/lib/edi
 import { influencers } from "../src/lib/influencers";
 
 describe("Gen Alpha editorial model", () => {
-  it("organizes ten insights into four themes without leading with AI", () => {
+  it("organizes forty insights into four canonical themes with no standalone AI theme", () => {
     expect(insightTabs.map((tab) => tab.id)).toEqual([
       "play-belonging",
       "media-influence",
-      "time-learning",
-      "ai-agency"
+      "time-routines",
+      "learning-becoming"
     ]);
-    expect(editorialInsights).toHaveLength(10);
+    expect(editorialInsights).toHaveLength(40);
     expect(editorialInsights[0].tabId).toBe("play-belonging");
-    expect(editorialInsights.at(-1)?.tabId).toBe("ai-agency");
+    expect(editorialInsights.at(-1)?.tabId).toBe("learning-becoming");
+    expect(insightTabs.some((tab) => /ai/i.test(`${tab.id} ${tab.label}`))).toBe(false);
 
     for (const tab of insightTabs) {
-      expect(editorialInsights.filter((insight) => insight.tabId === tab.id).length).toBeGreaterThanOrEqual(2);
+      expect(editorialInsights.filter((insight) => insight.tabId === tab.id)).toHaveLength(10);
     }
   });
 

@@ -15,7 +15,7 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
     <main className="overview-page">
       <SiteHeader active="overview" />
       <section className="overview-opening">
-        <h1>Gen Alpha, in ten truths.</h1>
+        <h1>Gen Alpha, in forty insights.</h1>
         <p>Forty evidence-backed insights connect play, media, routines, and learning. AI cuts across them as a condition, never a theme of its own.</p>
         <Link className="text-link" href="/insights">Explore all 40 insights <ArrowUpRight aria-hidden="true" size={18} /></Link>
       </section>

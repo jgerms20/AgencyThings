@@ -12,16 +12,18 @@ import {
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("Gen Alpha field-guide findings", () => {
-  it("covers the seven required cultural lenses", () => {
+  it("keeps AI cross-cutting across six cultural lenses", () => {
     expect(findingTopics.map((topic) => [topic.id, topic.label, topic.href])).toEqual([
       ["connect", "How they connect", "/topics/connect"],
       ["media", "How they consume media", "/topics/media"],
       ["influence", "How they are influenced", "/topics/influence"],
       ["time", "How they spend time", "/topics/time"],
       ["learn", "How they learn", "/topics/learn"],
-      ["play-create", "How they play and create", "/topics/play-create"],
-      ["ai", "How they use AI", "/topics/ai"]
+      ["play-create", "How they play and create", "/topics/play-create"]
     ]);
+    expect(getTopicById("ai")).toBeUndefined();
+    expect(findingTopics.flatMap((topic) => topic.findingIds)).not.toContain("ai-is-a-normal-interface");
+    expect(findings.some((finding) => finding.id === "ai-is-a-normal-interface")).toBe(false);
   });
 
   it("gives each lens enough topic-page material to stand alone", () => {

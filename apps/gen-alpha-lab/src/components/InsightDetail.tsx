@@ -110,7 +110,7 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
               </Link>
             ))}
             {relatedSpaces.map((space) => (
-              <Link href={`/spaces#${space.id}` as Route} key={space.id}>
+              <Link aria-label={space.name} href="/spaces" key={space.id}>
                 <strong>{space.name}</strong>
                 <span>{space.behavior}</span>
                 <ArrowUpRight aria-hidden="true" size={18} />
@@ -119,11 +119,14 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
           </div>
         </section>
 
-        <section className="detail-section detail-why">
+        <section
+          className="detail-section detail-why"
+          data-testid="agency-implication"
+          data-upgrade-target="reach-them"
+        >
           <p className="detail-eyebrow">Responsible action</p>
           <h2>Agency implication</h2>
           <p className="detail-lede">{insight.agencyImplication}</p>
-          <Link className="text-link" href={"/reach-them" as Route}>Take this to Reach Them <ArrowUpRight aria-hidden="true" size={18} /></Link>
         </section>
       </article>
     </main>

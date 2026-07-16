@@ -11,9 +11,10 @@ describe("Gen Alpha editorial overview", () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
     await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "dark"));
-    expect(screen.getByRole("heading", { name: "Gen Alpha, in ten truths." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Gen Alpha, in forty insights." })).toBeInTheDocument();
+    expect(screen.queryByText(/ten truths/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole("tab")).toHaveLength(4);
-    expect(screen.getByRole("tab", { name: "Play and belonging" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Play & Belonging" })).toHaveAttribute("aria-selected", "true");
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
     expect(navigation).toHaveTextContent("Overview");

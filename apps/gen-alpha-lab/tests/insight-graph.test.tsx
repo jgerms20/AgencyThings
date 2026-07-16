@@ -5,8 +5,10 @@ import InsightDetail from "@/components/InsightDetail";
 import InsightTabs from "@/components/InsightTabs";
 import InsightsPage from "@/components/InsightsPage";
 import { generateStaticParams } from "@/app/insights/[insightId]/page";
+import { generateStaticParams as generateTopicStaticParams } from "@/app/topics/[topicId]/page";
 import { getEvidenceForInsight, getSource } from "@/lib/content/selectors";
 import { getInsight, getInsightsForTheme, insights, themes } from "@/lib/content/insights";
+import { findingTopics } from "@/lib/findings";
 
 const themeIds = [
   "play-belonging",
@@ -47,6 +49,11 @@ describe("forty-insight evidence graph", () => {
     const aiInsights = insights.filter((insight) => insight.title.includes("AI"));
     expect(aiInsights.length).toBeGreaterThan(0);
     expect(aiInsights.every((insight) => insight.tags.includes("ai"))).toBe(true);
+  });
+
+  it("does not generate a standalone AI topic route", () => {
+    expect(findingTopics.some((topic) => topic.id === "ai")).toBe(false);
+    expect(generateTopicStaticParams().some(({ topicId }) => topicId === "ai")).toBe(false);
   });
 
   it("generates one static detail route for every insight", () => {
@@ -100,7 +107,13 @@ describe("forty-insight evidence graph", () => {
     expect(screen.getAllByText("Limitations")).toHaveLength(2);
     expect(screen.getByRole("heading", { name: "Nuance and counterpoint" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Related culture shapers and spaces" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Take this to Reach Them" })).toHaveAttribute("href", "/reach-them");
+    expect(screen.getByRole("link", { name: "Roblox" })).toHaveAttribute("href", "/spaces");
+
+    const agencyImplication = screen.getByTestId("agency-implication");
+    expect(agencyImplication).toHaveAttribute("data-upgrade-target", "reach-them");
+    expect(within(agencyImplication).getByRole("heading", { name: "Agency implication" })).toBeInTheDocument();
+    expect(within(agencyImplication).queryByRole("link")).not.toBeInTheDocument();
+    expect(document.querySelector('a[href="/reach-them"]')).not.toBeInTheDocument();
 
     for (const evidence of getEvidenceForInsight(insight!.id)) {
       const source = getSource(evidence.sourceId)!;
