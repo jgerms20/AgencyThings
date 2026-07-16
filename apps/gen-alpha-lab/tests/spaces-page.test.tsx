@@ -6,18 +6,18 @@ import SpacesPage from "../src/components/SpacesPage";
 import { cultureShapers } from "../src/lib/content/culture-shapers";
 
 describe("Spaces page", () => {
-  it("renders fifty evidence-aware profiles without the broken field label", () => {
+  it("renders the expanded evidence-aware profiles without the broken field label", () => {
     render(<SpacesPage />);
 
     expect(screen.getByRole("heading", { name: "Where time becomes culture." })).toBeInTheDocument();
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(50);
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(54);
     for (const name of ["Roblox", "YouTube", "Discord", "Spotify", "ChatGPT", "School"]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
     expect(screen.queryByText("What it enables")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Why they go")).toHaveLength(50);
-    expect(screen.getAllByText("What happens there")).toHaveLength(50);
-    expect(screen.getAllByText("Safety and age caveat")).toHaveLength(50);
+    expect(screen.getAllByText("Why they go")).toHaveLength(54);
+    expect(screen.getAllByText("What happens there")).toHaveLength(54);
+    expect(screen.getAllByText("Safety and age caveat")).toHaveLength(54);
   });
 
   it("filters by category, environment, and age and restores all results", async () => {
@@ -26,7 +26,7 @@ describe("Spaces page", () => {
 
     const directory = screen.getByRole("region", { name: "Space directory" });
     expect(directory).toHaveStyle({ maxWidth: "100%" });
-    expect(screen.getByRole("status")).toHaveTextContent("50 spaces shown");
+    expect(screen.getByRole("status")).toHaveTextContent("54 spaces shown");
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Category" }), "Games & Participatory Worlds");
     expect(screen.getAllByTestId("space-profile")).toHaveLength(15);
@@ -35,7 +35,7 @@ describe("Spaces page", () => {
 
     await user.click(screen.getByRole("button", { name: "Clear all space filters" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Environment" }), "physical");
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(2);
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(4);
     expect(screen.getByRole("heading", { name: "After-school sports and clubs" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Clear all space filters" }));
@@ -45,7 +45,28 @@ describe("Spaces page", () => {
     expect(screen.queryByRole("heading", { name: "Discord" })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Clear all space filters" }));
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(50);
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(54);
+  });
+
+  it("loads a usage video only for the one active space", async () => {
+    const user = userEvent.setup();
+    render(<SpacesPage />);
+
+    const libraryButton = screen.getByRole("button", { name: "Show usage media for Public libraries and maker spaces" });
+    const artsButton = screen.getByRole("button", { name: "Show usage media for Youth arts, dance, and music studios" });
+    expect(libraryButton).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTitle("Public libraries and maker spaces usage video")).not.toBeInTheDocument();
+
+    await user.click(libraryButton);
+    const libraryFrame = screen.getByTitle("Public libraries and maker spaces usage video");
+    expect(libraryButton).toHaveAttribute("aria-expanded", "true");
+    expect(libraryFrame).toHaveAttribute("loading", "lazy");
+    expect(libraryFrame).toHaveAttribute("src", expect.stringContaining("https://www.youtube-nocookie.com/embed/"));
+    expect(screen.getByRole("link", { name: "Watch Public libraries and maker spaces usage media on YouTube" })).toHaveAttribute("target", "_blank");
+
+    await user.click(artsButton);
+    expect(screen.queryByTitle("Public libraries and maker spaces usage video")).not.toBeInTheDocument();
+    expect(screen.getByTitle("Youth arts, dance, and music studios usage video")).toBeInTheDocument();
   });
 
   it("provides a rendered anchor for every culture-shaper related-space href", () => {

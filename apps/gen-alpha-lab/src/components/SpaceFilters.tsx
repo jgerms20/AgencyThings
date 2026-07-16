@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, RotateCcw } from "lucide-react";
+import { ExternalLink, PlaySquare, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   spaceAgeBands,
@@ -17,6 +17,7 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
   const [category, setCategory] = useState("all");
   const [environment, setEnvironment] = useState("all");
   const [age, setAge] = useState("all");
+  const [activeMediaSpaceId, setActiveMediaSpaceId] = useState<string | null>(null);
 
   const filtered = useMemo(
     () => spaces.filter((space) =>
@@ -81,6 +82,7 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
       {filtered.length === 0 ? <p role="note" style={{ padding: "2rem" }}>No spaces match these filters.</p> : null}
       {filtered.map((space) => {
         const index = spaces.findIndex((candidate) => candidate.id === space.id);
+        const mediaIsActive = activeMediaSpaceId === space.id;
         return (
           <article
             aria-labelledby={`${space.id}-heading`}
@@ -120,6 +122,39 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
                 {space.evidenceStatus === "watchlist" ? <span>Watchlist: no qualifying source attached</span> : null}
               </div>
             </footer>
+            {space.usageMedia ? (
+              <section className="space-usage-media" aria-label={`${space.name} usage media`}>
+                <button
+                  aria-controls={`${space.id}-usage-media`}
+                  aria-expanded={mediaIsActive}
+                  onClick={() => setActiveMediaSpaceId(mediaIsActive ? null : space.id)}
+                  type="button"
+                >
+                  <PlaySquare aria-hidden="true" size={16} /> {mediaIsActive ? "Hide" : "Show"} usage media for {space.name}
+                </button>
+                {mediaIsActive ? (
+                  <div id={`${space.id}-usage-media`}>
+                    <p><span>Usage media</span><br />{space.usageMedia.title}</p>
+                    <p>{space.usageMedia.description}</p>
+                    <iframe
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      loading="lazy"
+                      src={`https://www.youtube-nocookie.com/embed/${space.usageMedia.youtubeId}`}
+                      title={`${space.name} usage video`}
+                    />
+                    <a
+                      aria-label={`Watch ${space.name} usage media on YouTube`}
+                      href={`https://www.youtube.com/watch?v=${space.usageMedia.youtubeId}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      Watch on YouTube <ExternalLink aria-hidden="true" size={14} />
+                    </a>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
           </article>
         );
       })}
