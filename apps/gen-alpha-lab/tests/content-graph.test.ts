@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { cultureShapers } from "@/lib/content/culture-shapers";
-import { evidenceItems, insights, themes } from "@/lib/content/evidence";
+import { comparisonDimensions } from "@/lib/content/comparisons";
+import { evidenceItems } from "@/lib/content/evidence";
+import { insights, themes } from "@/lib/content/insights";
 import { sources } from "@/lib/content/sources";
 import { spaces } from "@/lib/content/spaces";
 import { strategyPlays } from "@/lib/content/strategy";
@@ -12,6 +14,7 @@ const canonicalGraph = {
   themes,
   insights,
   evidenceItems,
+  comparisons: comparisonDimensions,
   strategyPlays,
   spaces,
   cultureShapers,
@@ -58,6 +61,7 @@ describe("canonical content graph", () => {
       expect(item.period).not.toBe(source?.publishedAt);
       expect(["metric", "finding", "observed claim", "editorial inference"]).toContain(item.claimKind);
       expect(item.supportRationale).toBeTruthy();
+      expect(item.supportRationale).not.toMatch(/directly substantiates/i);
     }
 
     for (const source of sources) {
@@ -67,10 +71,92 @@ describe("canonical content graph", () => {
       expect(source.fieldworkPeriod).toBeTruthy();
       expect(source.fieldworkPeriod).not.toBe(source.publishedAt);
     }
+
+    expect(sources.find((source) => source.id === "arxiv-young-user-safety-2025")?.sourceClass)
+      .toBe("primary research");
   });
 
   it("has no graph validation issues", () => {
     expect(validateContentGraph()).toEqual([]);
+  });
+
+  it("rejects an enriched insight with a missing rendered implication", () => {
+    const insight = insights[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      insights: insights.map((candidate) => candidate.id === insight.id
+        ? { ...candidate, agencyImplication: "" }
+        : candidate),
+    });
+
+    expect(issueList).toContain(`Insight is missing agency implication: ${insight.id}`);
+  });
+
+  it.each([
+    ["themes", { themes: themes.slice(0, 3) }, "Expected exactly 4 themes, received 3"],
+    ["insights in a theme", { insights: insights.filter((insight) => insight.themeId !== "play-belonging" || insight.sequence !== 10) }, "Theme must have exactly 10 insights: play-belonging (9)"],
+    ["spaces", { spaces: spaces.slice(0, 49) }, "Expected exactly 50 spaces, received 49"],
+    ["comparisons", { comparisons: comparisonDimensions.slice(0, 9) }, "Expected exactly 10 comparisons, received 9"],
+  ] as const)("rejects a non-canonical %s count", (_label, changes, expectedIssue) => {
+    const issueList = validateContentGraph({ ...canonicalGraph, ...changes } as ContentGraph);
+
+    expect(issueList).toContain(expectedIssue);
+  });
+
+  it("rejects orphaned insight, space, and culture-shaper references", () => {
+    const insight = insights[0];
+    const space = spaces[0];
+    const shaper = cultureShapers[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      insights: insights.map((candidate) => candidate.id === insight.id
+        ? { ...candidate, relatedCreatorIds: ["missing-culture-shaper"], relatedSpaceIds: ["missing-space"] }
+        : candidate),
+      spaces: spaces.map((candidate) => candidate.id === space.id
+        ? { ...candidate, relatedInsightIds: ["missing-insight"], relatedCultureShaperIds: ["missing-culture-shaper"] }
+        : candidate),
+      cultureShapers: cultureShapers.map((candidate) => candidate.id === shaper.id
+        ? { ...candidate, insightIds: ["missing-insight"], relatedSpaceIds: ["missing-space"] }
+        : candidate),
+    });
+
+    expect(issueList).toContain(`Insight references missing culture shaper: ${insight.id} -> missing-culture-shaper`);
+    expect(issueList).toContain(`Insight references missing space: ${insight.id} -> missing-space`);
+    expect(issueList).toContain(`Space references missing insight: ${space.id} -> missing-insight`);
+    expect(issueList).toContain(`Culture shaper references missing insight: ${shaper.id} -> missing-insight`);
+  });
+
+  it("rejects incomplete culture-shaper indicators", () => {
+    const shaper = cultureShapers[0];
+    const indicators = { ...shaper.indicators } as Record<string, unknown>;
+    delete indicators.reach;
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      cultureShapers: cultureShapers.map((candidate) => candidate.id === shaper.id
+        ? { ...candidate, indicators }
+        : candidate),
+    });
+
+    expect(issueList).toContain(`Culture shaper is missing indicator: ${shaper.id} -> reach`);
+  });
+
+  it("rejects an incomplete comparison evidence record", () => {
+    const comparison = comparisonDimensions[0];
+    const evidenceId = comparison.genAlpha.evidenceIds[0];
+    const issueList = validateContentGraph({
+      ...canonicalGraph,
+      comparisons: comparisonDimensions.map((candidate) => candidate.id === comparison.id
+        ? {
+          ...candidate,
+          genAlpha: {
+            ...candidate.genAlpha,
+            evidenceSupport: { ...candidate.genAlpha.evidenceSupport, [evidenceId]: "" },
+          },
+        }
+        : candidate),
+    } as ContentGraph);
+
+    expect(issueList).toContain(`Comparison evidence is missing support: ${comparison.id} -> ${evidenceId}`);
   });
 
   it("rejects duplicate strategy IDs", () => {

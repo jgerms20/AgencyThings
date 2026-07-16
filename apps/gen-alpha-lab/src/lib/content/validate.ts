@@ -1,9 +1,11 @@
+import { comparisonDimensions } from "./comparisons";
 import { cultureShapers } from "./culture-shapers";
-import { evidenceItems, insights, themes } from "./evidence";
+import { evidenceItems } from "./evidence";
+import { insights, themes } from "./insights";
 import { sources } from "./sources";
 import { spaces } from "./spaces";
 import { strategyPlays } from "./strategy";
-import type { ContentGraph } from "./types";
+import type { ComparisonCohort, ContentGraph } from "./types";
 
 const requiredEvidenceFields = ["population", "ageRange", "geography", "period", "methodology", "limitations"] as const;
 const requiredSourceFields = ["population", "ageRange", "geography", "fieldworkPeriod", "methodology", "limitations"] as const;
@@ -11,12 +13,18 @@ const placeholderScope = /^(?:not fully disclosed|not stated|unknown|n\/?a|tbd)$
 const locatorPattern = /\b(?:sections?|tables?|figures?|pages?|paragraphs?|chapters?|abstract|methods|methodology|headline|opening|overview|description|guidance|key findings|executive summary)\b/i;
 const claimKinds = new Set(["metric", "finding", "observed claim", "editorial inference"]);
 const sourceMetadataClaimPattern = /^(?:(?:the|this|a|an)\s+)?(?:study|report|survey|review|census|article|release|research|panel|book|announcement)\s+(?:covers?|examines?|includes?|uses?|combines?|synthesizes?|follows?|measures?|surveys?|surveyed|evaluates?|focuses?|records?|is based on)\b/i;
+const canonicalThemeIds = ["play-belonging", "media-influence", "time-routines", "learning-becoming"] as const;
+const indicatorKeys = ["reach", "participation", "commercialPull", "audienceCenter"] as const;
+const expectedInsightsPerTheme = 10;
+const expectedSpaces = 50;
+const expectedComparisons = 10;
 
 const defaultGraph: ContentGraph = {
   sources,
   themes,
   insights,
   evidenceItems,
+  comparisons: comparisonDimensions,
   strategyPlays,
   spaces,
   cultureShapers,
@@ -43,6 +51,7 @@ const duplicateGraphIds = (graph: ContentGraph): string[] => {
     ["strategy", graph.strategyPlays],
     ["space", graph.spaces],
     ["culture shaper", graph.cultureShapers],
+    ["comparison", graph.comparisons ?? []],
   ] as const;
   const ownerById = new Map<string, string>();
   const issues: string[] = [];
@@ -88,7 +97,65 @@ const referenceIds = (value: unknown): string[] => Array.isArray(value) ? value.
 const isClaimLevelEvidence = (item: ContentGraph["evidenceItems"][number]): boolean =>
   claimKinds.has(item.claimKind) && Boolean(item.supportRationale?.trim()) && !sourceMetadataClaimPattern.test(item.claim.trim());
 
+const validateReferences = (
+  ownerLabel: string,
+  ownerId: string,
+  fieldLabel: string,
+  references: unknown,
+  validIds: Set<string>,
+  issues: string[],
+): string[] => {
+  const ids = referenceIds(references);
+  for (const id of ids) {
+    if (!validIds.has(id)) issues.push(`${ownerLabel} references missing ${fieldLabel}: ${ownerId} -> ${id}`);
+  }
+  return ids;
+};
+
+const isIndicatorTier = (value: unknown): value is 1 | 2 | 3 | 4 => value === 1 || value === 2 || value === 3 || value === 4;
+
+const validateComparisonCohort = (
+  comparisonId: string,
+  cohortLabel: string,
+  cohort: ComparisonCohort,
+  sourceIds: Set<string>,
+  evidenceById: Map<string, ContentGraph["evidenceItems"][number]>,
+  issues: string[],
+): void => {
+  for (const field of ["summary", "ageRange", "geography", "sourceYear"] as const) {
+    if (!hasText(cohort[field])) issues.push(`Comparison is missing ${field}: ${comparisonId} -> ${cohortLabel}`);
+  }
+
+  const cohortSourceIds = referenceIds(cohort.sourceIds);
+  const cohortEvidenceIds = referenceIds(cohort.evidenceIds);
+  if (!hasTextList(cohort.sourceIds)) issues.push(`Comparison is missing sourceIds: ${comparisonId} -> ${cohortLabel}`);
+  if (!hasTextList(cohort.evidenceIds)) issues.push(`Comparison is missing evidenceIds: ${comparisonId} -> ${cohortLabel}`);
+
+  for (const sourceId of cohortSourceIds) {
+    if (!sourceIds.has(sourceId)) issues.push(`Comparison references missing source: ${comparisonId} -> ${cohortLabel} -> ${sourceId}`);
+  }
+  for (const evidenceId of cohortEvidenceIds) {
+    const evidence = evidenceById.get(evidenceId);
+    if (!evidence) {
+      issues.push(`Comparison references missing evidence: ${comparisonId} -> ${cohortLabel} -> ${evidenceId}`);
+      continue;
+    }
+    if (!cohortSourceIds.includes(evidence.sourceId)) {
+      issues.push(`Comparison evidence uses undeclared source: ${comparisonId} -> ${cohortLabel} -> ${evidenceId} -> ${evidence.sourceId}`);
+    }
+    if (!hasText(cohort.evidenceSupport?.[evidenceId])) {
+      issues.push(`Comparison evidence is missing support: ${comparisonId} -> ${evidenceId}`);
+    }
+  }
+  for (const supportId of Object.keys(cohort.evidenceSupport ?? {})) {
+    if (!cohortEvidenceIds.includes(supportId)) {
+      issues.push(`Comparison has orphan evidence support: ${comparisonId} -> ${supportId}`);
+    }
+  }
+};
+
 export const validateContentGraph = (graph: ContentGraph = defaultGraph): string[] => {
+  const comparisons = graph.comparisons ?? [];
   const issues = [
     ...duplicateIds(graph.themes, "theme"),
     ...duplicateIds(graph.insights, "insight"),
@@ -97,6 +164,7 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     ...duplicateIds(graph.strategyPlays, "strategy"),
     ...duplicateIds(graph.spaces, "space"),
     ...duplicateIds(graph.cultureShapers, "culture shaper"),
+    ...duplicateIds(comparisons, "comparison"),
     ...duplicateGraphIds(graph),
   ];
   const themeIds = new Set(graph.themes.map((theme) => theme.id));
@@ -104,9 +172,38 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
   const sourceIds = new Set(graph.sources.map((source) => source.id));
   const spaceIds = new Set(graph.spaces.map((space) => space.id));
   const cultureShaperIds = new Set(graph.cultureShapers.map((shaper) => shaper.id));
+  const cultureShaperReferenceIds = new Set([
+    ...cultureShaperIds,
+    ...graph.cultureShapers.map((shaper) => shaper.id.replace(/-franchise$/, "")),
+  ]);
   const sourceById = new Map(graph.sources.map((source) => [source.id, source]));
   const insightById = new Map(graph.insights.map((insight) => [insight.id, insight]));
   const evidenceById = new Map(graph.evidenceItems.map((item) => [item.id, item]));
+
+  if (graph.themes.length !== canonicalThemeIds.length) {
+    issues.push(`Expected exactly ${canonicalThemeIds.length} themes, received ${graph.themes.length}`);
+  }
+  if (graph.insights.length !== canonicalThemeIds.length * expectedInsightsPerTheme) {
+    issues.push(`Expected exactly ${canonicalThemeIds.length * expectedInsightsPerTheme} insights, received ${graph.insights.length}`);
+  }
+  if (graph.spaces.length !== expectedSpaces) {
+    issues.push(`Expected exactly ${expectedSpaces} spaces, received ${graph.spaces.length}`);
+  }
+  if (comparisons.length !== expectedComparisons) {
+    issues.push(`Expected exactly ${expectedComparisons} comparisons, received ${comparisons.length}`);
+  }
+  for (const themeId of canonicalThemeIds) {
+    if (!themeIds.has(themeId)) issues.push(`Missing canonical theme: ${themeId}`);
+    const themeInsights = graph.insights.filter((insight) => insight.themeId === themeId);
+    if (themeInsights.length !== expectedInsightsPerTheme) {
+      issues.push(`Theme must have exactly ${expectedInsightsPerTheme} insights: ${themeId} (${themeInsights.length})`);
+    }
+    const sequences = themeInsights.map((insight) => insight.sequence).sort((left, right) => left - right);
+    const expectedSequences = Array.from({ length: expectedInsightsPerTheme }, (_, index) => index + 1);
+    if (sequences.join(",") !== expectedSequences.join(",")) {
+      issues.push(`Theme has incomplete insight sequence: ${themeId}`);
+    }
+  }
 
   for (const source of graph.sources) {
     if (!hasDirectEditorialUrl(source.url)) issues.push(`Source has no direct editorial URL: ${source.id}`);
@@ -142,6 +239,20 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
 
   for (const insight of graph.insights) {
     if (!themeIds.has(insight.themeId)) issues.push(`Insight references missing theme: ${insight.id}`);
+    const renderedFields = [
+      ["interpretation", "interpretation"],
+      ["genZComparison", "Gen Z comparison"],
+      ["agencyImplication", "agency implication"],
+      ["confidenceReason", "confidence reason"],
+      ["nuance", "nuance"],
+    ] as const;
+    for (const [field, label] of renderedFields) {
+      if (!hasText(insight[field])) issues.push(`Insight is missing ${label}: ${insight.id}`);
+    }
+    if (!hasTextList(insight.relatedCreatorIds)) issues.push(`Insight is missing relatedCreatorIds: ${insight.id}`);
+    if (!hasTextList(insight.relatedSpaceIds)) issues.push(`Insight is missing relatedSpaceIds: ${insight.id}`);
+    validateReferences("Insight", insight.id, "culture shaper", insight.relatedCreatorIds, cultureShaperReferenceIds, issues);
+    validateReferences("Insight", insight.id, "space", insight.relatedSpaceIds, spaceIds, issues);
     const evidence = insight.evidenceIds.map((id) => evidenceById.get(id)).filter(Boolean);
     const claimLevelEvidence = evidence.filter((item) => isClaimLevelEvidence(item!));
     if (evidence.length !== insight.evidenceIds.length) issues.push(`Insight references missing evidence: ${insight.id}`);
@@ -156,6 +267,60 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
     if (evidence.some((item) => !item!.insightIds.includes(insight.id))) {
       issues.push(`Insight is not linked back from evidence: ${insight.id}`);
     }
+  }
+
+  for (const space of graph.spaces) {
+    validateReferences("Space", space.id, "insight", space.relatedInsightIds, insightIds, issues);
+    validateReferences("Space", space.id, "culture shaper", space.relatedCultureShaperIds, cultureShaperIds, issues);
+    const spaceSourceIds = validateReferences("Space", space.id, "source", space.sourceIds, sourceIds, issues);
+    const spaceEvidenceIds = validateReferences("Space", space.id, "evidence", space.evidenceIds, new Set(evidenceById.keys()), issues);
+    for (const evidenceId of spaceEvidenceIds) {
+      const evidence = evidenceById.get(evidenceId);
+      if (evidence && !spaceSourceIds.includes(evidence.sourceId)) {
+        issues.push(`Space evidence uses undeclared source: ${space.id} -> ${evidenceId} -> ${evidence.sourceId}`);
+      }
+    }
+  }
+
+  for (const shaper of graph.cultureShapers) {
+    validateReferences("Culture shaper", shaper.id, "insight", shaper.insightIds, insightIds, issues);
+    validateReferences("Culture shaper", shaper.id, "space", shaper.relatedSpaceIds, spaceIds, issues);
+    validateReferences("Culture shaper", shaper.id, "source", shaper.sourceIds, sourceIds, issues);
+    for (const sourceNote of shaper.sourceNotes ?? []) {
+      if (!sourceIds.has(sourceNote.sourceId)) {
+        issues.push(`Culture shaper source note references missing source: ${shaper.id} -> ${sourceNote.sourceId}`);
+      }
+      if (!hasText(sourceNote.note)) issues.push(`Culture shaper source note is missing note: ${shaper.id} -> ${sourceNote.sourceId}`);
+    }
+    for (const entity of shaper.relatedEntities ?? []) {
+      const idsByKind = entity.kind === "insight" ? insightIds : entity.kind === "space" ? spaceIds : cultureShaperIds;
+      if (!idsByKind.has(entity.id)) {
+        issues.push(`Culture shaper references missing ${entity.kind}: ${shaper.id} -> ${entity.id}`);
+      }
+    }
+
+    const indicators = shaper.indicators ?? {};
+    for (const indicatorKey of indicatorKeys) {
+      const indicator = indicators[indicatorKey];
+      if (!indicator) {
+        issues.push(`Culture shaper is missing indicator: ${shaper.id} -> ${indicatorKey}`);
+        continue;
+      }
+      if (indicator.indicator !== indicatorKey) issues.push(`Culture shaper indicator has wrong key: ${shaper.id} -> ${indicatorKey}`);
+      if (!hasText(indicator.label)) issues.push(`Culture shaper indicator is missing label: ${shaper.id} -> ${indicatorKey}`);
+      if (!hasText(indicator.definition)) issues.push(`Culture shaper indicator is missing definition: ${shaper.id} -> ${indicatorKey}`);
+      if (!hasText(indicator.rationale)) issues.push(`Culture shaper indicator is missing rationale: ${shaper.id} -> ${indicatorKey}`);
+      if (!isIndicatorTier(indicator.tier)) issues.push(`Culture shaper indicator has invalid tier: ${shaper.id} -> ${indicatorKey}`);
+      if (!hasTextList(indicator.sourceIds)) issues.push(`Culture shaper indicator is missing sourceIds: ${shaper.id} -> ${indicatorKey}`);
+      validateReferences("Culture shaper indicator", `${shaper.id} -> ${indicatorKey}`, "source", indicator.sourceIds, sourceIds, issues);
+    }
+  }
+
+  for (const comparison of comparisons) {
+    if (!hasText(comparison.title)) issues.push(`Comparison is missing title: ${comparison.id}`);
+    if (!hasText(comparison.caveat)) issues.push(`Comparison is missing caveat: ${comparison.id}`);
+    validateComparisonCohort(comparison.id, "Gen Alpha", comparison.genAlpha, sourceIds, evidenceById, issues);
+    validateComparisonCohort(comparison.id, "Gen Z", comparison.genZ, sourceIds, evidenceById, issues);
   }
 
   for (const play of graph.strategyPlays) {

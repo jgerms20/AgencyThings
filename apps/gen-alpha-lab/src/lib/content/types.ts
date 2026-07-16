@@ -87,6 +87,22 @@ export type Insight = {
   tags: string[];
 };
 
+export type IndicatorKey = "reach" | "participation" | "commercialPull" | "audienceCenter";
+
+export type IndicatorAssessment = {
+  indicator: IndicatorKey;
+  label: string;
+  tier: 1 | 2 | 3 | 4;
+  definition: string;
+  rationale: string;
+  sourceIds: string[];
+};
+
+export type RelatedContentEntity = {
+  id: string;
+  kind: "culture-shaper" | "insight" | "space";
+};
+
 export type StrategyPlay = {
   id: string;
   title: string;
@@ -107,6 +123,34 @@ export type StrategyPlay = {
 
 export type ContentEntityReference = {
   id: string;
+  evidenceIds?: string[];
+  insightIds?: string[];
+  relatedCultureShaperIds?: string[];
+  relatedEntities?: RelatedContentEntity[];
+  relatedInsightIds?: string[];
+  relatedSpaceIds?: string[];
+  sourceIds?: string[];
+  sourceNotes?: Array<{ sourceId: string; note: string }>;
+  indicators?: Partial<Record<IndicatorKey, IndicatorAssessment>>;
+};
+
+export type ComparisonCohort = {
+  summary: string;
+  ageRange: string;
+  geography: string;
+  sourceYear: string;
+  sourceIds: string[];
+  evidenceIds: string[];
+  evidenceSupport: Record<string, string>;
+};
+
+export type ComparisonDimension = {
+  id: string;
+  title: string;
+  comparisonClass: "age-matched observed evidence" | "current cohort snapshot" | "directional interpretation";
+  genAlpha: ComparisonCohort;
+  genZ: ComparisonCohort;
+  caveat: string;
 };
 
 export type ContentGraph = {
@@ -117,4 +161,5 @@ export type ContentGraph = {
   strategyPlays: StrategyPlay[];
   spaces: ContentEntityReference[];
   cultureShapers: ContentEntityReference[];
+  comparisons?: ComparisonDimension[];
 };
