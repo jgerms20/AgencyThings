@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
-import { comparisonDimensions, type ComparisonCohort } from "@/lib/content/comparisons";
+import { comparisonDimensions, getComparisonEvidence, type ComparisonCohort } from "@/lib/content/comparisons";
 
 function EvidenceRail({ label, cohort }: { label: string; cohort: ComparisonCohort }) {
+  const evidenceRecords = getComparisonEvidence(cohort);
+
   return (
     <article className="comparison-cohort">
       <p className="comparison-eyebrow">{label}</p>
@@ -14,9 +16,19 @@ function EvidenceRail({ label, cohort }: { label: string; cohort: ComparisonCoho
         <div><dt>Geography</dt><dd>{cohort.geography}</dd></div>
         <div><dt>Source year</dt><dd>{cohort.sourceYear}</dd></div>
       </dl>
-      <p className="comparison-source-label">Sources</p>
-      <ul className="comparison-source-list">
-        {cohort.sourceIds.map((sourceId) => <li key={sourceId}>{sourceId.replaceAll("-", " ")}</li>)}
+      <p className="comparison-evidence-label">Evidence records</p>
+      <ul className="comparison-evidence-list">
+        {evidenceRecords.map((record) => (
+          <li key={record.id}>
+            <p className="comparison-evidence-claim">{record.claim}</p>
+            <p className="comparison-evidence-support">Why it supports this summary: {record.support}</p>
+            <p className="comparison-evidence-locator">Located: {record.locator}</p>
+            <a href={record.sourceUrl} rel="noreferrer" target="_blank">
+              <span>{record.sourceOrganization}</span>
+              {record.sourceTitle}
+            </a>
+          </li>
+        ))}
       </ul>
     </article>
   );
@@ -92,10 +104,15 @@ export default function ComparePage() {
         .comparison-summary { margin-top: 14px; font-size: 1.08rem; font-weight: 800; line-height: 1.42; }
         .comparison-metadata { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 26px 0 22px; }
         .comparison-metadata div { min-width: 0; border-top: 1px solid var(--line); padding-top: 9px; }
-        .comparison-metadata dt, .comparison-source-label { color: var(--muted); font-size: .66rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+        .comparison-metadata dt, .comparison-evidence-label { color: var(--muted); font-size: .66rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
         .comparison-metadata dd { margin: 5px 0 0; font-size: .76rem; font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
-        .comparison-source-list { display: grid; gap: 5px; margin: 7px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .72rem; font-weight: 700; line-height: 1.35; }
-        .comparison-source-list li { overflow-wrap: anywhere; }
+        .comparison-evidence-list { display: grid; gap: 18px; margin: 9px 0 0; padding: 0; list-style: none; }
+        .comparison-evidence-list li { border-top: 1px solid var(--line); padding-top: 14px; overflow-wrap: anywhere; }
+        .comparison-evidence-claim { font-size: .82rem; font-weight: 800; line-height: 1.42; }
+        .comparison-evidence-support, .comparison-evidence-locator { margin-top: 8px; color: var(--muted); font-size: .7rem; font-weight: 700; line-height: 1.4; }
+        .comparison-evidence-list a { display: inline-flex; flex-direction: column; gap: 2px; margin-top: 10px; color: var(--cyan); font-size: .72rem; font-weight: 900; line-height: 1.35; }
+        .comparison-evidence-list a span { color: var(--muted); font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; }
+        .comparison-evidence-list a:hover, .comparison-evidence-list a:focus-visible { color: var(--acid); outline: 2px solid var(--acid); outline-offset: 3px; }
         .comparison-caveat { margin-top: 0; border-bottom: 3px solid var(--coral); padding: 25px 0 22px; }
         .comparison-caveat > p:last-child { max-width: 850px; margin-top: 10px; font-size: .92rem; font-weight: 700; line-height: 1.48; }
         .comparison-principle { padding: 22px 32px 42px; color: var(--muted); font-size: .82rem; font-weight: 700; line-height: 1.45; }

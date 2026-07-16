@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import ComparePage from "../src/components/ComparePage";
 import { comparisonDimensions } from "../src/lib/content/comparisons";
+import { evidenceItems } from "../src/lib/content/evidence";
+import { sources } from "../src/lib/content/sources";
 
 const dimensionTitles = [
   "Formative technology",
@@ -19,6 +21,9 @@ const dimensionTitles = [
 
 describe("Gen Alpha and Gen Z comparison", () => {
   it("defines the ten approved dimensions with evidence-aware cohort records", () => {
+    const evidenceById = new Map(evidenceItems.map((evidence) => [evidence.id, evidence]));
+    const sourceById = new Map(sources.map((source) => [source.id, source]));
+
     expect(comparisonDimensions.map((dimension) => dimension.title)).toEqual(dimensionTitles);
 
     for (const dimension of comparisonDimensions) {
@@ -36,7 +41,29 @@ describe("Gen Alpha and Gen Z comparison", () => {
       expect(dimension.genZ.sourceIds.length).toBeGreaterThan(0);
       expect(dimension.genAlpha.evidenceIds.length).toBeGreaterThan(0);
       expect(dimension.genZ.evidenceIds.length).toBeGreaterThan(0);
+
+      for (const cohort of [dimension.genAlpha, dimension.genZ]) {
+        for (const evidenceId of cohort.evidenceIds) {
+          const evidence = evidenceById.get(evidenceId);
+          expect(evidence, `${dimension.id} references ${evidenceId}`).toBeDefined();
+          expect(cohort.sourceIds).toContain(evidence?.sourceId);
+          expect(sourceById.get(evidence?.sourceId ?? "")).toBeDefined();
+          expect(cohort.evidenceSupport[evidenceId], `${evidenceId} must explain how it supports the cohort claim`).toMatch(/\S/);
+        }
+      }
     }
+  });
+
+  it("uses honest comparison classes and the direct AI recommendation evidence", () => {
+    const primarySocial = comparisonDimensions.find((dimension) => dimension.id === "primary-social-behavior");
+    const playAndCreation = comparisonDimensions.find((dimension) => dimension.id === "play-and-creation");
+    const aiRelationship = comparisonDimensions.find((dimension) => dimension.id === "ai-relationship");
+
+    expect(primarySocial?.comparisonClass).toBe("directional interpretation");
+    expect(playAndCreation?.comparisonClass).toBe("directional interpretation");
+    expect(primarySocial?.caveat).toMatch(/age.*construct|construct.*age/i);
+    expect(playAndCreation?.caveat).toMatch(/age.*construct|construct.*age/i);
+    expect(aiRelationship?.genAlpha.evidenceIds).toContain("evidence-media-ai-recommendation-1");
   });
 
   it("switches dimensions with an accessible selector while retaining the methodology caveat", async () => {
@@ -56,5 +83,14 @@ describe("Gen Alpha and Gen Z comparison", () => {
     expect(screen.getByText("Gen Alpha evidence")).toBeInTheDocument();
     expect(screen.getByText("Gen Z evidence")).toBeInTheDocument();
     expect(screen.getByText("Methodology caveat")).toBeInTheDocument();
+
+    const recommendationEvidence = evidenceItems.find((evidence) => evidence.id === "evidence-media-ai-recommendation-1");
+    const recommendationSource = sources.find((source) => source.id === recommendationEvidence?.sourceId);
+    expect(screen.getByText(recommendationEvidence?.claim ?? "missing recommendation claim")).toBeInTheDocument();
+    expect(screen.getByText(`Located: ${recommendationEvidence?.locator}`)).toBeInTheDocument();
+    const recommendationLinks = screen.getAllByRole("link", { name: new RegExp(recommendationSource?.title ?? "missing source") });
+    expect(recommendationLinks.length).toBeGreaterThan(0);
+    for (const link of recommendationLinks) expect(link).toHaveAttribute("href", recommendationSource?.url);
+    expect(screen.queryByText("nielsen ai discovery 2026")).not.toBeInTheDocument();
   });
 });
