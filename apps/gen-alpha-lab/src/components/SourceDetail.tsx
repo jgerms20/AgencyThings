@@ -40,6 +40,17 @@ export default function SourceDetail({ source }: SourceDetailProps) {
           <p className="detail-lede">{source.summary}</p>
         </section>
 
+        {source.author || source.publishedAt ? (
+          <section className="detail-section detail-know">
+            <p className="detail-eyebrow">Publication details</p>
+            <h2>Author and publication date</h2>
+            <ul className="observation-list">
+              {source.author ? <li><strong>Author</strong> {source.author}</li> : null}
+              {source.publishedAt ? <li><strong>Published</strong> <time dateTime={source.publishedAt}>{source.publishedAt}</time></li> : null}
+            </ul>
+          </section>
+        ) : null}
+
         <section className="detail-section detail-know">
           <p className="detail-eyebrow">Research context</p>
           <h2>Population and methodology</h2>

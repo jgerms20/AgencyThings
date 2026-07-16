@@ -110,7 +110,7 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
               </Link>
             ))}
             {relatedSpaces.map((space) => (
-              <Link aria-label={space.name} href="/spaces" key={space.id}>
+              <Link aria-label={space.name} href={`/spaces#${space.id}` as Route} key={space.id}>
                 <strong>{space.name}</strong>
                 <span>{space.behavior}</span>
                 <ArrowUpRight aria-hidden="true" size={18} />

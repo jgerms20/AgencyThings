@@ -107,7 +107,7 @@ describe("forty-insight evidence graph", () => {
     expect(screen.getAllByText("Limitations")).toHaveLength(2);
     expect(screen.getByRole("heading", { name: "Nuance and counterpoint" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Related culture shapers and spaces" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Roblox" })).toHaveAttribute("href", "/spaces");
+    expect(screen.getByRole("link", { name: "Roblox" })).toHaveAttribute("href", "/spaces#roblox");
 
     const agencyImplication = screen.getByTestId("agency-implication");
     expect(agencyImplication).toHaveAttribute("data-upgrade-target", "reach-them");

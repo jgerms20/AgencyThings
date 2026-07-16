@@ -103,7 +103,7 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
         {filtered.map((shaper, index) => (
           <article data-testid={shaper.type === "creator" ? "influencer-card" : "culture-shaper-card"} key={shaper.id}>
             <Link href={`/influencers/${shaper.id}`} aria-label={`Explore ${shaper.name}`}>
-              {shaper.portrait ? <img src={shaper.portrait} alt={shaper.name} /> : (
+              {shaper.portrait ? <img src={shaper.portrait} alt={shaper.name} loading="lazy" decoding="async" /> : (
                 <span className="culture-shaper-monogram" style={{ aspectRatio: "1 / 1", display: "grid", placeItems: "center" }} aria-hidden="true">
                   {shaper.name.slice(0, 2).toUpperCase()}
                 </span>

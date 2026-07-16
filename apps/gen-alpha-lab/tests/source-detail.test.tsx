@@ -27,6 +27,18 @@ describe("SourceDetail", () => {
     expect(screen.getByRole("link", { name: /view direct source/i })).toHaveAttribute("href", source.url);
   });
 
+  it("shows available author and publication-date metadata", () => {
+    render(<SourceDetail source={zeroEvidenceSource} />);
+
+    expect(screen.getByText(/^Author$/)).toBeInTheDocument();
+    expect(screen.getByText(zeroEvidenceSource.author!)).toBeInTheDocument();
+    expect(screen.getByText(/^Published$/)).toBeInTheDocument();
+    expect(screen.getByText(zeroEvidenceSource.publishedAt!)).toHaveAttribute(
+      "dateTime",
+      zeroEvidenceSource.publishedAt
+    );
+  });
+
   it("uses a privacy-enhanced YouTube embed when a source includes a video ID", () => {
     render(<SourceDetail source={{ ...source, youtubeId: "3mnan0zpxAo" }} />);
 

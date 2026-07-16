@@ -20,5 +20,10 @@ describe("Influencers directory", () => {
         `/influencers/${influencer.id}`
       );
     }
+
+    for (const portrait of screen.getAllByRole("img")) {
+      expect(portrait).toHaveAttribute("loading", "lazy");
+      expect(portrait).toHaveAttribute("decoding", "async");
+    }
   });
 });

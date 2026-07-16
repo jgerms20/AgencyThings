@@ -2,7 +2,7 @@ import { ArrowUpRight, Headphones, Library } from "lucide-react";
 import Link from "next/link";
 import InsightTabs from "@/components/InsightTabs";
 import SiteHeader from "@/components/SiteHeader";
-import { featuredInfluencers } from "@/lib/influencers";
+import { featuredCultureShapers } from "@/lib/content/culture-shapers";
 import { spaces } from "@/lib/spaces";
 import type { ResearchRecord } from "@/lib/types";
 
@@ -25,10 +25,14 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
       <section className="people-preview" aria-labelledby="people-preview-heading">
         <div className="section-line"><h2 id="people-preview-heading">Who shapes the culture</h2><Link className="text-link" href="/influencers">See all 42 culture shapers <ArrowUpRight aria-hidden="true" size={17} /></Link></div>
         <div className="portrait-strip portrait-strip-five">
-          {featuredInfluencers.map((influencer) => (
-            <Link href={`/influencers/${influencer.id}`} key={influencer.id}>
-              <img src={influencer.portrait} alt={influencer.name} />
-              <strong>{influencer.name}</strong><span>{influencer.role}</span>
+          {featuredCultureShapers.map((shaper) => (
+            <Link href={`/influencers/${shaper.id}`} key={shaper.id}>
+              {shaper.portrait ? <img src={shaper.portrait} alt={shaper.name} loading="lazy" decoding="async" /> : (
+                <span className="culture-shaper-monogram" style={{ aspectRatio: "1 / 1", display: "grid", placeItems: "center" }} aria-hidden="true">
+                  {shaper.name.slice(0, 2).toUpperCase()}
+                </span>
+              )}
+              <strong>{shaper.name}</strong><span>{shaper.role}</span>
             </Link>
           ))}
         </div>

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import LabWorkspace from "../src/components/LabWorkspace";
+import { featuredCultureShapers } from "../src/lib/content/culture-shapers";
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("Gen Alpha editorial overview", () => {
@@ -25,11 +26,20 @@ describe("Gen Alpha editorial overview", () => {
     expect(navigation).not.toHaveTextContent("How they");
   });
 
-  it("features five influencers, spaces, and owned media without moving the library home", () => {
+  it("features expanded culture shapers, spaces, and owned media without moving the library home", () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    for (const name of ["MrBeast", "IShowSpeed", "Kai Cenat", "Aphmau", "Ms. Rachel"]) {
-      expect(screen.getByAltText(name)).toBeInTheDocument();
+    for (const shaper of featuredCultureShapers) {
+      expect(screen.getByRole("link", { name: new RegExp(shaper.name) })).toHaveAttribute(
+        "href",
+        `/influencers/${shaper.id}`
+      );
+    }
+    expect(screen.getByText("Bluey")).toBeInTheDocument();
+    expect(screen.getByText("KPop Demon Hunters")).toBeInTheDocument();
+    for (const portrait of screen.getAllByRole("img")) {
+      expect(portrait).toHaveAttribute("loading", "lazy");
+      expect(portrait).toHaveAttribute("decoding", "async");
     }
     expect(screen.getByRole("link", { name: "See all 42 culture shapers" })).toHaveAttribute("href", "/influencers");
     expect(screen.getByRole("heading", { name: "Where they spend time" })).toBeInTheDocument();
