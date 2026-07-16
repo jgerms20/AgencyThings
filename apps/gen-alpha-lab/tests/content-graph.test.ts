@@ -98,7 +98,7 @@ describe("canonical content graph", () => {
   it.each([
     ["themes", { themes: themes.slice(0, 3) }, "Expected exactly 4 themes, received 3"],
     ["insights in a theme", { insights: insights.filter((insight) => insight.themeId !== "play-belonging" || insight.sequence !== 10) }, "Theme must have exactly 10 insights: play-belonging (9)"],
-    ["spaces", { spaces: spaces.slice(0, 49) }, "Expected exactly 50 spaces, received 49"],
+    ["spaces", { spaces: spaces.slice(0, 53) }, "Expected exactly 54 spaces, received 53"],
     ["comparisons", { comparisons: comparisonDimensions.slice(0, 9) }, "Expected exactly 10 comparisons, received 9"],
   ] as const)("rejects a non-canonical %s count", (_label, changes, expectedIssue) => {
     const issueList = validateContentGraph({ ...canonicalGraph, ...changes } as ContentGraph);

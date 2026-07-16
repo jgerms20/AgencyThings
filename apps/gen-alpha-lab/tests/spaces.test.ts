@@ -79,7 +79,7 @@ describe("canonical Gen Alpha spaces", () => {
     expect([...new Set(spaces.map((space) => space.category))]).toEqual(expectedCategories);
   });
 
-  it("adds four meaningful physical or hybrid spaces with optional usage media", () => {
+  it("adds four meaningful physical or hybrid spaces with attributed related format references", () => {
     const additions = [
       "public-libraries-maker-spaces",
       "parks-playgrounds-pickup-play",
@@ -94,8 +94,10 @@ describe("canonical Gen Alpha spaces", () => {
     for (const id of additions) {
       const space = spaces.find((candidate) => candidate.id === id)!;
       expect(space.evidenceStatus).toBe("watchlist");
-      expect(space.usageMedia?.youtubeId).toMatch(/^[\w-]{11}$/);
-      expect(space.usageMedia?.title.length).toBeGreaterThan(12);
+      expect(space.relatedFormatReference?.youtubeId).toMatch(/^[\w-]{11}$/);
+      expect(space.relatedFormatReference?.title.length).toBeGreaterThan(12);
+      expect(space.relatedFormatReference?.provenance).toMatch(/YouTube/i);
+      expect(space.relatedFormatReference?.nonEvidenceCaveat).toMatch(/not evidence/i);
     }
   });
 

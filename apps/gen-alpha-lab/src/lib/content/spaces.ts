@@ -16,10 +16,12 @@ export type SpaceAgeBand = (typeof spaceAgeBands)[number];
 export type SpaceEvidenceStatus = "evidence-backed" | "watchlist";
 export type SpaceTone = "acid" | "cyan" | "coral" | "violet";
 
-export type SpaceUsageMedia = {
+export type SpaceRelatedFormatReference = {
   youtubeId: string;
   title: string;
   description: string;
+  provenance: string;
+  nonEvidenceCaveat: string;
 };
 
 export type Space = {
@@ -41,7 +43,7 @@ export type Space = {
   safetyCaveat: string;
   relatedInsightIds: string[];
   relatedCultureShaperIds: string[];
-  usageMedia?: SpaceUsageMedia;
+  relatedFormatReference?: SpaceRelatedFormatReference;
   tone: SpaceTone;
 };
 
@@ -373,28 +375,28 @@ const seeds: SpaceSeed[] = [
     whatItIs: "Free or low-cost civic spaces for books, homework, making, media access, workshops, and intergenerational discovery.", whyTheyGo: "A shared public setting can turn an individual interest into a guided activity, a useful resource, or a repeatable local ritual.", whatHappens: "Young people browse, read, use computers, make projects, attend story times, join clubs, borrow materials, and ask adults for help.", whoIsThere: "Children, caregivers, librarians, volunteers, teachers, local makers, community organizations, and other visitors.",
     evidence: watch("the current graph supports distributed learning and guided making, but it does not measure library or maker-space attendance directly."),
     strategyRelevance: "Fund durable access, materials, and local expertise instead of treating a civic setting as a backdrop for a campaign.", safetyCaveat: "Hours, transport, language access, disability access, staff capacity, photography consent, and local policies shape who can participate.", relatedInsightIds: ["learning-assembled", "learning-enablement"], relatedCultureShaperIds: ["ms-rachel"],
-    usageMedia: { youtubeId: "2dDpryw3z5w", title: "Friendship and social skills for kids", description: "A related format reference for the guided, social learning that can travel into a library program or maker activity." },
+    relatedFormatReference: { youtubeId: "2dDpryw3z5w", title: "Friendship and social skills for kids", description: "An illustrative format reference for guided, social learning that can travel into a library program or maker activity.", provenance: "YouTube video selected by the editorial team as a related format reference.", nonEvidenceCaveat: "This video is an illustrative format reference, not evidence that Gen Alpha uses this space or activity." },
   },
   {
     id: "parks-playgrounds-pickup-play", name: "Parks, playgrounds, and pickup play", category: "Offline Culture", environment: "physical", ageContext: "Most relevant from ages 3-17, with safety, proximity, weather, and supervision changing the experience.", ageBands: allAges,
     whatItIs: "Shared outdoor places for free play, movement, casual sports, hanging out, and neighborhood encounters without a formal roster.", whyTheyGo: "Open space gives friends room to move, invent rules, practice skills, and spend time together outside a managed feed or schedule.", whatHappens: "Children climb, skate, shoot hoops, make games, watch others, negotiate turns, record clips, and move between online and local groups.", whoIsThere: "Children, friends, siblings, caregivers, coaches, neighbors, park staff, local leagues, and informal mentors.",
     evidence: watch("outdoor-participation evidence establishes a relevant activity context, but the graph does not isolate park or playground use among Gen Alpha."),
     strategyRelevance: "Improve the place, equipment, welcome, or route into participation rather than adding a passive branded object.", safetyCaveat: "Unequal neighborhood access, weather, injury, harassment, surveillance, transport, and adult supervision need practical planning.", relatedInsightIds: ["play-offline-rebound", "play-small-crews"], relatedCultureShaperIds: ["dude-perfect", "jesser"],
-    usageMedia: { youtubeId: "vrY1THC_NQE", title: "World Cup (Champions)", description: "A related sports-culture reference for the music, movement, and fandom that can animate informal local play." },
+    relatedFormatReference: { youtubeId: "vrY1THC_NQE", title: "World Cup (Champions)", description: "An illustrative sports-culture format reference for the music, movement, and fandom that can animate informal local play.", provenance: "YouTube video selected by the editorial team as a related format reference.", nonEvidenceCaveat: "This video is an illustrative format reference, not evidence that Gen Alpha uses this space or activity." },
   },
   {
     id: "youth-arts-dance-music-studios", name: "Youth arts, dance, and music studios", category: "Offline Culture", environment: "physical", ageContext: "Participation spans ages 3-17, with tuition, time, location, and family support determining access.", ageBands: allAges,
     whatItIs: "Studios, rehearsal rooms, youth theatres, and lessons where young people practice performance, craft, and group discipline.", whyTheyGo: "Repeated practice offers creative identity, visible improvement, peer belonging, and a way to carry favorite media into embodied skill.", whatHappens: "Young people rehearse, learn choreography or technique, collaborate, perform, record progress, share clips, and follow admired formats.", whoIsThere: "Students, peers, instructors, choreographers, musicians, families, venue staff, local audiences, and online fan communities.",
     evidence: watch("the graph identifies participatory media and creative making, but it does not measure arts-studio attendance or outcomes directly."),
     strategyRelevance: "Contribute rehearsal time, tools, scholarships, or creditable creative opportunities that leave participants with a real skill or artifact.", safetyCaveat: "Cost, body-image pressure, instructor conduct, injury, inclusion, performance consent, and recording permissions require active safeguards.", relatedInsightIds: ["media-repeatable-formats", "learning-remix"], relatedCultureShaperIds: ["kpop-demon-hunters", "olivia-rodrigo"],
-    usageMedia: { youtubeId: "AzCAwdp1uIQ", title: "KPop Demon Hunters Official Trailer", description: "A related performance-format reference for choreography, music, character identity, and the clips participants may carry into practice." },
+    relatedFormatReference: { youtubeId: "AzCAwdp1uIQ", title: "KPop Demon Hunters Official Trailer", description: "An illustrative performance-format reference for choreography, music, character identity, and clips participants may carry into practice.", provenance: "YouTube video selected by the editorial team as a related format reference.", nonEvidenceCaveat: "This video is an illustrative format reference, not evidence that Gen Alpha uses this space or activity." },
   },
   {
     id: "retail-fandom-collector-spaces", name: "Retail, fandom, and collector spaces", category: "Offline Culture", environment: "hybrid", ageContext: "Most visible from ages 6-17, with adult payment, transport, and local retail options shaping involvement.", ageBands: schoolAge,
     whatItIs: "Toy stores, card shops, bookshops, pop-ups, conventions, and resale communities where media interests become objects, expertise, and conversation.", whyTheyGo: "Seeing a property in person makes collecting, comparison, discovery, and shared taste tangible while linking online fandom to local exchange.", whatHappens: "Fans browse, trade, ask for recommendations, compare collections, attend events, document finds, and carry purchases back into digital groups.", whoIsThere: "Young fans, families, collectors, shop staff, artists, creators, sellers, event organizers, and local communities.",
     evidence: watch("the current graph supports household commerce and media properties moving across settings, but it does not measure collector-space participation directly."),
     strategyRelevance: "Make price, rarity, sponsorship, and adult approval clear while supporting genuine discovery, community, and informed choice.", safetyCaveat: "Spending pressure, scarcity tactics, resale speculation, crowds, stranger contact, accessibility, and personal-data collection need guardrails.", relatedInsightIds: ["media-discovery-commerce", "media-properties-travel"], relatedCultureShaperIds: ["pokemon-franchise", "olivia-rodrigo"],
-    usageMedia: { youtubeId: "ZmDBbnmKpqQ", title: "drivers license (Official Video)", description: "A related fandom reference for the music, visual identity, and collectable release culture that can travel into local retail and fan gatherings." },
+    relatedFormatReference: { youtubeId: "ZmDBbnmKpqQ", title: "drivers license (Official Video)", description: "An illustrative fandom-format reference for music, visual identity, and collectable release culture that can travel into local retail and fan gatherings.", provenance: "YouTube video selected by the editorial team as a related format reference.", nonEvidenceCaveat: "This video is an illustrative format reference, not evidence that Gen Alpha uses this space or activity." },
   },
 ];
 
