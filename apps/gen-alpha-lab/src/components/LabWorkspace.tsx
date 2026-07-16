@@ -23,7 +23,7 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
       <InsightTabs />
 
       <section className="people-preview" aria-labelledby="people-preview-heading">
-        <div className="section-line"><h2 id="people-preview-heading">Who shapes the culture</h2><Link className="text-link" href="/influencers">See all 30 influencers <ArrowUpRight aria-hidden="true" size={17} /></Link></div>
+        <div className="section-line"><h2 id="people-preview-heading">Who shapes the culture</h2><Link className="text-link" href="/influencers">See all 42 culture shapers <ArrowUpRight aria-hidden="true" size={17} /></Link></div>
         <div className="portrait-strip portrait-strip-five">
           {featuredInfluencers.map((influencer) => (
             <Link href={`/influencers/${influencer.id}`} key={influencer.id}>

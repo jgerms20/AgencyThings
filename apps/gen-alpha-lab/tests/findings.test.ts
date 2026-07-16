@@ -92,7 +92,7 @@ describe("Gen Alpha field-guide findings", () => {
     );
   });
 
-  it("features Joshua's Spotify episode as synthesized owned media", () => {
+  it("features the Spotify episode as synthesized owned media without framing it as a personal point of view", () => {
     expect(seedRecords).toContainEqual(
       expect.objectContaining({
         kind: "podcast",
@@ -103,6 +103,7 @@ describe("Gen Alpha field-guide findings", () => {
         tags: expect.arrayContaining(["owned", "ai", "gaming", "digital-childhood"])
       })
     );
+    expect(seedRecords.find((record) => record.id === "owned-podcast-093")?.summary).not.toMatch(/Joshua/i);
   });
 
   it("organizes the library into one unique section per media format", () => {

@@ -746,7 +746,12 @@ iframe { display: block; max-width: 100%; }
 .finding-detail-page[class*="accent-"] .topic-lead { border-top: 8px solid var(--detail-accent); }
 .finding-detail-page[class*="accent-"] .detail-eyebrow { color: var(--detail-accent); }
 
-.compare-opening { background: var(--cyan); color: #090a09; }
+.compare-opening {
+  grid-template-columns: minmax(0, .75fr) minmax(560px, 1.25fr);
+  background: var(--cyan);
+  color: #090a09;
+}
+.compare-opening h1 { font-size: 4.25rem; }
 .compare-opening > p { color: #17383a; }
 .compare-page .comparison-workspace,
 .compare-page .comparison-result,

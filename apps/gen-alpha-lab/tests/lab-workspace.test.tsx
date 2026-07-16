@@ -31,10 +31,12 @@ describe("Gen Alpha editorial overview", () => {
     for (const name of ["MrBeast", "IShowSpeed", "Kai Cenat", "Aphmau", "Ms. Rachel"]) {
       expect(screen.getByAltText(name)).toBeInTheDocument();
     }
-    expect(screen.getByRole("link", { name: "See all 30 influencers" })).toHaveAttribute("href", "/influencers");
+    expect(screen.getByRole("link", { name: "See all 42 culture shapers" })).toHaveAttribute("href", "/influencers");
     expect(screen.getByRole("heading", { name: "Where they spend time" })).toBeInTheDocument();
     expect(screen.getByText("Roblox")).toBeInTheDocument();
     expect(screen.getByText("#093 Gen Alpha: AI, Gaming, and the First Fully Digital Childhood")).toBeInTheDocument();
+    expect(screen.getByText(/A podcast conversation exploring how AI, gaming/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Joshua's owned synthesis/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open the research library" })).toHaveAttribute(
       "href",
       "/library"
