@@ -52,4 +52,8 @@ jobs:
           The Digital Task Brief Maker remains available at:
 
           ${{ steps.deployment.outputs.page_url }}tools/digital-task-brief-maker/
+
+          The Lunch & Learn Partner Desk is available at:
+
+          ${{ steps.deployment.outputs.page_url }}tools/lunch-learn/
           SUMMARY

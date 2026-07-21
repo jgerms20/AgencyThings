@@ -15,6 +15,9 @@ export async function buildPagesSite(destination, rootUrl = new URL("../", impor
     join(output, "tools", "digital-task-brief-maker"),
     { recursive: true },
   );
+  await cp(join(root, "tools", "lunch-learn"), join(output, "tools", "lunch-learn"), {
+    recursive: true,
+  });
   await writeFile(join(output, ".nojekyll"), "");
   await writeFile(
     join(output, "build-info.json"),
