@@ -28,6 +28,39 @@ test("suggestion batches omit seen partners until the pool is exhausted", async 
   assert.equal(reset.didReset, true);
 });
 
+test("preference steering reorders the full eligible pool without weakening no-repeat history", async () => {
+  const { nextSuggestionBatch, rankPartnersByPreference } = await import(appModule);
+  const source = [
+    { id: "a", tags: ["research"] },
+    { id: "b", tags: ["culture"] },
+    { id: "c", tags: ["craft"] },
+    { id: "d", tags: ["culture"] },
+  ];
+
+  const steered = rankPartnersByPreference(source, {
+    selectedTag: "culture",
+    preferredTags: [],
+    lessTags: [],
+  });
+  assert.deepEqual(steered.map(({ id }) => id), ["b", "d", "a", "c"]);
+
+  const first = nextSuggestionBatch(steered, [], 2);
+  const returnedToAll = nextSuggestionBatch(source, first.seenIds, 2);
+  assert.deepEqual(returnedToAll.items.map(({ id }) => id), ["a", "c"]);
+  assert.equal(returnedToAll.didReset, false);
+});
+
+test("partner feedback produces persistent preference state for every tag", async () => {
+  const { applyPartnerFeedback } = await import(appModule);
+  const initial = { preferredTags: [], lessTags: [], dismissedIds: [] };
+  const partner = { id: "adobe", tags: ["AI", "craft", "workflow"] };
+
+  const more = applyPartnerFeedback(initial, partner, "more");
+  assert.deepEqual(more.preferredTags, ["AI", "craft", "workflow"]);
+  assert.deepEqual(applyPartnerFeedback(more, partner, "less").lessTags, ["AI", "craft", "workflow"]);
+  assert.deepEqual(applyPartnerFeedback(initial, partner, "dismiss").dismissedIds, ["adobe"]);
+});
+
 test("pipeline movement works in both directions and clamps at the ends", async () => {
   const { movePipelinePartner, PIPELINE_STAGES } = await import(appModule);
   const pipeline = [{ id: "partner", stage: PIPELINE_STAGES[1] }];
@@ -57,6 +90,19 @@ test("calendar metrics report the last and next sessions around today", async ()
     daysSinceLast: 10,
     daysUntilNext: 5,
   });
+});
+
+test("calendar metrics use the browser local day near a UTC date boundary", async () => {
+  const { calendarMetrics } = await import(appModule);
+  const sourceSessions = [
+    { id: "past", date: "2026-06-25", status: "completed" },
+    { id: "future", date: "2026-08-13", status: "scheduled" },
+  ];
+  const localEvening = new Date(2026, 6, 20, 18, 0, 0);
+
+  const result = calendarMetrics(sourceSessions, localEvening);
+  assert.equal(result.daysSinceLast, 25);
+  assert.equal(result.daysUntilNext, 24);
 });
 
 test("partner directory filtering is case-insensitive across useful fields", async () => {

@@ -251,6 +251,45 @@ export function nextSuggestionBatch(sourcePartners, seenIds = [], batchSize = 3)
   return { items, seenIds: [...seen], didReset };
 }
 
+export function rankPartnersByPreference(
+  sourcePartners,
+  { selectedTag = "all", preferredTags = [], lessTags = [] } = {},
+) {
+  const preferred = new Set(preferredTags);
+  const reduced = new Set(lessTags);
+
+  return sourcePartners
+    .map((partner, index) => {
+      const selectedScore = selectedTag !== "all" && partner.tags.includes(selectedTag) ? 100 : 0;
+      const preferredScore = partner.tags.filter((tag) => preferred.has(tag)).length * 20;
+      const reducedScore = partner.tags.filter((tag) => reduced.has(tag)).length * 50;
+      return { partner, index, score: selectedScore + preferredScore - reducedScore };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(({ partner }) => partner);
+}
+
+export function applyPartnerFeedback(state, partner, type) {
+  const next = {
+    preferredTags: [...new Set(state.preferredTags ?? [])],
+    lessTags: [...new Set(state.lessTags ?? [])],
+    dismissedIds: [...new Set(state.dismissedIds ?? [])],
+  };
+  const feedbackTags = partner.tags ?? [];
+
+  if (type === "dismiss") {
+    next.dismissedIds = [...new Set([...next.dismissedIds, partner.id])];
+  } else if (type === "more" && feedbackTags.length) {
+    next.preferredTags = [...new Set([...next.preferredTags, ...feedbackTags])];
+    next.lessTags = next.lessTags.filter((tag) => !feedbackTags.includes(tag));
+  } else if (type === "less" && feedbackTags.length) {
+    next.lessTags = [...new Set([...next.lessTags, ...feedbackTags])];
+    next.preferredTags = next.preferredTags.filter((tag) => !feedbackTags.includes(tag));
+  }
+
+  return next;
+}
+
 export function movePipelinePartner(pipeline, partnerId, direction) {
   const step = Math.sign(Number(direction) || 0);
 
@@ -263,8 +302,12 @@ export function movePipelinePartner(pipeline, partnerId, direction) {
 }
 
 function dayNumber(value) {
-  const date = typeof value === "string" ? new Date(`${value}T00:00:00Z`) : value;
-  return Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / 86_400_000);
+  if (typeof value === "string") {
+    const [year, month, day] = value.split("-").map(Number);
+    return Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
+  }
+
+  return Math.floor(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()) / 86_400_000);
 }
 
 export function calendarMetrics(sourceSessions, now = new Date()) {
@@ -355,18 +398,22 @@ function createSuggestionController(root) {
   const preference = root.querySelector("[data-preference-filter]");
   let seenIds = readStoredJson("seen-suggestions", []);
   let dismissedIds = readStoredJson("dismissed-partners", []);
+  let preferredTags = readStoredJson("preferred-tags", []);
   let lessTags = readStoredJson("less-tags", []);
   let pipeline = readStoredJson("pipeline", seedPipeline);
 
+  const storedPreference = readStoredJson("preference-filter", "all");
+  if ([...preference.options].some((option) => option.value === storedPreference)) {
+    preference.value = storedPreference;
+  }
+
   function pool() {
-    const selected = preference?.value ?? "all";
-    const available = partners.filter(
-      (partner) =>
-        !dismissedIds.includes(partner.id) &&
-        !partner.tags.some((tag) => lessTags.includes(tag)) &&
-        (selected === "all" || partner.tags.includes(selected)),
-    );
-    return available.length ? available : partners.filter((partner) => !dismissedIds.includes(partner.id));
+    const eligible = partners.filter((partner) => !dismissedIds.includes(partner.id));
+    return rankPartnersByPreference(eligible, {
+      selectedTag: preference?.value ?? "all",
+      preferredTags,
+      lessTags,
+    });
   }
 
   function addToPipeline(partner) {
@@ -385,25 +432,29 @@ function createSuggestionController(root) {
   }
 
   function applyFeedback(partner, type) {
+    const next = applyPartnerFeedback({ preferredTags, lessTags, dismissedIds }, partner, type);
+    preferredTags = next.preferredTags;
+    lessTags = next.lessTags;
+    dismissedIds = next.dismissedIds;
+    writeStoredJson("preferred-tags", preferredTags);
+    writeStoredJson("less-tags", lessTags);
+    writeStoredJson("dismissed-partners", dismissedIds);
+
     if (type === "dismiss") {
-      dismissedIds = [...new Set([...dismissedIds, partner.id])];
-      writeStoredJson("dismissed-partners", dismissedIds);
       status.textContent = `${partner.name} will not appear in this workspace again unless you reset it.`;
       showNext();
       return;
     }
 
-    const tag = partner.tags[0];
+    const tagSummary = partner.tags.slice(0, 2).join(" and ");
     if (type === "less") {
-      lessTags = [...new Set([...lessTags, tag])];
-      writeStoredJson("less-tags", lessTags);
-      status.textContent = `Showing fewer ${tag} partners from now on.`;
+      status.textContent = `Showing fewer ${tagSummary} partners from now on.`;
       showNext();
       return;
     }
 
-    if ([...preference.options].some((option) => option.value === tag)) preference.value = tag;
-    status.textContent = `Steering the next refresh toward ${tag}.`;
+    status.textContent = `Steering the next refresh toward ${tagSummary}.`;
+    showNext();
   }
 
   function render(items) {
@@ -446,6 +497,7 @@ function createSuggestionController(root) {
 
   root.querySelector("[data-refresh-suggestions]")?.addEventListener("click", showNext);
   preference?.addEventListener("change", () => {
+    writeStoredJson("preference-filter", preference.value);
     status.textContent = preference.value === "all" ? "Showing the full partner mix." : `Focusing on ${preference.value}.`;
     showNext();
   });
