@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f2e9" />
+    <meta
+      name="description"
+      content="A working desk for finding Lunch & Learn partners, moving outreach, and planning agency sessions."
+    />
+    <title>Lunch & Learn Partner Desk</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="back-link" href="../../" aria-label="Back to AgencyThings">AgencyThings</a>
+        <div class="topbar-title">
+          <span class="eyebrow">Programming desk</span>
+          <strong>Lunch &amp; Learn</strong>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-dot"><i></i> Local workspace</span>
+          <button class="quiet-button" type="button" data-reset-workspace>Reset demo data</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="sidebar" aria-label="Partner Desk navigation">
+          <div class="sidebar-intro">
+            <p class="eyebrow">The objective</p>
+            <p>Find the right next partner and get from idea to an in-office session faster.</p>
+          </div>
+
+          <nav class="view-nav">
+            <button class="view-button is-active" type="button" data-view-button="suggestions" aria-current="page">
+              <span>01</span> Suggested partners
+            </button>
+            <button class="view-button" type="button" data-view-button="pipeline" aria-current="false">
+              <span>02</span> Outreach pipeline
+            </button>
+            <button class="view-button" type="button" data-view-button="calendar" aria-current="false">
+              <span>03</span> Calendar
+            </button>
+            <button class="view-button" type="button" data-view-button="templates" aria-current="false">
+              <span>04</span> Email studio
+            </button>
+            <button class="view-button" type="button" data-view-button="directory" aria-current="false">
+              <span>05</span> Partner directory
+            </button>
+          </nav>
+
+          <div class="sidebar-note">
+            <span class="note-mark">Why this mix?</span>
+            <p>Balance means rotating the kind of value in the room: culture, craft, platforms, research, and effectiveness—not filling a quota.</p>
+          </div>
+        </aside>
+
+        <main class="workspace-main">
+          <section class="view-panel" data-view-panel="suggestions">
+            <header class="view-header">
+              <div>
+                <p class="eyebrow">Who should be next?</p>
+                <h1>Fresh reasons to reach out.</h1>
+                <p class="view-lede">A short list of partners, useful session angles, and a direct route to current research.</p>
+              </div>
+              <div class="header-controls">
+                <label class="compact-field">
+                  <span>Steer the mix</span>
+                  <select data-preference-filter>
+                    <option value="all">All opportunities</option>
+                    <option value="culture">Culture</option>
+                    <option value="craft">Creative craft</option>
+                    <option value="research">Research</option>
+                    <option value="commerce">Commerce</option>
+                    <option value="community">Community</option>
+                  </select>
+                </label>
+                <button class="primary-button" type="button" data-refresh-suggestions>
+                  Refresh suggestions
+                </button>
+              </div>
+            </header>
+
+            <div class="feedback-banner" data-suggestion-status aria-live="polite">
+              Every refresh advances through unseen partners before the list resets.
+            </div>
+            <div class="suggestion-grid" data-suggestion-list></div>
+          </section>
+
+          <section class="view-panel" data-view-panel="pipeline" hidden>
+            <header class="view-header">
+              <div>
+                <p class="eyebrow">From idea to office</p>
+                <h1>Outreach that can move both ways.</h1>
+                <p class="view-lede">Advance a conversation, move it back when the status changes, or remove it without losing the directory record.</p>
+              </div>
+            </header>
+            <div class="pipeline-board" data-pipeline-board></div>
+          </section>
+
+          <section class="view-panel" data-view-panel="calendar" hidden>
+            <header class="view-header calendar-heading">
+              <div>
+                <p class="eyebrow">The program over time</p>
+                <h1>Keep the learning cadence visible.</h1>
+              </div>
+              <div class="segmented-control" aria-label="Calendar view">
+                <button class="is-active" type="button" data-calendar-view="month">Month</button>
+                <button type="button" data-calendar-view="completed">Completed</button>
+              </div>
+            </header>
+
+            <div class="metric-grid">
+              <article class="metric-card">
+                <span>Days since last</span>
+                <strong data-days-since>—</strong>
+                <small data-last-session>No completed session</small>
+              </article>
+              <article class="metric-card is-next">
+                <span>Days until next</span>
+                <strong data-days-until>—</strong>
+                <small data-next-session>No session scheduled</small>
+              </article>
+              <article class="metric-card">
+                <span>Completed this year</span>
+                <strong data-completed-count>0</strong>
+                <small>Sessions in the archive</small>
+              </article>
+            </div>
+
+            <div class="calendar-card" data-calendar-month-panel>
+              <div class="calendar-toolbar">
+                <button class="icon-button" type="button" data-calendar-previous aria-label="Previous month">←</button>
+                <h2 data-calendar-title>Month</h2>
+                <button class="icon-button" type="button" data-calendar-next aria-label="Next month">→</button>
+              </div>
+              <div class="calendar-weekdays" aria-hidden="true">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+              </div>
+              <div class="calendar-grid" data-calendar-grid></div>
+            </div>
+
+            <div class="completed-list" data-calendar-completed-panel hidden></div>
+          </section>
+
+          <section class="view-panel" data-view-panel="templates" hidden>
+            <header class="view-header">
+              <div>
+                <p class="eyebrow">Copy, paste, personalize</p>
+                <h1>An email—not a Markdown file.</h1>
+                <p class="view-lede">Choose the moment, select a partner, make any final edits in your email client, and send.</p>
+              </div>
+            </header>
+
+            <div class="email-studio">
+              <aside class="template-rail" aria-label="Email templates">
+                <button class="template-button is-active" type="button" data-template-id="first-outreach">First outreach</button>
+                <button class="template-button" type="button" data-template-id="follow-up">Follow-up</button>
+                <button class="template-button" type="button" data-template-id="confirmation">Confirmation</button>
+                <button class="template-button" type="button" data-template-id="internal-announcement">Internal announcement</button>
+              </aside>
+
+              <div class="email-composer">
+                <div class="email-fields">
+                  <label>
+                    <span>Partner</span>
+                    <select data-template-partner></select>
+                  </label>
+                  <label>
+                    <span>To</span>
+                    <input type="email" placeholder="name@partner.com" data-email-to />
+                  </label>
+                </div>
+                <article class="email-paper">
+                  <div class="email-row"><span>Subject</span><strong data-email-subject></strong></div>
+                  <div class="email-body" data-email-body></div>
+                </article>
+                <div class="composer-actions">
+                  <span data-copy-status aria-live="polite">Ready to copy into your email.</span>
+                  <button class="primary-button" type="button" data-copy-email>Copy full email</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="view-panel" data-view-panel="directory" hidden>
+            <header class="view-header directory-header">
+              <div>
+                <p class="eyebrow">Your relationship memory</p>
+                <h1>One directory, always useful.</h1>
+                <p class="view-lede">Search by organization, topic, contact type, or session angle.</p>
+              </div>
+              <label class="search-field">
+                <span class="sr-only">Search partner directory</span>
+                <input type="search" placeholder="Search partners" data-directory-search />
+              </label>
+            </header>
+            <div class="directory-list" data-directory-list></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <template id="suggestion-card-template">
+      <article class="suggestion-card">
+        <div class="suggestion-meta"><span data-card-category></span><span data-card-location></span></div>
+        <h2 data-card-name></h2>
+        <p class="card-fit" data-card-fit></p>
+        <div class="angle-block"><span>Suggested session</span><strong data-card-angle></strong></div>
+        <p class="signal-line"><span>Research hook</span><span data-card-signal></span></p>
+        <div class="card-actions">
+          <a class="research-link" target="_blank" rel="noreferrer" data-research-link>Research recent activity ↗</a>
+          <button class="small-button" type="button" data-add-pipeline>Add to researching</button>
+        </div>
+        <div class="feedback-controls" aria-label="Tune partner suggestions">
+          <span>Show me</span>
+          <button type="button" data-feedback="more">More like this</button>
+          <button type="button" data-feedback="less">Less like this</button>
+          <button type="button" data-feedback="dismiss">Not this partner</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="pipeline-card-template">
+      <article class="pipeline-card">
+        <h3 data-pipeline-name></h3>
+        <p data-pipeline-note></p>
+        <span data-pipeline-owner></span>
+        <div class="pipeline-actions">
+          <button type="button" data-move="previous" aria-label="Move back">←</button>
+          <button type="button" data-remove-pipeline>Remove</button>
+          <button type="button" data-move="next" aria-label="Move forward">→</button>
+        </div>
+      </article>
+    </template>
+  </body>
+</html>

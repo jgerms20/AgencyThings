@@ -4,13 +4,15 @@ Joshua's internal agency workspace: one home for practical tools, strategy labs,
 
 ## Live Workspace
 
-The GitHub Pages root is the AgencyThings desktop. It launches three active worlds:
+The GitHub Pages root is the AgencyThings desktop. It launches five active worlds:
 
 | Thing | Purpose | Destination |
 | --- | --- | --- |
-| Digital Task Brief Maker | Media-plan to creative-task workflow | `tools/digital-task-brief-maker/` on GitHub Pages |
+| Digital Task Brief Maker | Media-plan to creative-task workflow | <https://agencythings-task-brief.vercel.app> |
 | Problem Wall Lab | Strategy signal, scoring, and review workspace | <https://agencythings-problem-wall.vercel.app> |
 | Gen Alpha Intelligence Lab | Living research and interview environment | <https://agencythings-gen-alpha.vercel.app> |
+| Memento | Cultural moments planning | <https://agencythings-memento.vercel.app> |
+| Lunch & Learn Partner Desk | Partner discovery, outreach, and session planning | `tools/lunch-learn/` on GitHub Pages |
 
 Each app keeps its own visual language and interaction model. The desktop provides orientation and launch behavior without flattening the projects into one template.
 
@@ -21,7 +23,8 @@ AgencyThings/
 ├── index.html                         # AgencyThings desktop
 ├── assets/                            # Hub styles, behavior, and previews
 ├── tools/
-│   └── digital-task-brief-maker/      # Static GitHub Pages tool
+│   ├── digital-task-brief-maker/      # Static GitHub Pages tool
+│   └── lunch-learn/                   # Static Partner Desk
 └── apps/
     ├── problem-wall-lab/              # Independent Next.js/Vercel app
     └── gen-alpha-lab/                 # Independent Next.js/Vercel app
@@ -33,7 +36,35 @@ AgencyThings/
 python3 -m http.server 4173
 ```
 
-Then open <http://localhost:4173>. The Task Brief runs under the same local server. The other two launch their Vercel deployments.
+Then open <http://localhost:4173>. The static tools run under the same local server, while the independent apps launch their Vercel deployments.
+
+### Lunch & Learn Partner Desk
+
+A contained workspace for deciding who should join the agency next, getting outreach moving, and keeping the full Lunch & Learn program visible.
+
+**Location:** `tools/lunch-learn/`
+
+**What it does now:**
+
+- Cycles through partner suggestions without repeating a card until the unseen pool is exhausted.
+- Provides partner-specific search links for checking recent announcements, research, and campaign activity.
+- Lets Joshua ask for more, less, or none of a kind of partner and remembers those preferences locally.
+- Moves organizations forward or backward through a five-stage outreach pipeline.
+- Shows a navigable monthly calendar, a completed-session archive, days since the last session, and days until the next.
+- Renders first outreach, follow-up, confirmation, and internal announcement templates as copy-ready emails tailored to the selected partner.
+- Keeps a searchable directory with direct routes back into research and the pipeline.
+
+**Hosted use:**
+
+The GitHub Pages workflow publishes the Partner Desk at `/tools/lunch-learn/` without replacing the AgencyThings desktop or Digital Task Brief Maker.
+
+**Run locally:**
+
+```bash
+python3 -m http.server 4173
+```
+
+Then open <http://localhost:4173/tools/lunch-learn/>.
 
 ## Projects
 

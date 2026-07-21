@@ -41,8 +41,8 @@ export const projects = [
     type: "Programming Desk",
     mode: "learn",
     purpose: "Plan sessions, move partner outreach, and keep agency learning alive.",
-    href: "https://agencythings-lunch-learn.vercel.app",
-    external: true,
+    href: "./tools/lunch-learn/",
+    external: false,
   },
 ];
 

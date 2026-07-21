@@ -53,8 +53,8 @@ test("registry preserves internal and external launch destinations", async () =>
       },
       {
         id: "lunch-learn",
-        href: "https://agencythings-lunch-learn.vercel.app",
-        external: true,
+        href: "./tools/lunch-learn/",
+        external: false,
       },
     ],
   );
@@ -138,7 +138,7 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.match(html, /href=["']https:\/\/agencythings-problem-wall\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-gen-alpha\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-memento\.vercel\.app["']/);
-  assert.match(html, /href=["']https:\/\/agencythings-lunch-learn\.vercel\.app["']/);
+  assert.match(html, /href=["']\.\/tools\/lunch-learn\/["']/);
   assert.match(html, /href=["']\.\/assets\/hub\.css["']/);
   assert.match(html, /src=["']\.\/assets\/hub\.js["']/);
   assert.match(html, /data-current-date/);
@@ -147,10 +147,10 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.equal((html.match(/data-directory-project=/g) ?? []).length, 5);
 
   const externalLinks = html.match(/<a[^>]+target="_blank"[^>]+rel="noreferrer"[^>]*>/g) ?? [];
-  assert.equal(externalLinks.length, 10);
+  assert.equal(externalLinks.length, 8);
 });
 
-test("GitHub Pages packages the hub and Task Brief as separate destinations", async () => {
+test("GitHub Pages packages the hub, Task Brief, and Lunch & Learn as separate destinations", async () => {
   const workflow = await readFile(
     new URL("../.github/workflows/deploy-digital-task-brief-maker.yml", import.meta.url),
     "utf8",
@@ -162,9 +162,10 @@ test("GitHub Pages packages the hub and Task Brief as separate destinations", as
   );
   assert.match(workflow, /node scripts\/build-pages-site\.mjs _site/);
   assert.match(workflow, /AgencyThings desktop is deployed/);
+  assert.match(workflow, /tools\/lunch-learn/);
 });
 
-test("Pages builder creates a runnable hub and nested Task Brief artifact", async () => {
+test("Pages builder creates a runnable hub and both nested static tools", async () => {
   const { buildPagesSite } = await import("../scripts/build-pages-site.mjs");
   const destination = await mkdtemp(join(tmpdir(), "agencythings-pages-"));
 
@@ -176,6 +177,9 @@ test("Pages builder creates a runnable hub and nested Task Brief artifact", asyn
       access(join(destination, "assets", "hub.css")),
       access(join(destination, "assets", "hub.js")),
       access(join(destination, "tools", "digital-task-brief-maker", "index.html")),
+      access(join(destination, "tools", "lunch-learn", "index.html")),
+      access(join(destination, "tools", "lunch-learn", "src", "styles.css")),
+      access(join(destination, "tools", "lunch-learn", "src", "app.js")),
       access(join(destination, ".nojekyll")),
     ]);
 
