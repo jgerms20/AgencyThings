@@ -83,6 +83,16 @@ export function saveStories(storage: Pick<Storage, "setItem"> | undefined, stori
   try { storage?.setItem(STORIES_STORAGE_KEY, JSON.stringify(stories)); return Boolean(storage); } catch { return false; }
 }
 
+export function selectStoriesForPersistence(stories: Story[], savedIds: ReadonlySet<string>, limit = 300): Story[] {
+  const unique = [...new Map(stories.map((story) => [story.id, story])).values()];
+  const saved = unique.filter(({ id }) => savedIds.has(id));
+  const recent = unique
+    .filter(({ id }) => !savedIds.has(id))
+    .sort((left, right) => Date.parse(right.observedAt) - Date.parse(left.observedAt))
+    .slice(0, Math.max(0, limit - saved.length));
+  return [...saved, ...recent];
+}
+
 function isStory(value: unknown): value is Story {
   if (!value || typeof value !== "object") return false;
   const story = value as Partial<Story>;

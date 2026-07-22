@@ -14,7 +14,7 @@ describe("source refresh", () => {
 
   it("creates stable live IDs independent of connector ordering", () => {
     const first = normalizeLiveStory("A fresh signal", "https://example.com/story?utm_source=feed", "Example", "publication", "2026-07-20", 0);
-    const reordered = normalizeLiveStory("A fresh signal", "https://example.com/story", "Example", "publication", "2026-07-20", 7);
+    const reordered = normalizeLiveStory("A revised headline", "https://example.com/story", "Example", "publication", "2026-07-20", 7);
     expect(first.id).toBe(reordered.id);
   });
 

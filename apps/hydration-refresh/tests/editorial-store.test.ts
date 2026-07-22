@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createInitialWorkspace, loadStories, reduceWorkspace, saveStories } from "@/lib/editorial-store";
+import { createInitialWorkspace, loadStories, reduceWorkspace, saveStories, selectStoriesForPersistence } from "@/lib/editorial-store";
 import { seedStories } from "@/lib/seed-data";
 
 describe("editorial workspace", () => {
@@ -34,5 +34,13 @@ describe("editorial workspace", () => {
 
     expect(saveStories(storage, [liveStory])).toBe(true);
     expect(loadStories(storage)).toEqual([liveStory]);
+  });
+
+  it("bounds the live cache while always retaining saved stories", () => {
+    const stories = Array.from({ length: 5 }, (_, index) => ({
+      ...seedStories[0], id: `story-${index}`, observedAt: new Date(2026, 0, index + 1).toISOString()
+    }));
+    const selected = selectStoriesForPersistence(stories, new Set(["story-0"]), 3);
+    expect(selected.map(({ id }) => id)).toEqual(["story-0", "story-4", "story-3"]);
   });
 });

@@ -2,7 +2,7 @@
 
 import { Bookmark, BookOpen, CalendarDays, Check, ChevronRight, ExternalLink, FlaskConical, Globe2, Library, Menu, Mic2, Moon, Plus, RefreshCw, Search, Sparkles, Sun, Users, X } from "lucide-react";
 import { useEffect, useMemo, useReducer, useState } from "react";
-import { createInitialWorkspace, loadStories, loadWorkspace, reduceWorkspace, saveStories, saveWorkspace } from "@/lib/editorial-store";
+import { createInitialWorkspace, loadStories, loadWorkspace, reduceWorkspace, saveStories, saveWorkspace, selectStoriesForPersistence } from "@/lib/editorial-store";
 import { connectorSeeds, seedStories } from "@/lib/seed-data";
 import type { ConnectorStatus, CulturalDomain, MonthlySection, Story, WorkspaceState } from "@/lib/types";
 
@@ -37,7 +37,11 @@ export function HydrationRefreshApp() {
   }, []);
 
   useEffect(() => { if (hydrated) saveWorkspace(globalThis.localStorage, workspace); }, [workspace, hydrated]);
-  useEffect(() => { if (hydrated) saveStories(globalThis.localStorage, stories); }, [stories, hydrated]);
+  useEffect(() => {
+    if (!hydrated) return;
+    const persisted = selectStoriesForPersistence(stories, new Set(Object.keys(workspace.saved)));
+    if (!saveStories(globalThis.localStorage, persisted)) setNotice("Browser storage is full. Remove older unsaved signals before refreshing again.");
+  }, [stories, workspace.saved, hydrated]);
 
   const filteredStories = useMemo(() => stories.filter((story) =>
     (domain === "all" || story.domain === domain) &&
@@ -55,7 +59,7 @@ export function HydrationRefreshApp() {
       const response = await fetch("/api/refresh", { method: "POST" });
       if (!response.ok) throw new Error(`Refresh failed (${response.status})`);
       const data = await response.json() as { stories: Story[]; run: { statuses: ConnectorStatus[]; addedCount: number } };
-      const merged = mergeStories(data.stories, stories);
+      const merged = selectStoriesForPersistence(mergeStories(data.stories, stories), new Set(Object.keys(workspace.saved)));
       setStories(merged);
       setStatuses(data.run.statuses.length ? data.run.statuses : connectorSeeds);
       dispatch({ type: "replace-feed", storyIds: merged.map(({ id }) => id) });

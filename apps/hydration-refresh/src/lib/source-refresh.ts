@@ -82,13 +82,12 @@ async function fetchCrossref(): Promise<Story[]> {
 export function normalizeLiveStory(headline: string, sourceUrl: string, sourceName: string, sourceKind: SourceKind, publishedAt: string | undefined, _index?: number): Story {
   const clean = headline.replace(/\s+-\s+[^-]+$/, "").trim();
   const stableUrl = canonicalUrl(sourceUrl);
-  return { id: `live-${sourceKind}-${slug(clean)}-${hashString(stableUrl)}`, headline: clean, dek: "A fresh signal gathered from the live source refresh.", sourceName, sourceUrl: stableUrl, sourceKind, publishedAt: safeDate(publishedAt), observedAt: new Date().toISOString(), domain: inferDomain(clean), tags: [sourceKind, inferDomain(clean)], whatHappened: `${clean} was published as a fresh signal in the current monitoring window.`, whyItMatters: "It may reveal a shift in how people participate, perform, gather, recover, or express identity. Save it if the pattern deserves deeper editorial judgment." };
+  return { id: `live-${sourceKind}-${hashString(stableUrl)}`, headline: clean, dek: "A fresh signal gathered from the live source refresh.", sourceName, sourceUrl: stableUrl, sourceKind, publishedAt: safeDate(publishedAt), observedAt: new Date().toISOString(), domain: inferDomain(clean), tags: [sourceKind, inferDomain(clean)], whatHappened: `${clean} was published as a fresh signal in the current monitoring window.`, whyItMatters: "It may reveal a shift in how people participate, perform, gather, recover, or express identity. Save it if the pattern deserves deeper editorial judgment." };
 }
 
 function inferDomain(value: string): Story["domain"] { const lower = value.toLowerCase(); if (/sport|athlete|game|fan/.test(lower)) return "sport"; if (/health|wellness|sleep|hydration|recovery/.test(lower)) return "wellness"; if (/tech|ai|digital|game/.test(lower)) return "technology"; if (/music|film|festival|creator/.test(lower)) return "entertainment"; return "culture"; }
 function safeDate(value?: string): string { const date = value ? new Date(value) : new Date(); return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString(); }
 function dateParts(parts?: number[]): string | undefined { return parts?.length ? `${parts[0]}-${String(parts[1] ?? 1).padStart(2, "0")}-${String(parts[2] ?? 1).padStart(2, "0")}` : undefined; }
-function slug(value: string): string { return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60); }
 function normalizeHeadline(value: string): string { return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
 function hashString(value: string): string { let hash = 2166136261; for (let index = 0; index < value.length; index += 1) { hash ^= value.charCodeAt(index); hash = Math.imul(hash, 16777619); } return (hash >>> 0).toString(36); }
 type RssItem = { title?: string; link?: string; pubDate?: string; source?: { "#text"?: string } };
