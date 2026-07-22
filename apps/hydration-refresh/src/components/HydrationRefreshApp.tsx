@@ -1,7 +1,7 @@
 "use client";
 
 import { Bookmark, BookOpen, CalendarDays, Check, ChevronRight, ExternalLink, FlaskConical, Globe2, Library, Menu, Mic2, Moon, Plus, RefreshCw, Search, Sparkles, Sun, Users, X } from "lucide-react";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { createInitialWorkspace, loadStories, loadWorkspace, reduceWorkspace, saveStories, saveWorkspace, selectStoriesForPersistence } from "@/lib/editorial-store";
 import { connectorSeeds, seedStories } from "@/lib/seed-data";
 import type { ConnectorStatus, CulturalDomain, MonthlySection, Story, WorkspaceState } from "@/lib/types";
@@ -15,6 +15,8 @@ const sections: Array<{ id: MonthlySection; label: string }> = [
 export function HydrationRefreshApp() {
   const [view, setView] = useState<View>("today");
   const [workspace, dispatch] = useReducer(reduceWorkspace, undefined, createInitialWorkspace);
+  const workspaceRef = useRef(workspace);
+  workspaceRef.current = workspace;
   const [stories, setStories] = useState<Story[]>(seedStories);
   const [statuses, setStatuses] = useState<ConnectorStatus[]>(connectorSeeds);
   const [domain, setDomain] = useState<CulturalDomain | "all">("all");
@@ -59,7 +61,7 @@ export function HydrationRefreshApp() {
       const response = await fetch("/api/refresh", { method: "POST" });
       if (!response.ok) throw new Error(`Refresh failed (${response.status})`);
       const data = await response.json() as { stories: Story[]; run: { statuses: ConnectorStatus[]; addedCount: number } };
-      const merged = selectStoriesForPersistence(mergeStories(data.stories, stories), new Set(Object.keys(workspace.saved)));
+      const merged = selectStoriesForPersistence(mergeStories(data.stories, stories), new Set(Object.keys(workspaceRef.current.saved)));
       setStories(merged);
       setStatuses(data.run.statuses.length ? data.run.statuses : connectorSeeds);
       dispatch({ type: "replace-feed", storyIds: merged.map(({ id }) => id) });
