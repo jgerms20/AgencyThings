@@ -1,4 +1,4 @@
-import type { MonthlyIssue, MonthlySection, WorkspaceState } from "./types";
+import type { MonthlyIssue, MonthlySection, Story, WorkspaceState } from "./types";
 
 export type WorkspaceAction =
   | { type: "hydrate"; state: WorkspaceState }
@@ -12,6 +12,7 @@ export type WorkspaceAction =
   | { type: "update-confidence"; value: number };
 
 export const STORAGE_KEY = "agencythings:hydration-refresh:v1";
+export const STORIES_STORAGE_KEY = "agencythings:hydration-refresh:stories:v1";
 
 export function createMonthlyIssue(): MonthlyIssue {
   return {
@@ -69,4 +70,21 @@ export function loadWorkspace(storage: Pick<Storage, "getItem"> | undefined): Wo
 
 export function saveWorkspace(storage: Pick<Storage, "setItem"> | undefined, state: WorkspaceState): boolean {
   try { storage?.setItem(STORAGE_KEY, JSON.stringify(state)); return Boolean(storage); } catch { return false; }
+}
+
+export function loadStories(storage: Pick<Storage, "getItem"> | undefined): Story[] {
+  try {
+    const parsed = JSON.parse(storage?.getItem(STORIES_STORAGE_KEY) ?? "[]") as unknown;
+    return Array.isArray(parsed) ? parsed.filter(isStory) : [];
+  } catch { return []; }
+}
+
+export function saveStories(storage: Pick<Storage, "setItem"> | undefined, stories: Story[]): boolean {
+  try { storage?.setItem(STORIES_STORAGE_KEY, JSON.stringify(stories)); return Boolean(storage); } catch { return false; }
+}
+
+function isStory(value: unknown): value is Story {
+  if (!value || typeof value !== "object") return false;
+  const story = value as Partial<Story>;
+  return typeof story.id === "string" && typeof story.headline === "string" && typeof story.sourceUrl === "string";
 }

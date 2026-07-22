@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createInitialWorkspace, reduceWorkspace } from "@/lib/editorial-store";
+import { createInitialWorkspace, loadStories, reduceWorkspace, saveStories } from "@/lib/editorial-store";
+import { seedStories } from "@/lib/seed-data";
 
 describe("editorial workspace", () => {
   it("saves stories, notes, storylines, and monthly assignments", () => {
@@ -21,5 +22,17 @@ describe("editorial workspace", () => {
     state = reduceWorkspace(state, { type: "replace-feed", storyIds: ["story-2", "story-3"] });
     expect(state.saved["story-1"]).toBeDefined();
     expect(state.feedStoryIds).toEqual(["story-2", "story-3"]);
+  });
+
+  it("persists refreshed story records so saved work survives reloads", () => {
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value)
+    };
+    const liveStory = { ...seedStories[0], id: "live-story", headline: "A live signal" };
+
+    expect(saveStories(storage, [liveStory])).toBe(true);
+    expect(loadStories(storage)).toEqual([liveStory]);
   });
 });

@@ -2,7 +2,7 @@
 
 import { Bookmark, BookOpen, CalendarDays, Check, ChevronRight, ExternalLink, FlaskConical, Globe2, Library, Menu, Mic2, Moon, Plus, RefreshCw, Search, Sparkles, Sun, Users, X } from "lucide-react";
 import { useEffect, useMemo, useReducer, useState } from "react";
-import { createInitialWorkspace, loadWorkspace, reduceWorkspace, saveWorkspace } from "@/lib/editorial-store";
+import { createInitialWorkspace, loadStories, loadWorkspace, reduceWorkspace, saveStories, saveWorkspace } from "@/lib/editorial-store";
 import { connectorSeeds, seedStories } from "@/lib/seed-data";
 import type { ConnectorStatus, CulturalDomain, MonthlySection, Story, WorkspaceState } from "@/lib/types";
 
@@ -30,11 +30,14 @@ export function HydrationRefreshApp() {
 
   useEffect(() => {
     const loaded = loadWorkspace(globalThis.localStorage);
+    const persistedStories = loadStories(globalThis.localStorage);
+    setStories(mergeStories(persistedStories, seedStories));
     dispatch({ type: "hydrate", state: { ...loaded, feedStoryIds: loaded.feedStoryIds.length ? loaded.feedStoryIds : seedStories.map(({ id }) => id) } });
     setHydrated(true);
   }, []);
 
   useEffect(() => { if (hydrated) saveWorkspace(globalThis.localStorage, workspace); }, [workspace, hydrated]);
+  useEffect(() => { if (hydrated) saveStories(globalThis.localStorage, stories); }, [stories, hydrated]);
 
   const filteredStories = useMemo(() => stories.filter((story) =>
     (domain === "all" || story.domain === domain) &&
@@ -136,7 +139,7 @@ function StorylinesView({ stories, workspace, title, setTitle, onCreate }: { sto
 }
 
 function MonthlyView({ stories, workspace, dispatch }: { stories: Story[]; workspace: WorkspaceState; dispatch: React.Dispatch<Parameters<typeof reduceWorkspace>[1]> }) {
-  return <section className="monthly-view"><header><div><h1>Shape the July issue.</h1><p>Move from accumulated signals to one ownable perspective.</p></div><div className="issue-date">July 2026</div></header><section className="theme-editor"><label>Monthly theme<textarea value={workspace.monthly.theme} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "theme", value: event.target.value })} placeholder="What connects this month's strongest stories?" /></label><label>Gatorade learning<textarea value={workspace.monthly.learning} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "learning", value: event.target.value })} placeholder="What should the brand understand or do differently?" /></label></section><div className="monthly-sections">{sections.map((section) => <section key={section.id}><header><h2>{section.label}</h2><strong>{workspace.monthly.sections[section.id].length}</strong></header>{workspace.monthly.sections[section.id].map((storyId) => { const story = stories.find(({ id }) => id === storyId); return story ? <article key={story.id}><span>{story.sourceName}</span><h3>{story.headline}</h3><p>{story.whyItMatters}</p></article> : null; })}{!workspace.monthly.sections[section.id].length && <p className="section-empty">Assign a saved signal from Today.</p>}{section.id === "pick" && <label className="confidence">Prediction confidence <input type="range" min="1" max="5" value={workspace.monthly.confidence} onChange={(event) => dispatch({ type: "update-confidence", value: Number(event.target.value) })} /><strong>{workspace.monthly.confidence}/5</strong></label>}{section.id === "provocation" && <textarea className="provocation-input" value={workspace.monthly.provocation} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "provocation", value: event.target.value })} placeholder="What question should the client leave debating?" />}</section>)}</div></section>;
+  return <section className="monthly-view"><header><div><h1>Shape the July issue.</h1><p>Move from accumulated signals to one ownable perspective.</p></div><div className="issue-date">July 2026</div></header><section className="theme-editor"><label>Monthly theme<textarea value={workspace.monthly.theme} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "theme", value: event.target.value })} placeholder="What connects this month's strongest stories?" /></label><label>Gatorade learning<textarea value={workspace.monthly.learning} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "learning", value: event.target.value })} placeholder="What should the brand understand or do differently?" /></label></section><div className="monthly-sections">{sections.map((section) => <section key={section.id}><header><h2>{section.label}</h2><strong>{workspace.monthly.sections[section.id].length}</strong></header>{workspace.monthly.sections[section.id].map((storyId) => { const story = stories.find(({ id }) => id === storyId); return story ? <article key={story.id}><span>{story.sourceName}</span><h3>{story.headline}</h3><p>{story.whyItMatters}</p></article> : null; })}{!workspace.monthly.sections[section.id].length && <p className="section-empty">Assign a saved signal from Today.</p>}{section.id === "pick" && <div className="pick-editor"><label>Prediction<textarea value={workspace.monthly.prediction} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "prediction", value: event.target.value })} placeholder="What do you expect to happen next?" /></label><label>Why we are watching<textarea value={workspace.monthly.whyWatching} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "whyWatching", value: event.target.value })} placeholder="What evidence would strengthen or challenge this call?" /></label><label className="confidence">Prediction confidence <input type="range" min="1" max="5" value={workspace.monthly.confidence} onChange={(event) => dispatch({ type: "update-confidence", value: Number(event.target.value) })} /><strong>{workspace.monthly.confidence}/5</strong></label></div>}{section.id === "provocation" && <textarea className="provocation-input" value={workspace.monthly.provocation} onChange={(event) => dispatch({ type: "update-monthly-copy", field: "provocation", value: event.target.value })} placeholder="What question should the client leave debating?" />}</section>)}</div></section>;
 }
 
 function EmptyState({ title, copy }: { title: string; copy: string }) { return <div className="empty-view"><Bookmark /><h2>{title}</h2><p>{copy}</p></div>; }
