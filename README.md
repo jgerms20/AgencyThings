@@ -4,7 +4,7 @@ Joshua's internal agency workspace: one home for practical tools, strategy labs,
 
 ## Live Workspace
 
-The GitHub Pages root is the AgencyThings desktop. It launches five active worlds:
+The GitHub Pages root is the AgencyThings desktop. It launches six active worlds:
 
 | Thing | Purpose | Destination |
 | --- | --- | --- |
@@ -13,6 +13,7 @@ The GitHub Pages root is the AgencyThings desktop. It launches five active world
 | Gen Alpha Intelligence Lab | Living research and interview environment | <https://agencythings-gen-alpha.vercel.app> |
 | Memento | Cultural moments planning | <https://agencythings-memento.vercel.app> |
 | Lunch & Learn Partner Desk | Partner discovery, outreach, and session planning | `tools/lunch-learn/` on GitHub Pages |
+| Hydration Refresh | Daily cultural intelligence and monthly synthesis | <https://agencythings-hydration-refresh.vercel.app> |
 
 Each app keeps its own visual language and interaction model. The desktop provides orientation and launch behavior without flattening the projects into one template.
 
@@ -27,7 +28,8 @@ AgencyThings/
 │   └── lunch-learn/                   # Static Partner Desk
 └── apps/
     ├── problem-wall-lab/              # Independent Next.js/Vercel app
-    └── gen-alpha-lab/                 # Independent Next.js/Vercel app
+    ├── gen-alpha-lab/                 # Independent Next.js/Vercel app
+    └── hydration-refresh/              # Independent cultural-intelligence app
 ```
 
 ## Local Hub Preview
@@ -67,6 +69,20 @@ python3 -m http.server 4173
 Then open <http://localhost:4173/tools/lunch-learn/>.
 
 ## Projects
+
+### Hydration Refresh
+
+A standalone editorial intelligence desk for discovering cultural signals, saving sourced stories, building recurring storylines, and shaping the monthly Gatorade newsletter.
+
+**Location:** `apps/hydration-refresh/`
+
+**Vercel project root:**
+
+```text
+apps/hydration-refresh
+```
+
+Production: <https://agencythings-hydration-refresh.vercel.app>
 
 ### Gen Alpha Intelligence Lab
 

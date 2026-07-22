@@ -44,6 +44,15 @@ export const projects = [
     href: "./tools/lunch-learn/",
     external: false,
   },
+  {
+    id: "hydration-refresh",
+    name: "Hydration Refresh",
+    type: "Cultural Intelligence",
+    mode: "learn",
+    purpose: "Find cultural signals, save the strongest stories, and shape the monthly Gatorade read.",
+    href: "https://agencythings-hydration-refresh.vercel.app",
+    external: true,
+  },
 ];
 
 export function filterProjects(query = "") {
