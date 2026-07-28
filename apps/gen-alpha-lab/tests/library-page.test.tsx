@@ -8,6 +8,23 @@ import { sources } from "../src/lib/content/sources";
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("LibraryPage", () => {
+  it("houses the evidence-weighting system as a collapsible source guide", async () => {
+    const user = userEvent.setup();
+    render(<LibraryPage initialRecords={seedRecords} />);
+
+    const guide = screen.getByTestId("evidence-validity-guide");
+    expect(guide.tagName).toBe("DETAILS");
+    expect(guide).not.toHaveAttribute("open");
+    expect(within(guide).getByText("Not every source gets the same weight.")).toBeVisible();
+    expect(within(guide).getByText("Direct child research")).not.toBeVisible();
+
+    await user.click(within(guide).getByText("Not every source gets the same weight."));
+    expect(guide).toHaveAttribute("open");
+    expect(within(guide).getByText("Direct child research")).toBeVisible();
+    expect(within(guide).getByText("Editorial interpretation")).toBeVisible();
+    expect(within(guide).getAllByRole("listitem")).toHaveLength(5);
+  });
+
   it("orders research filters by media format instead of Make, Think, and Learn", async () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);

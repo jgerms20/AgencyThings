@@ -1,7 +1,11 @@
 "use client";
 
+import { ArrowUpRight, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import type { Route } from "next";
 import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
+import { insights } from "@/lib/content/insights";
 import {
   comparisonCohorts,
   comparisonDimensions,
@@ -13,6 +17,8 @@ import {
 const statusLabel = (status: ComparisonCohort["evidenceStatus"]) =>
   status.charAt(0).toUpperCase() + status.slice(1);
 
+const insightById = new Map(insights.map((insight) => [insight.id, insight]));
+
 function Mentality({ label, cohort }: { label: string; cohort: ComparisonCohort }) {
   return (
     <article className="comparison-mentality">
@@ -23,11 +29,6 @@ function Mentality({ label, cohort }: { label: string; cohort: ComparisonCohort 
         </p>
       </div>
       <p className="comparison-summary">{cohort.mentality}</p>
-      <dl className="comparison-metadata">
-        <div><dt>Age scope</dt><dd>{cohort.ageRange}</dd></div>
-        <div><dt>Geography</dt><dd>{cohort.geography}</dd></div>
-        <div><dt>Evidence window</dt><dd>{cohort.sourceYear}</dd></div>
-      </dl>
     </article>
   );
 }
@@ -45,12 +46,17 @@ function EvidenceColumn({ label, cohort }: { label: string; cohort: ComparisonCo
           {evidenceRecords.map((record) => (
             <li key={record.id}>
               <p className="comparison-evidence-claim">{record.claim}</p>
-              <p className="comparison-evidence-support">Why it belongs here: {record.support}</p>
-              <p className="comparison-evidence-locator">Located: {record.locator}</p>
-              <a href={record.sourceUrl} rel="noreferrer" target="_blank">
+              <p className="comparison-evidence-support">{record.support}</p>
+              <p className="comparison-evidence-locator">Source locator: {record.locator}</p>
+              <a href={record.sourceUrl} rel="noreferrer" target="_blank" aria-label={`Open direct source: ${record.sourceTitle}`}>
                 <span>{record.sourceOrganization}</span>
-                {record.sourceTitle}
+                {record.sourceTitle}<ArrowUpRight aria-hidden="true" size={15} />
               </a>
+              <Link href={`/library/${record.sourceId}` as Route} aria-label={`Open library record: ${record.sourceTitle}`}>Open library record <ArrowUpRight aria-hidden="true" size={15} /></Link>
+              {record.insightIds.flatMap((insightId) => {
+                const insight = insightById.get(insightId);
+                return insight ? [<Link href={`/insights/${insight.id}` as Route} aria-label={`Open connected insight: ${insight.title}`} key={insight.id}>{insight.title}<ArrowUpRight aria-hidden="true" size={15} /></Link>] : [];
+              })}
             </li>
           ))}
         </ul>
@@ -118,15 +124,29 @@ export default function ComparePage() {
             <p><strong>{activeComparison.realDifference}</strong></p>
           </section>
 
-          <div className="comparison-evidence-grid">
-            <EvidenceColumn label="Gen Alpha" cohort={activeTopic.genAlpha} />
-            <EvidenceColumn label={activeCohort.label} cohort={activeComparison.cohort} />
-          </div>
-
-          <aside className="comparison-caveat" aria-label="Methodology caveat">
-            <p className="comparison-eyebrow">Methodology caveat</p>
-            <p>{activeComparison.caveat}</p>
-          </aside>
+          <details className="comparison-proof" data-testid="comparison-proof" key={`${activeTopic.id}-${activeCohort.id}`}>
+            <summary><span>Open evidence and methodology</span><ChevronDown aria-hidden="true" size={22} /></summary>
+            <div className="comparison-scope-grid">
+              {[{ label: "Gen Alpha", cohort: activeTopic.genAlpha }, { label: activeCohort.label, cohort: activeComparison.cohort }].map(({ label, cohort }) => (
+                <section key={label}>
+                  <p className="comparison-eyebrow">{label} scope</p>
+                  <dl className="comparison-metadata">
+                    <div><dt>Age scope</dt><dd>{cohort.ageRange}</dd></div>
+                    <div><dt>Geography</dt><dd>{cohort.geography}</dd></div>
+                    <div><dt>Evidence window</dt><dd>{cohort.sourceYear}</dd></div>
+                  </dl>
+                </section>
+              ))}
+            </div>
+            <div className="comparison-evidence-grid">
+              <EvidenceColumn label="Gen Alpha" cohort={activeTopic.genAlpha} />
+              <EvidenceColumn label={activeCohort.label} cohort={activeComparison.cohort} />
+            </div>
+            <aside className="comparison-caveat" aria-label="Methodology caveat">
+              <p className="comparison-eyebrow">Methodology caveat</p>
+              <p>{activeComparison.caveat}</p>
+            </aside>
+          </details>
         </section>
       </section>
 
@@ -156,22 +176,31 @@ export default function ComparePage() {
         .comparison-status { margin-top: 0; border-color: var(--line); color: var(--muted); }
         .comparison-status.status-evidence-gap { border-color: var(--coral); color: var(--coral); }
         .comparison-status.status-adult-age-band-proxy, .comparison-status.status-near-age-proxy { border-color: var(--violet); color: var(--violet); }
-        .comparison-summary { margin-top: 16px; font-size: 1.08rem; font-weight: 800; line-height: 1.45; }
+        .comparison-summary { max-width: 700px; margin-top: 16px; font-size: 1.08rem; font-weight: 800; line-height: 1.45; }
         .comparison-metadata { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 26px 0 0; }
         .comparison-metadata div { min-width: 0; border-top: 1px solid var(--line); padding-top: 9px; }
         .comparison-metadata dt, .comparison-evidence-label { color: var(--muted); font-size: .66rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
         .comparison-metadata dd { margin: 5px 0 0; font-size: .76rem; font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
         .comparison-difference { display: grid; grid-template-columns: minmax(180px, .45fr) minmax(0, 1.55fr); gap: 30px; padding: 30px 0; border-bottom: 3px solid var(--acid); }
         .comparison-difference > p:last-child { max-width: 900px; font-size: 1.2rem; line-height: 1.45; }
-        .comparison-evidence-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+        .comparison-proof { border-bottom: 1px solid var(--line); }
+        .comparison-proof > summary { display: flex; min-height: 74px; align-items: center; justify-content: space-between; gap: 20px; cursor: pointer; color: var(--cyan); font-size: .76rem; font-weight: 900; letter-spacing: .06em; list-style: none; text-transform: uppercase; }
+        .comparison-proof > summary::-webkit-details-marker { display: none; }
+        .comparison-proof > summary svg { transition: transform .2s ease; }
+        .comparison-proof[open] > summary svg { transform: rotate(180deg); }
+        .comparison-scope-grid, .comparison-evidence-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-top: 1px solid var(--line); }
+        .comparison-scope-grid > section { min-width: 0; padding: 24px 24px 28px 0; }
+        .comparison-scope-grid > section + section { border-left: 1px solid var(--line); padding-right: 0; padding-left: 24px; }
+        .comparison-evidence-grid { border-bottom: 1px solid var(--line); }
         .comparison-evidence-column { min-width: 0; padding: 28px 24px 32px 0; }
         .comparison-evidence-column + .comparison-evidence-column { border-left: 1px solid var(--line); padding-right: 0; padding-left: 24px; }
         .comparison-evidence-list { display: grid; gap: 18px; margin: 10px 0 0; padding: 0; list-style: none; }
         .comparison-evidence-list li { border-top: 1px solid var(--line); padding-top: 14px; overflow-wrap: anywhere; }
         .comparison-evidence-claim { font-size: .86rem; font-weight: 800; line-height: 1.45; }
         .comparison-evidence-support, .comparison-evidence-locator, .comparison-gap { margin-top: 9px; color: var(--muted); font-size: .72rem; font-weight: 700; line-height: 1.45; }
-        .comparison-evidence-list a { display: inline-flex; flex-direction: column; gap: 2px; margin-top: 11px; color: var(--cyan); font-size: .74rem; font-weight: 900; line-height: 1.35; }
+        .comparison-evidence-list a { display: grid; grid-template-columns: minmax(0, 1fr) 16px; gap: 2px 8px; margin-top: 11px; color: var(--cyan); font-size: .74rem; font-weight: 900; line-height: 1.35; }
         .comparison-evidence-list a span { color: var(--muted); font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; }
+        .comparison-evidence-list a svg { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
         .comparison-evidence-list a:hover, .comparison-evidence-list a:focus-visible { color: var(--acid); outline: 2px solid var(--acid); outline-offset: 3px; }
         .comparison-caveat { padding: 26px 0 4px; }
         .comparison-caveat > p:last-child { max-width: 880px; margin-top: 10px; font-size: .92rem; font-weight: 700; line-height: 1.5; }
@@ -188,7 +217,9 @@ export default function ComparePage() {
           .comparison-mentality { padding-right: 0; }
           .comparison-mentality + .comparison-mentality { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
           .comparison-difference { gap: 12px; }
-          .comparison-evidence-grid { grid-template-columns: 1fr; }
+          .comparison-scope-grid, .comparison-evidence-grid { grid-template-columns: 1fr; }
+          .comparison-scope-grid > section { padding-right: 0; }
+          .comparison-scope-grid > section + section { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
           .comparison-evidence-column { padding-right: 0; }
           .comparison-evidence-column + .comparison-evidence-column { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
         }

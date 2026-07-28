@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, ExternalLink, FileText, Headphones, Newspaper, PlaySquare } from "lucide-react";
+import { BookOpen, ChevronDown, ExternalLink, FileText, Headphones, Newspaper, PlaySquare } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import { useMemo, useState } from "react";
@@ -11,6 +11,7 @@ import { themes } from "@/lib/content/insights";
 import { getInsight } from "@/lib/content/selectors";
 import { sources } from "@/lib/content/sources";
 import { libraryTakeaways } from "@/lib/editorial";
+import { validityLadder } from "@/lib/evidence-weight";
 import { filterLibraryByFormat, getLibrarySections, type LibraryFormat, type LibrarySection } from "@/lib/findings";
 import type { Source } from "@/lib/content/types";
 import type { ResearchRecord } from "@/lib/types";
@@ -80,6 +81,26 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
           {libraryTakeaways.map((takeaway, index) => <p key={takeaway}><span>{String(index + 1).padStart(2, "0")}</span>{takeaway}</p>)}
         </div>
       </section>
+
+      <details className="library-validity" data-testid="evidence-validity-guide">
+        <summary>
+          <div>
+            <p>Source discipline / validity versus opinion</p>
+            <h2>Not every source gets the same weight.</h2>
+            <span>See how claims earn their language and place in the Lab.</span>
+          </div>
+          <ChevronDown aria-hidden="true" size={28} />
+        </summary>
+        <div className="library-validity-body">
+          <p>Web opinion may surface a question, but a claim enters the Lab only when its population, method, scope, and limitations can be shown.</p>
+          <ol>
+            {validityLadder.map((level) => (
+              <li key={level.level}><span>{level.level}</span><strong>{level.name}</strong><p>{level.use}</p></li>
+            ))}
+          </ol>
+          <p><strong>Language rule:</strong> “shows” for direct evidence, “suggests” for bounded proxies, “signals” for industry data, and “we interpret” for synthesis.</p>
+        </div>
+      </details>
 
       <section className="library-workspace" aria-label="Research library">
         <div className="library-filters" aria-label="Filter library by format">

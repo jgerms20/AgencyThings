@@ -19,6 +19,8 @@ export type {
 
 export type ComparisonEvidenceRecord = {
   id: string;
+  sourceId: string;
+  insightIds: string[];
   claim: string;
   locator: string;
   support: string;
@@ -375,6 +377,8 @@ export const getComparisonEvidence = (cohortRecord: ComparisonCohort): Compariso
 
     return {
       id: evidence.id,
+      sourceId: evidence.sourceId,
+      insightIds: evidence.insightIds,
       claim: evidence.claim,
       locator: evidence.locator,
       support: cohortRecord.evidenceSupport[evidenceId],

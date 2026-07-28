@@ -45,10 +45,20 @@ export default function InsightDrawer({ object, onClose }: InsightDrawerProps) {
               <a
                 className="drawer-link"
                 href={insight.labUrl}
-                aria-label={`Open ${insight.title} in the Intelligence Lab`}
+                aria-label={insight.linkLabel ?? `Open ${insight.title} in the Intelligence Lab`}
               >
-                Open exact insight
+                {insight.linkLabel ?? "Open exact insight"}
                 <ArrowUpRight aria-hidden="true" size={17} />
+              </a>
+              <a
+                className="drawer-source-link"
+                href={insight.sourceUrl}
+                rel="noreferrer"
+                target="_blank"
+                aria-label={`Read source for ${insight.title}`}
+              >
+                Read source
+                <ArrowUpRight aria-hidden="true" size={14} />
               </a>
             </article>
           ))}

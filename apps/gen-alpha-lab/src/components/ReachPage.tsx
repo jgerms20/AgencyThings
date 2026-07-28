@@ -46,7 +46,7 @@ export default function ReachPage() {
       <SiteHeader />
 
       <section className="page-opening reach-opening">
-        <p className="reach-kicker">How to reach them</p>
+        <p className="reach-kicker">Ways in</p>
         <h1>Earn participation. Don&apos;t chase attention.</h1>
         <p>Make the value obvious, fit the real-world context, and put the guardrail where people can see it.</p>
       </section>
@@ -93,7 +93,6 @@ export default function ReachPage() {
                       className="strategy-play"
                       data-testid={`strategy-play-${play.id}`}
                       id={play.id}
-                      open={index === 0}
                     >
                       <summary>
                         <span className="strategy-play-title-row">
@@ -101,7 +100,10 @@ export default function ReachPage() {
                           <span id={titleId}>{play.title}</span>
                           <ChevronDown aria-hidden="true" size={24} />
                         </span>
-                        <span className="reach-play-summary-grid">
+                      </summary>
+
+                      <div className="reach-play-expanded">
+                        <div className="reach-play-summary-grid">
                           <span>
                             <strong>Value for the child</strong>
                             {play.directChildValue}
@@ -114,39 +116,39 @@ export default function ReachPage() {
                             <strong>Guardrail</strong>
                             {play.ethicalConstraints[0]}
                           </span>
-                        </span>
-                      </summary>
+                        </div>
 
-                      <div className="reach-play-detail-grid">
-                        <section>
-                          <h3>Formats to try</h3>
-                          <ul>
-                            {play.formats.slice(0, 2).map((format) => <li key={format}>{format}</li>)}
-                          </ul>
-                        </section>
-                        <section className="reach-play-evidence">
-                          <h3>Evidence to open</h3>
-                          <div>
-                            {relatedInsights.map((insight) => (
-                              <Link href={`/insights/${insight.id}` as Route} key={insight.id}>
-                                <span>{insight.title}</span>
-                                <ArrowUpRight aria-hidden="true" size={16} />
-                              </Link>
-                            ))}
-                            {relatedSources.map((source) => (
-                              <Link href={`/library/${source.id}` as Route} key={source.id}>
-                                <span>{source.organization}: {source.title}</span>
-                                <ArrowUpRight aria-hidden="true" size={16} />
-                              </Link>
-                            ))}
-                          </div>
-                        </section>
-                        <section>
-                          <h3>Safety check</h3>
-                          <ul>
-                            {play.ethicalConstraints.slice(0, 2).map((constraint) => <li key={constraint}>{constraint}</li>)}
-                          </ul>
-                        </section>
+                        <div className="reach-play-detail-grid">
+                          <section>
+                            <h3>Formats to try</h3>
+                            <ul>
+                              {play.formats.slice(0, 2).map((format) => <li key={format}>{format}</li>)}
+                            </ul>
+                          </section>
+                          <section className="reach-play-evidence">
+                            <h3>Evidence to open</h3>
+                            <div>
+                              {relatedInsights.map((insight) => (
+                                <Link href={`/insights/${insight.id}` as Route} key={insight.id}>
+                                  <span>{insight.title}</span>
+                                  <ArrowUpRight aria-hidden="true" size={16} />
+                                </Link>
+                              ))}
+                              {relatedSources.map((source) => (
+                                <Link href={`/library/${source.id}` as Route} key={source.id}>
+                                  <span>{source.organization}: {source.title}</span>
+                                  <ArrowUpRight aria-hidden="true" size={16} />
+                                </Link>
+                              ))}
+                            </div>
+                          </section>
+                          <section>
+                            <h3>Safety check</h3>
+                            <ul>
+                              {play.ethicalConstraints.slice(0, 2).map((constraint) => <li key={constraint}>{constraint}</li>)}
+                            </ul>
+                          </section>
+                        </div>
                       </div>
                     </details>
                   </li>

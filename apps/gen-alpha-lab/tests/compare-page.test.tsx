@@ -118,24 +118,33 @@ describe("topic and cohort comparison", () => {
     expect(container.querySelector(".comparison-mentalities")?.children).toHaveLength(2);
   });
 
-  it("renders a concrete statistic, source links, the comparison class, and methodology caveat", async () => {
+  it("leads with the strategic difference and collapses supporting proof into linked disclosures", async () => {
     const user = userEvent.setup();
     render(<ComparePage />);
 
     const result = screen.getByRole("region", { name: "Comparison result" });
     expect(within(result).getByText("Strategic interpretation")).toBeInTheDocument();
     expect(within(result).getByText("Comparison class")).toBeInTheDocument();
-    expect(within(result).getByText("Methodology caveat")).toBeInTheDocument();
-    expect(within(result).getByText(/54% more time.*26% less time/i)).toBeInTheDocument();
-    expect(within(result).getByRole("link", { name: /2025 Digital Media Trends/i })).toHaveAttribute(
+    const proof = within(result).getByTestId("comparison-proof");
+    expect(proof).not.toHaveAttribute("open");
+    expect(within(proof).getByText(/54% more time.*26% less time/i)).not.toBeVisible();
+    await user.click(within(proof).getByText("Open evidence and methodology"));
+    expect(proof).toHaveAttribute("open");
+    expect(within(proof).getByText(/54% more time.*26% less time/i)).toBeVisible();
+    expect(within(result).getByRole("link", { name: "Open direct source: 2025 Digital Media Trends" })).toHaveAttribute(
       "href",
       "https://www.deloitte.com/us/en/insights/industry/technology/digital-media-trends-consumption-habits-survey/2025.html",
     );
+    expect(within(result).getAllByRole("link", { name: /Open library record/i }).length).toBeGreaterThan(0);
+    expect(within(result).getAllByRole("link", { name: /Open connected insight/i }).length).toBeGreaterThan(0);
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Comparison cohort" }), "boomers");
     expect(within(result).getByText("Adult age-band proxy")).toBeInTheDocument();
-    expect(within(result).getByText(/64% among ages 65\+.*TikTok use was.*12%/i)).toBeInTheDocument();
-    expect(within(result).getByRole("link", { name: /Americans' Social Media Use 2025/i })).toHaveAttribute(
+    const boomerProof = within(result).getByTestId("comparison-proof");
+    expect(boomerProof).not.toHaveAttribute("open");
+    await user.click(within(boomerProof).getByText("Open evidence and methodology"));
+    expect(within(boomerProof).getByText(/64% among ages 65\+.*TikTok use was.*12%/i)).toBeVisible();
+    expect(within(boomerProof).getByRole("link", { name: "Open direct source: Americans' Social Media Use 2025" })).toHaveAttribute(
       "href",
       "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
     );

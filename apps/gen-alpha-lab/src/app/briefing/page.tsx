@@ -1,10 +1,5 @@
-import BriefingPage from "@/components/BriefingPage";
-
-export const metadata = {
-  title: "Briefing | Gen Alpha Intelligence Lab",
-  description: "Six presentation-ready Gen Alpha insights with evidence confidence and exact source paths.",
-};
+import { redirect } from "next/navigation";
 
 export default function BriefingRoute() {
-  return <BriefingPage />;
+  redirect("/summary");
 }
