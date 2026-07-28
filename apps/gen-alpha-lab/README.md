@@ -2,6 +2,11 @@
 
 Internal agency research site and living lab for Gen Alpha strategy work.
 
+Presentation surfaces:
+
+- `/gender` separates boys, girls, and gender-diverse evidence while keeping teen proxies and evidence gaps visible.
+- `/briefing` turns six headline conclusions into a print-ready talk track with exact links back to the underlying insights.
+
 ## Local Run
 
 ```bash

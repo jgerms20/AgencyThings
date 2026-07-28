@@ -1418,3 +1418,136 @@ iframe { display: block; max-width: 100%; }
     transition-duration: .01ms !important;
   }
 }
+
+/* Gender lens and talk-ready briefing */
+.research-page { min-height: 100vh; }
+.overview-briefing-paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--line); background: var(--line); gap: 1px; }
+.overview-briefing-paths a { position: relative; display: grid; min-height: 190px; align-content: space-between; gap: 22px; padding: 30px 72px 30px 32px; background: var(--paper); }
+.overview-briefing-paths a:hover { background: var(--acid); color: #090a09; }
+.overview-briefing-paths a > span { color: var(--coral); font-size: .66rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.overview-briefing-paths a > strong { max-width: 610px; font-family: var(--font-display); font-size: 1.65rem; line-height: 1.08; }
+.overview-briefing-paths a > svg { position: absolute; right: 30px; bottom: 30px; }
+.research-opening {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
+  gap: 48px;
+  align-items: end;
+  min-height: 440px;
+  padding: 86px 32px 58px;
+  border-bottom: 1px solid var(--line);
+}
+.research-kicker { color: var(--coral); font-size: .7rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.research-opening h1 { max-width: 970px; margin-top: 18px; font-size: clamp(3.4rem, 6.3vw, 6.7rem); letter-spacing: -.055em; line-height: .88; }
+.research-opening > p, .briefing-opening-copy > p { max-width: 540px; color: var(--muted); font-size: 1.05rem; font-weight: 700; line-height: 1.55; }
+
+.gender-workspace { border-bottom: 1px solid var(--line); }
+.gender-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); background: var(--line); gap: 1px; }
+.gender-tabs button { min-height: 76px; border: 0; padding: 0 28px; background: var(--paper); color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 900; text-align: left; text-transform: uppercase; }
+.gender-tabs button[aria-selected="true"] { background: var(--acid); color: #090a09; }
+.gender-panel { padding: 58px 32px 72px; }
+.gender-panel > header { display: grid; grid-template-columns: minmax(140px, .32fr) minmax(0, 1fr); gap: 24px 40px; align-items: start; margin-bottom: 46px; }
+.gender-panel > header > p:first-child { color: var(--cyan); font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.gender-panel > header h2 { max-width: 900px; font-size: clamp(2.5rem, 4.2vw, 4.8rem); line-height: .96; }
+.gender-panel > header > p:last-child { grid-column: 2; max-width: 800px; color: var(--muted); font-size: 1rem; font-weight: 700; line-height: 1.55; }
+.gender-finding-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); }
+.gender-finding { display: flex; min-height: 500px; flex-direction: column; padding: 26px; border-right: 1px solid var(--line); }
+.gender-finding:last-child { border-right: 0; }
+.gender-finding-topline { display: flex; min-height: 76px; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.gender-finding-topline strong { color: var(--acid); font-family: var(--font-display); font-size: 3.7rem; line-height: .85; }
+.gender-finding-topline .evidence-gap { max-width: 140px; color: var(--coral); font-family: var(--font-body); font-size: .9rem; line-height: 1.1; text-transform: uppercase; }
+.gender-finding-topline span { border: 1px solid var(--line); padding: 5px 7px; color: var(--muted); font-size: .62rem; font-weight: 900; text-transform: uppercase; }
+.gender-finding h3 { max-width: 330px; font-family: var(--font-display); font-size: 1.65rem; line-height: 1.02; }
+.gender-finding > p { margin-top: 16px; color: var(--muted); font-size: .86rem; font-weight: 700; line-height: 1.55; }
+.gender-finding aside { margin-top: 24px; border-top: 3px solid var(--acid); padding-top: 16px; }
+.gender-finding aside span { color: var(--acid); font-size: .65rem; font-weight: 900; text-transform: uppercase; }
+.gender-finding aside p { margin-top: 8px; font-size: .82rem; font-weight: 800; line-height: 1.5; }
+.gender-finding > a { display: grid; grid-template-columns: 1fr 20px; gap: 3px 10px; align-items: center; margin-top: auto; padding-top: 28px; color: var(--cyan); font-size: .76rem; font-weight: 900; line-height: 1.3; }
+.gender-finding > a span { grid-column: 1; color: var(--muted); font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; }
+.gender-finding > a svg { grid-row: 1 / span 2; grid-column: 2; }
+.gender-guardrail { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 18px; margin-top: 28px; padding: 25px; background: var(--acid); color: #090a09; }
+.gender-guardrail span { font-size: .65rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.gender-guardrail p { max-width: 980px; margin-top: 5px; font-size: .94rem; font-weight: 800; line-height: 1.45; }
+
+.methodology-panel { display: grid; grid-template-columns: minmax(230px, .45fr) minmax(0, 1fr); gap: 42px; padding: 70px 32px 84px; background: var(--surface); }
+.methodology-panel header > p { color: var(--violet); font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.methodology-panel h2 { margin-top: 12px; font-size: 2.8rem; line-height: 1; }
+.methodology-panel ol { margin: 0; padding: 0; list-style: none; }
+.methodology-panel li { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 20px; padding: 18px 0; border-top: 1px solid var(--line); }
+.methodology-panel li span { color: var(--violet); font-size: .67rem; font-weight: 900; text-transform: uppercase; }
+.methodology-panel li p { font-size: .85rem; font-weight: 700; line-height: 1.5; }
+.methodology-panel > a { grid-column: 2; display: inline-flex; width: max-content; align-items: center; gap: 8px; color: var(--cyan); font-size: .78rem; font-weight: 900; }
+
+.briefing-opening { align-items: center; }
+.briefing-opening-copy { display: grid; gap: 24px; }
+.briefing-opening-copy button { display: inline-flex; width: max-content; min-height: 46px; align-items: center; gap: 9px; border: 1px solid var(--acid); padding: 0 15px; background: var(--acid); color: #090a09; cursor: pointer; font-size: .75rem; font-weight: 900; text-transform: uppercase; }
+.briefing-deck { padding: 0 32px; }
+.briefing-slide { display: grid; grid-template-columns: 100px minmax(0, 1.4fr) minmax(250px, .62fr); gap: 28px; min-height: 560px; padding: 66px 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+.briefing-slide-number { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; color: var(--acid); font-family: var(--font-display); font-size: 2.1rem; }
+.briefing-slide-copy > p:first-child { color: var(--coral); font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.briefing-slide-copy h2 { max-width: 880px; margin-top: 18px; font-size: clamp(2.8rem, 5.1vw, 5.8rem); letter-spacing: -.045em; line-height: .9; }
+.briefing-slide-copy > p:nth-child(3) { max-width: 780px; margin-top: 28px; color: var(--muted); font-size: 1rem; font-weight: 700; line-height: 1.55; }
+.briefing-slide-copy blockquote { max-width: 780px; margin: 40px 0 0; border-left: 5px solid var(--acid); padding: 3px 0 3px 20px; font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; }
+.briefing-slide-copy blockquote span { display: block; margin-bottom: 9px; color: var(--acid); font-family: var(--font-body); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; }
+.briefing-slide-proof { display: flex; flex-direction: column; justify-content: flex-end; }
+.briefing-slide-proof dl { margin: 0; border-top: 3px solid var(--cyan); }
+.briefing-slide-proof dl > div { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.briefing-slide-proof dt { color: var(--muted); font-size: .62rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.briefing-slide-proof dd { margin: 6px 0 0; font-size: .79rem; font-weight: 800; line-height: 1.4; }
+.briefing-slide-proof a { display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 24px; border: 1px solid var(--cyan); padding: 13px; color: var(--cyan); font-size: .72rem; font-weight: 900; text-transform: uppercase; }
+
+.validity-ladder { padding: 88px 32px; background: var(--acid); color: #090a09; break-inside: avoid; }
+.validity-ladder > header { display: grid; grid-template-columns: minmax(190px, .4fr) minmax(0, 1.2fr); gap: 18px 34px; margin-bottom: 42px; }
+.validity-ladder > header > p:first-child { font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.validity-ladder h2 { font-size: clamp(2.6rem, 4.5vw, 5rem); line-height: .93; }
+.validity-ladder > header > p:last-child { grid-column: 2; max-width: 760px; font-size: .92rem; font-weight: 800; line-height: 1.55; }
+.validity-ladder ol { margin: 0; padding: 0; border-top: 2px solid #090a09; list-style: none; }
+.validity-ladder li { display: grid; grid-template-columns: 70px minmax(200px, .55fr) minmax(0, 1fr); gap: 24px; align-items: center; min-height: 92px; border-bottom: 1px solid rgba(9,10,9,.35); }
+.validity-ladder li span { font-family: var(--font-display); font-size: 1.3rem; }
+.validity-ladder li strong { font-family: var(--font-display); font-size: 1.18rem; }
+.validity-ladder li p { font-size: .82rem; font-weight: 750; line-height: 1.45; }
+.validity-ladder footer { display: flex; align-items: center; justify-content: space-between; gap: 30px; margin-top: 32px; }
+.validity-ladder footer p { max-width: 780px; font-size: .85rem; line-height: 1.5; }
+.validity-ladder footer a { display: inline-flex; align-items: center; gap: 8px; border-bottom: 2px solid #090a09; padding-bottom: 5px; font-size: .76rem; font-weight: 900; text-transform: uppercase; }
+
+@media (max-width: 1150px) {
+  .primary-nav { gap: 12px; }
+  .primary-nav a { font-size: .7rem; }
+}
+
+@media (max-width: 760px) {
+  .overview-briefing-paths { grid-template-columns: 1fr; }
+  .overview-briefing-paths a { min-height: 160px; padding: 24px 58px 24px 18px; }
+  .research-opening { grid-template-columns: 1fr; gap: 26px; min-height: 390px; padding: 64px 18px 44px; }
+  .research-opening h1 { font-size: 3.55rem; }
+  .gender-tabs { grid-template-columns: 1fr; }
+  .gender-tabs button { min-height: 58px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+  .gender-panel { padding: 44px 18px 58px; }
+  .gender-panel > header { grid-template-columns: 1fr; gap: 18px; }
+  .gender-panel > header > p:last-child { grid-column: 1; }
+  .gender-finding-grid { grid-template-columns: 1fr; }
+  .gender-finding { min-height: 0; border-right: 0; border-bottom: 1px solid var(--line); padding: 24px 18px; }
+  .gender-finding:last-child { border-bottom: 0; }
+  .gender-finding > a { margin-top: 34px; }
+  .methodology-panel { grid-template-columns: 1fr; gap: 32px; padding: 54px 18px 66px; }
+  .methodology-panel li { grid-template-columns: 86px minmax(0, 1fr); }
+  .methodology-panel > a { grid-column: 1; }
+  .briefing-deck { padding: 0 18px; }
+  .briefing-slide { grid-template-columns: 1fr; gap: 22px; min-height: 0; padding: 52px 0; }
+  .briefing-slide-number { grid-row: auto; flex-direction: row; align-items: center; }
+  .briefing-slide-copy h2 { font-size: 2.75rem; }
+  .briefing-slide-proof { grid-column: 1; margin-top: 24px; }
+  .validity-ladder { padding: 62px 18px; }
+  .validity-ladder > header { grid-template-columns: 1fr; }
+  .validity-ladder > header > p:last-child { grid-column: 1; }
+  .validity-ladder li { grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 18px 0; }
+  .validity-ladder li p { grid-column: 2; }
+  .validity-ladder footer { align-items: flex-start; flex-direction: column; }
+}
+
+@media print {
+  .briefing-page .site-header, .briefing-opening-copy button { display: none; }
+  .briefing-opening { min-height: 0; padding: 24px 0 42px; }
+  .briefing-deck { padding: 0; }
+  .briefing-slide { min-height: 100vh; padding: 42px 0; page-break-after: always; }
+  .validity-ladder { min-height: 100vh; padding: 56px 32px; background: #fff; color: #000; page-break-before: always; }
+}

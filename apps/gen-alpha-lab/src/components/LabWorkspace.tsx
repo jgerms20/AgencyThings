@@ -81,6 +81,19 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
 
       <InsightTabs />
 
+      <section className="overview-briefing-paths" aria-label="Research briefing paths">
+        <Link href="/briefing" aria-label="Open the six-slide briefing">
+          <span>Present the synthesis</span>
+          <strong>Six talk-ready conclusions, with a sentence to say aloud.</strong>
+          <ArrowUpRight aria-hidden="true" size={20} />
+        </Link>
+        <Link href="/gender" aria-label="Explore the gender lens">
+          <span>Interrogate difference</span>
+          <strong>Boys, girls, and the evidence gap around gender-diverse youth.</strong>
+          <ArrowUpRight aria-hidden="true" size={20} />
+        </Link>
+      </section>
+
       <section className="people-preview" aria-labelledby="people-preview-heading">
         <div className="section-line">
           <h2 id="people-preview-heading">Who shapes the culture</h2>

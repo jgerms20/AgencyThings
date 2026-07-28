@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import MobileNav, { type NavigationItem } from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 
-type NavigationId = "overview" | "insights" | "influencers" | "spaces" | "reach-them" | "compare" | "library";
+type NavigationId = "overview" | "insights" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "briefing" | "library";
 
 type SiteHeaderProps = { active?: NavigationId };
 
@@ -15,7 +15,9 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
   { id: "reach-them", label: "How to reach them", href: "/reach-them" },
+  { id: "gender", label: "Gender lens", href: "/gender" },
   { id: "compare", label: "Compare", href: "/compare" },
+  { id: "briefing", label: "Briefing", href: "/briefing" },
   { id: "library", label: "Library", href: "/library" }
 ];
 

@@ -37,9 +37,12 @@ describe("Gen Alpha editorial overview", () => {
     expect(screen.getByRole("tab", { name: "Play & Belonging" })).toHaveAttribute("aria-selected", "true");
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
-    for (const destination of ["Overview", "Insights", "Influencers", "Spaces", "How to reach them", "Compare", "Library"]) {
+    for (const destination of ["Overview", "Insights", "Influencers", "Spaces", "How to reach them", "Gender lens", "Compare", "Briefing", "Library"]) {
       expect(navigation).toHaveTextContent(destination);
     }
+
+    expect(screen.getByRole("link", { name: "Open the six-slide briefing" })).toHaveAttribute("href", "/briefing");
+    expect(screen.getByRole("link", { name: "Explore the gender lens" })).toHaveAttribute("href", "/gender");
   });
 
   it("previews a balanced culture directory with working local IP art and all links", () => {

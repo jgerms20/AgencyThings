@@ -20,7 +20,9 @@ describe("Insight-led detail pages", () => {
       "Influencers",
       "Spaces",
       "How to reach them",
+      "Gender lens",
       "Compare",
+      "Briefing",
       "Library",
     ]);
     expect(screen.queryByText(/Evidence confidence/i)).not.toBeInTheDocument();
