@@ -27,6 +27,15 @@ export const projects = [
     external: true,
   },
   {
+    id: "gen-alpha-house",
+    name: "Gen Alpha House",
+    type: "Interactive Field Guide",
+    mode: "learn",
+    purpose: "Explore Gen Alpha research through the objects in one lived-in room.",
+    href: "https://agencythings-gen-alpha-house.vercel.app",
+    external: true,
+  },
+  {
     id: "memento",
     name: "Memento",
     type: "Cultural Planning",

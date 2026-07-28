@@ -10,7 +10,9 @@ const expectedDestinations = [
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
   ["How to reach them", "/reach-them"],
+  ["Gender lens", "/gender"],
   ["Compare", "/compare"],
+  ["Briefing", "/briefing"],
   ["Library", "/library"],
 ] as const;
 
@@ -19,7 +21,7 @@ afterEach(() => {
 });
 
 describe("responsive primary navigation", () => {
-  it("renders all seven desktop destinations in the approved order", () => {
+  it("renders all nine desktop destinations in the approved order", () => {
     render(<SiteHeader active="overview" />);
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });

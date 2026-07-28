@@ -10,7 +10,7 @@ async function importHubModule() {
   return import(url);
 }
 
-test("registry contains the six AgencyThings worlds and their action modes", async () => {
+test("registry contains the seven AgencyThings worlds and their action modes", async () => {
   const { projects } = await importHubModule();
 
   assert.deepEqual(
@@ -19,6 +19,7 @@ test("registry contains the six AgencyThings worlds and their action modes", asy
       { id: "task-brief", name: "Digital Task Brief Maker", type: "Workflow", mode: "make" },
       { id: "problem-wall", name: "Problem Wall Lab", type: "Strategy Lab", mode: "think" },
       { id: "gen-alpha", name: "Gen Alpha Intelligence Lab", type: "Living Research", mode: "learn" },
+      { id: "gen-alpha-house", name: "Gen Alpha House", type: "Interactive Field Guide", mode: "learn" },
       { id: "memento", name: "Memento", type: "Cultural Planning", mode: "think" },
       { id: "lunch-learn", name: "Lunch & Learn", type: "Programming Desk", mode: "learn" },
       { id: "hydration-refresh", name: "Hydration Refresh", type: "Cultural Intelligence", mode: "learn" },
@@ -45,6 +46,11 @@ test("registry preserves internal and external launch destinations", async () =>
       {
         id: "gen-alpha",
         href: "https://agencythings-gen-alpha.vercel.app",
+        external: true,
+      },
+      {
+        id: "gen-alpha-house",
+        href: "https://agencythings-gen-alpha-house.vercel.app",
         external: true,
       },
       {
@@ -95,12 +101,13 @@ test("filterProjects searches names, types, and purposes without case sensitivit
   const { filterProjects } = await importHubModule();
 
   assert.deepEqual(filterProjects("strategy").map(({ id }) => id), ["problem-wall"]);
-  assert.deepEqual(filterProjects("RESEARCH").map(({ id }) => id), ["gen-alpha"]);
+  assert.deepEqual(filterProjects("RESEARCH").map(({ id }) => id), ["gen-alpha", "gen-alpha-house"]);
+  assert.deepEqual(filterProjects("interactive").map(({ id }) => id), ["gen-alpha-house"]);
   assert.deepEqual(filterProjects("media plan").map(({ id }) => id), ["task-brief"]);
   assert.deepEqual(filterProjects("cultural").map(({ id }) => id), ["gen-alpha", "memento", "hydration-refresh"]);
   assert.deepEqual(filterProjects("programming").map(({ id }) => id), ["lunch-learn"]);
   assert.deepEqual(filterProjects("hydration").map(({ id }) => id), ["hydration-refresh"]);
-  assert.equal(filterProjects("   ").length, 6);
+  assert.equal(filterProjects("   ").length, 7);
 });
 
 test("date, view target, and optional storage helpers fail safely", async () => {
@@ -137,13 +144,14 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.match(html, /<button[^>]+data-nav-target="learn"[^>]*>Learn<\/button>/);
   assert.match(css, /translateY\(-4px\)/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
-  assert.equal((html.match(/data-recent-status/g) ?? []).length, 6);
+  assert.equal((html.match(/data-recent-status/g) ?? []).length, 7);
   assert.match(html, />Recently opened</);
   assert.doesNotMatch(html, /http-equiv=["']refresh/i);
   assert.doesNotMatch(html, /window\.location\.replace/);
   assert.match(html, /href=["']https:\/\/agencythings-task-brief\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-problem-wall\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-gen-alpha\.vercel\.app["']/);
+  assert.match(html, /href=["']https:\/\/agencythings-gen-alpha-house\.vercel\.app["']/);
   assert.match(html, /href=["']https:\/\/agencythings-memento\.vercel\.app["']/);
   assert.match(html, /href=["']\.\/tools\/lunch-learn\/["']/);
   assert.match(html, /href=["']https:\/\/agencythings-hydration-refresh\.vercel\.app["']/);
@@ -152,10 +160,10 @@ test("root page is Joshua's AgencyThings workbench with accessible launch links"
   assert.match(html, /data-current-date/);
   assert.match(html, /data-theme-toggle/);
   assert.match(css, /\[data-theme=["']dark["']\]/);
-  assert.equal((html.match(/data-directory-project=/g) ?? []).length, 6);
+  assert.equal((html.match(/data-directory-project=/g) ?? []).length, 7);
 
   const externalLinks = html.match(/<a[^>]+target="_blank"[^>]+rel="noreferrer"[^>]*>/g) ?? [];
-  assert.equal(externalLinks.length, 10);
+  assert.equal(externalLinks.length, 12);
 });
 
 test("GitHub Pages packages the hub, Task Brief, and Lunch & Learn as separate destinations", async () => {
