@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -15,6 +16,13 @@ describe("HouseExperience", () => {
     await user.click(screen.getByRole("button", { name: "Knock to enter" }));
     return user;
   }
+
+  it("keeps the share-card copy aligned with the two-room experience", () => {
+    const layout = readFileSync("src/app/layout.tsx", "utf8");
+
+    expect(layout).toContain("Two rooms. Eighteen familiar objects. Fifty-four sourced connections");
+    expect(layout).toContain('images: ["/gen-alpha-girls-bedroom.png"]');
+  });
 
   it("enters the boys room and exposes a two-room lens switcher", async () => {
     const user = userEvent.setup();
