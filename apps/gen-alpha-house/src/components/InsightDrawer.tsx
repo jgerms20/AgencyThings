@@ -6,6 +6,8 @@ type InsightDrawerProps = {
   onClose: () => void;
 };
 
+const sentenceCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
 export default function InsightDrawer({ object, onClose }: InsightDrawerProps) {
   return (
     <aside
@@ -35,12 +37,12 @@ export default function InsightDrawer({ object, onClose }: InsightDrawerProps) {
             <article className="drawer-insight-card" key={`${object.id}-${insight.id}`}>
               <div className="insight-card-meta">
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <span>{insight.confidence} confidence</span>
-                <span>{insight.evidenceCount} evidence items</span>
+                <span>{sentenceCase(insight.evidenceStatus)}</span>
+                <span>{insight.market}</span>
               </div>
               <h3>{insight.title}</h3>
               <p>{insight.thesis}</p>
-              <div className="insight-card-scope">{insight.scope}</div>
+              <div className="insight-card-scope"><strong>Age / sample</strong>{insight.scope}</div>
               <p className="insight-card-sources">{insight.sources.join(" · ")}</p>
               <a
                 className="drawer-link"

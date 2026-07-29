@@ -119,6 +119,10 @@ export default function HouseExperience() {
           </div>
           <span>{activeLens.objects.length} objects / {countLinkedInsights(activeLens.id)} insight connections</span>
         </div>
+        <aside className="room-method-note">
+          <p><strong>These are composite rooms, not a rulebook.</strong> They turn patterns into objects; they do not describe every boy, every girl, or every gender-diverse child.</p>
+          <a href="https://agencythings-gen-alpha.vercel.app/gender">Read the gender evidence notes <ArrowUpRight aria-hidden="true" size={15} /></a>
+        </aside>
         <HouseCanvas
           lens={activeLens}
           activeObjectId={selectedObject?.id}

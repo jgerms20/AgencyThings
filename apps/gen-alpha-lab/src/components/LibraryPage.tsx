@@ -17,6 +17,7 @@ import type { Source } from "@/lib/content/types";
 import type { ResearchRecord } from "@/lib/types";
 
 type LibraryPageProps = { initialRecords: ResearchRecord[] };
+type MarketFilter = "us" | "uk" | "global" | "all";
 
 const formatTabs: { id: LibraryFormat; label: string }[] = [
   { id: "all", label: "All" },
@@ -26,6 +27,27 @@ const formatTabs: { id: LibraryFormat; label: string }[] = [
   { id: "reports", label: "Reports" },
   { id: "books", label: "Books" }
 ];
+
+const marketTabs: { id: MarketFilter; label: string }[] = [
+  { id: "us", label: "U.S." },
+  { id: "uk", label: "U.K." },
+  { id: "global", label: "Global / multi-market" },
+  { id: "all", label: "All markets" },
+];
+
+const sourceMarket = (geography: string): Exclude<MarketFilter, "all"> => {
+  const normalized = geography.toLowerCase();
+  if (normalized.includes("united states") || normalized.includes("u.s.")) return "us";
+  if (normalized.includes("united kingdom") || normalized.includes("u.k.")) return "uk";
+  return "global";
+};
+
+const sourceMarketLabel = (source: Source) => {
+  const market = sourceMarket(source.geography);
+  if (market === "us") return "U.S. evidence";
+  if (market === "uk") return "U.K. evidence";
+  return "Global / multi-market evidence";
+};
 
 const libraryIcons: Record<LibrarySection["title"], typeof Newspaper> = {
   Reports: FileText,
@@ -63,9 +85,14 @@ const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice
 
 export default function LibraryPage({ initialRecords }: LibraryPageProps) {
   const [activeFormat, setActiveFormat] = useState<LibraryFormat>("all");
+  const [activeMarket, setActiveMarket] = useState<MarketFilter>("us");
   const canonicalSources = useMemo(
-    () => activeFormat === "all" ? browsableSources : browsableSources.filter((source) => source.format === sourceFormatForLibraryFormat[activeFormat]),
-    [activeFormat]
+    () => browsableSources.filter((source) => {
+      const matchesFormat = activeFormat === "all" || source.format === sourceFormatForLibraryFormat[activeFormat];
+      const matchesMarket = activeMarket === "all" || sourceMarket(source.geography) === activeMarket;
+      return matchesFormat && matchesMarket;
+    }),
+    [activeFormat, activeMarket]
   );
   const sections = useMemo(
     () => getLibrarySections(filterLibraryByFormat(initialRecords.filter((record) => !sources.some((source) => source.id === record.id)), activeFormat)).filter((section) => section.records.length > 0),
@@ -103,6 +130,20 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
       </details>
 
       <section className="library-workspace" aria-label="Research library">
+        <div className="library-market-control">
+          <div>
+            <p className="research-kicker">Market lens</p>
+            <h2>Keep U.S. evidence separate from useful global context.</h2>
+            <p>U.S. is the working default. Switch markets to compare; do not blend a U.K. finding into a U.S. claim.</p>
+          </div>
+          <div className="library-filters library-market-filters" aria-label="Filter library by market">
+            {marketTabs.map((market) => (
+              <button aria-pressed={activeMarket === market.id} className={activeMarket === market.id ? "active" : ""} key={market.id} onClick={() => setActiveMarket(market.id)} type="button">
+                {market.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="library-filters" aria-label="Filter library by format">
           {formatTabs.map((format) => (
             <button aria-pressed={activeFormat === format.id} className={activeFormat === format.id ? "active" : ""} key={format.id} onClick={() => setActiveFormat(format.id)} type="button">
@@ -127,6 +168,7 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
                         <p><strong>Population</strong> {source.population}; ages {source.ageRange}; {source.geography}.</p>
                         <p><strong>Methodology</strong> {source.methodology}</p>
                         <div className="library-meta">
+                          <strong>{sourceMarketLabel(source)}</strong>
                           <strong>{source.format}</strong>
                           <span>{preview.evidenceCount} extracted evidence {preview.evidenceCount === 1 ? "item" : "items"}</span>
                           <span>Themes: {preview.themeTitles.length > 0 ? preview.themeTitles.join(", ") : "None connected yet"}</span>

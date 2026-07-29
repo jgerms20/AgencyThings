@@ -124,6 +124,17 @@ export default function ComparePage() {
             <p><strong>{activeComparison.realDifference}</strong></p>
           </section>
 
+          <div className="comparison-human-read">
+            <section>
+              <p className="comparison-eyebrow">What that can look like</p>
+              <p>{activeComparison.everydayExample}</p>
+            </section>
+            <section>
+              <p className="comparison-eyebrow">Keep in mind</p>
+              <p>{activeComparison.caveat}</p>
+            </section>
+          </div>
+
           <details className="comparison-proof" data-testid="comparison-proof" key={`${activeTopic.id}-${activeCohort.id}`}>
             <summary><span>Open evidence and methodology</span><ChevronDown aria-hidden="true" size={22} /></summary>
             <div className="comparison-scope-grid">
@@ -183,6 +194,10 @@ export default function ComparePage() {
         .comparison-metadata dd { margin: 5px 0 0; font-size: .76rem; font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
         .comparison-difference { display: grid; grid-template-columns: minmax(180px, .45fr) minmax(0, 1.55fr); gap: 30px; padding: 30px 0; border-bottom: 3px solid var(--acid); }
         .comparison-difference > p:last-child { max-width: 900px; font-size: 1.2rem; line-height: 1.45; }
+        .comparison-human-read { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+        .comparison-human-read > section { min-width: 0; padding: 26px 24px 28px 0; }
+        .comparison-human-read > section + section { border-left: 1px solid var(--line); padding-right: 0; padding-left: 24px; }
+        .comparison-human-read > section > p:last-child { max-width: 720px; margin-top: 10px; color: var(--muted); font-size: .9rem; font-weight: 750; line-height: 1.55; }
         .comparison-proof { border-bottom: 1px solid var(--line); }
         .comparison-proof > summary { display: flex; min-height: 74px; align-items: center; justify-content: space-between; gap: 20px; cursor: pointer; color: var(--cyan); font-size: .76rem; font-weight: 900; letter-spacing: .06em; list-style: none; text-transform: uppercase; }
         .comparison-proof > summary::-webkit-details-marker { display: none; }
@@ -214,6 +229,9 @@ export default function ComparePage() {
           .comparison-result { padding-top: 34px; }
           .comparison-result h2 { font-size: 2.15rem; }
           .comparison-mentalities { grid-template-columns: 1fr; }
+          .comparison-human-read { grid-template-columns: 1fr; }
+          .comparison-human-read > section { padding-right: 0; }
+          .comparison-human-read > section + section { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
           .comparison-mentality { padding-right: 0; }
           .comparison-mentality + .comparison-mentality { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
           .comparison-difference { gap: 12px; }

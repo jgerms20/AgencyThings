@@ -39,8 +39,19 @@ describe("Gen Alpha gender-room content model", () => {
           expect(sourceUrl.protocol).toBe("https:");
           expect(insight.evidenceCount).toBeGreaterThanOrEqual(1);
           expect(insight.sources.length).toBeGreaterThanOrEqual(1);
+          expect(["U.S.", "U.K.", "Global / multi-market", "Market not published"]).toContain(insight.market);
+          expect(["established", "emerging signal", "working hunch"]).toContain(insight.evidenceStatus);
         }
       }
+    }
+  });
+
+  it("connects creator discovery to parent-mediated purchase as an explicit research hunch", () => {
+    for (const lens of roomLenses) {
+      const serialized = JSON.stringify(lens.objects);
+      expect(serialized).toMatch(/creator-to-cart/i);
+      expect(serialized).toMatch(/shared cart|wish list/i);
+      expect(lens.objects.flatMap((item) => item.insights).some((insight) => insight.evidenceStatus === "working hunch")).toBe(true);
     }
   });
 

@@ -36,6 +36,11 @@ describe("HouseExperience", () => {
     expect(screen.getByRole("tab", { name: "Boys’ room" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Girls’ room" })).toHaveAttribute("aria-selected", "false");
     expect(screen.getByText("9 objects / 27 insight connections")).toBeInTheDocument();
+    expect(screen.getByText(/These are composite rooms, not a rulebook/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Read the gender evidence notes/i })).toHaveAttribute(
+      "href",
+      "https://agencythings-gen-alpha.vercel.app/gender",
+    );
   });
 
   it("switches the complete artwork and object system to the girls room", async () => {
@@ -79,6 +84,8 @@ describe("HouseExperience", () => {
       "href",
       "https://agencythings-gen-alpha.vercel.app/influencers/ishowspeed",
     );
+    expect(within(dialog).getAllByText(/U\.S\.|U\.K\.|Global \/ multi-market|Market not published/).length).toBeGreaterThan(0);
+    expect(within(dialog).getAllByText(/Established|Emerging signal|Working hunch/).length).toBe(3);
   });
 
   it("closes an open drawer when the room lens changes", async () => {

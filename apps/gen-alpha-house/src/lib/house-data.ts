@@ -1,4 +1,4 @@
-import type { ConfidenceLevel, LinkedInsight, RoomLens, RoomObject } from "./house-types";
+import type { ConfidenceLevel, EvidenceStatus, LinkedInsight, MarketLabel, RoomLens, RoomObject } from "./house-types";
 
 const lab = "https://agencythings-gen-alpha.vercel.app";
 const pewGaming = "https://www.pewresearch.org/internet/2024/05/09/teens-and-video-games-today/";
@@ -8,6 +8,16 @@ const commonSense = "https://www.commonsensemedia.org/research/the-2025-common-s
 const ofcom = "https://www.ofcom.org.uk/siteassets/resources/documents/research-and-data/media-literacy-research/children/2026-children-and-parents-report/children-and-parents-media-use-and-attitudes-report-2025-6.pdf?v=418231";
 const ofcomLives = "https://www.ofcom.org.uk/siteassets/resources/documents/research-and-data/media-literacy-research/children/childrens-media-lives-2025/childrens-media-lives-2025-summary-report.pdf?v=396299";
 const ofcomNation = "https://www.ofcom.org.uk/media-use-and-attitudes/online-habits/from-apps-to-ai-search-how-the-uk-goes-online-in-2025";
+const pwc = "https://www.pwc.com/us/en/industries/consumer-markets/library/gen-alpha-survey-report.html";
+
+function marketFromScope(scope: string): MarketLabel {
+  const hasUS = /U\.S\./i.test(scope);
+  const hasUK = /U\.K\./i.test(scope);
+  if ((hasUS && hasUK) || /multi-study|multi-market|international/i.test(scope)) return "Global / multi-market";
+  if (hasUS) return "U.S.";
+  if (hasUK) return "U.K.";
+  return "Market not published";
+}
 
 function finding(
   id: string,
@@ -19,6 +29,7 @@ function finding(
   sourceUrl: string,
   labPath: string,
   linkLabel?: string,
+  evidenceStatus?: EvidenceStatus,
 ): LinkedInsight {
   return {
     id,
@@ -26,6 +37,8 @@ function finding(
     thesis,
     confidence,
     evidenceCount: sources.length,
+    evidenceStatus: evidenceStatus ?? (confidence === "high" ? "established" : confidence === "medium" ? "emerging signal" : "working hunch"),
+    market: marketFromScope(scope),
     scope,
     sources,
     sourceUrl,
@@ -48,7 +61,7 @@ const boysObjects: RoomObject[] = [
     insights: [
       finding("boys-youtube-frequency", "YouTube is especially habitual", "Teen boys report almost-constant YouTube use more often than girls: 19% versus 11%.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewSocial, "/gender#boys"),
       finding("boys-phone-self-check", "Heavy phone use is not a girls-only concern", "One-third of teen boys say they spend too much time on their smartphone, keeping self-regulation relevant in this room too.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewScreen, "/gender#boys"),
-      finding("time-device-access", "Personal access still sits inside family context", "A private-feeling device remains connected to adult permission, payment, privacy, and sleep routines.", "high", "Children and teens; household context", ["Common Sense Media", "Pew Research Center"], commonSense, "/insights/time-device-access"),
+      finding("boys-creator-to-cart", "Creator-to-cart is a journey to investigate", "A creator mention may become a search, wish list, or shared cart before an adult decides whether to buy. The path is plausible; we still need to observe it directly.", "medium", "U.S. children 7–14; commerce hypothesis", ["PwC"], pwc, "/insights/learning-commercial-fluency", undefined, "working hunch"),
     ],
   },
   {
@@ -195,7 +208,7 @@ const girlsObjects: RoomObject[] = [
     insights: [
       finding("girls-social-platforms", "TikTok and Instagram are more common", "66% of U.S. teen girls use each platform, compared with 59% and 56% of boys respectively.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewSocial, "/gender#girls"),
       finding("girls-friendship-benefit", "Online contact is more often credited with closeness", "71% of U.K. girls ages 13–17 say being online helps build and maintain friendships versus 60% of boys.", "high", "U.K. teens 13–17; near-age proxy", ["Ofcom"], ofcomNation, "/gender#girls"),
-      finding("girls-popularity-pressure", "The same social layer carries more pressure", "38% of girls using social or messaging apps feel pressure to be popular most or all of the time versus 29% of boys.", "high", "U.K. children 8–17", ["Ofcom"], ofcom, "/gender#girls"),
+      finding("girls-creator-to-cart", "Creator-to-cart is a journey to investigate", "A creator or family video may become a search, comparison, wish list, or shared cart before a caregiver decides. We have the pieces, not yet the full journey.", "medium", "U.S. children 7–14; commerce hypothesis", ["PwC"], pwc, "/insights/learning-commercial-fluency", undefined, "working hunch"),
     ],
   },
   {

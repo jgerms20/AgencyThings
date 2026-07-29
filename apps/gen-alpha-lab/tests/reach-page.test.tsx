@@ -52,6 +52,8 @@ describe("Reach Them strategy", () => {
   it("groups all eight canonical plays into three scannable stages", () => {
     render(<ReachPage />);
 
+    expect(screen.getByText("Marketing 101 / established practice")).toBeInTheDocument();
+    expect(screen.getByText(/These are useful starting points, not our proprietary point of view/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Earn participation. Don't chase attention." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create value" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Fit the context" })).toBeInTheDocument();

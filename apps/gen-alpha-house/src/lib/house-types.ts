@@ -1,6 +1,8 @@
 export type ThemeMode = "day" | "night";
 
 export type ConfidenceLevel = "low" | "medium" | "high";
+export type EvidenceStatus = "established" | "emerging signal" | "working hunch";
+export type MarketLabel = "U.S." | "U.K." | "Global / multi-market" | "Market not published";
 export type RoomLensId = "boys" | "girls";
 
 export type RoomObjectId =
@@ -20,6 +22,8 @@ export type LinkedInsight = {
   thesis: string;
   confidence: ConfidenceLevel;
   evidenceCount: number;
+  evidenceStatus: EvidenceStatus;
+  market: MarketLabel;
   scope: string;
   sources: string[];
   sourceUrl: string;

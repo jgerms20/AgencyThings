@@ -1,11 +1,13 @@
 import { ArrowUpRight, ChevronDown, Headphones } from "lucide-react";
 import Link from "next/link";
+import type { Route } from "next";
 import InsightTabs from "@/components/InsightTabs";
 import MediaEmbed from "@/components/MediaEmbed";
 import OverviewComparison from "@/components/OverviewComparison";
 import SiteHeader from "@/components/SiteHeader";
 import { cultureShapers, getCultureShaperImage } from "@/lib/content/culture-shapers";
 import { spaces } from "@/lib/spaces";
+import { alpha101Facts, knowledgeStages } from "@/lib/gen-alpha-101";
 import type { ResearchRecord } from "@/lib/types";
 
 type LabWorkspaceProps = { initialRecords: ResearchRecord[] };
@@ -74,9 +76,50 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
       <SiteHeader active="overview" />
 
       <section className="overview-opening">
-        <h1>A field guide to Gen Alpha now.</h1>
-        <p>A working read on the culture, spaces, media, and choices shaping the first fully digital childhood.</p>
+        <p className="overview-opening-kicker">Gen Alpha 101 / start here</p>
+        <h1>Gen Alpha, from the beginning.</h1>
+        <p>Gen Alpha is often defined as 2010 through 2024: roughly 1 to 16 years old in 2026. That span is huge, the boundary is debated, and every useful claim needs an age attached.</p>
         <Link className="text-link" href="/insights">Explore all 40 insights <ArrowUpRight aria-hidden="true" size={18} /></Link>
+      </section>
+
+      <section className="alpha-101" aria-label="Ten things to know about Gen Alpha">
+        <header className="section-line">
+          <div>
+            <p className="overview-opening-kicker">The fast orientation</p>
+            <h2>Ten things to know before the deep dive.</h2>
+          </div>
+          <p>Baseline knowledge, written for the person who just asked, “Wait—how old are they?”</p>
+        </header>
+        <ol>
+          {alpha101Facts.map((fact) => (
+            <li data-testid="alpha-101-fact" key={fact.number}>
+              <Link href={fact.href as Route}>
+                <span>{fact.number}</span>
+                <strong>{fact.title}</strong>
+                <p>{fact.explanation}</p>
+                <ArrowUpRight aria-hidden="true" size={18} />
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="knowledge-stages" aria-label="How to use this research">
+        <header>
+          <p className="overview-opening-kicker">What this is—and is not</p>
+          <h2>A baseline first. An original point of view next.</h2>
+          <p>This Lab gathers what is already known so the team can see where the evidence stops and the interesting questions begin.</p>
+        </header>
+        <div>
+          {knowledgeStages.map((stage) => (
+            <Link href={stage.href} key={stage.number} aria-label={stage.title}>
+              <span>{stage.number}</span>
+              <strong>{stage.title}</strong>
+              <p>{stage.description}</p>
+              <ArrowUpRight aria-hidden="true" size={18} />
+            </Link>
+          ))}
+        </div>
       </section>
 
       <InsightTabs />
@@ -145,8 +188,8 @@ export default function LabWorkspace({ initialRecords }: LabWorkspaceProps) {
 
       <section className="overview-reach" aria-labelledby="overview-reach-heading">
         <header>
-          <h2 id="overview-reach-heading">Three principles for earning attention.</h2>
-          <p>Useful first. Context-aware second. Safe by design throughout.</p>
+          <h2 id="overview-reach-heading">Marketing 101: three established starting points.</h2>
+          <p>Useful first. Context-aware second. Safe by design throughout. The original agency point of view comes after the baseline.</p>
         </header>
         <div className="overview-reach-list">
           {reachPrinciples.map((principle) => (

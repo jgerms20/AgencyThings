@@ -26,23 +26,38 @@ const shelfRecords = {
 describe("Gen Alpha editorial overview", () => {
   afterEach(() => window.localStorage.clear());
 
-  it("opens with an editorial field-guide title and keeps the four insight tabs", async () => {
+  it("opens with a plain-language Gen Alpha 101 and keeps the four insight tabs", async () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
     await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "dark"));
-    expect(screen.getByRole("heading", { name: "A field guide to Gen Alpha now." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Gen Alpha, from the beginning." })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Gen Alpha, in forty insights." })).not.toBeInTheDocument();
-    expect(screen.getByText(/culture, spaces, media, and choices/i)).toBeInTheDocument();
+    expect(screen.getByText(/often defined as 2010 through 2024/i)).toBeInTheDocument();
+    expect(screen.getByText(/roughly 1 to 16 years old in 2026/i)).toBeInTheDocument();
     expect(screen.getAllByRole("tab")).toHaveLength(4);
     expect(screen.getByRole("tab", { name: "Play & Belonging" })).toHaveAttribute("aria-selected", "true");
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
-    for (const destination of ["Overview", "Insights", "Influencers", "Spaces", "Ways in", "Gender lens", "Compare", "Summary", "Library"]) {
+    for (const destination of ["Overview", "Insights", "Influencers", "Spaces", "Marketing 101", "Gender lens", "Compare", "Summary", "Library"]) {
       expect(navigation).toHaveTextContent(destination);
     }
 
     expect(screen.getByRole("link", { name: "Open the summary" })).toHaveAttribute("href", "/summary");
     expect(screen.getByRole("link", { name: "Explore the gender lens" })).toHaveAttribute("href", "/gender");
+  });
+
+  it("gives a beginner ten scannable facts and separates evidence, practice, and open research", () => {
+    render(<LabWorkspace initialRecords={seedRecords} />);
+
+    const orientation = screen.getByRole("region", { name: "Ten things to know about Gen Alpha" });
+    expect(within(orientation).getAllByTestId("alpha-101-fact")).toHaveLength(10);
+    expect(within(orientation).getByText(/Gen Alpha is not one life stage/i)).toBeInTheDocument();
+    expect(within(orientation).getByText(/A child can discover a product in a creator video/i)).toBeInTheDocument();
+
+    const stages = screen.getByRole("region", { name: "How to use this research" });
+    expect(within(stages).getByRole("link", { name: /Audience truths/i })).toHaveAttribute("href", "/insights");
+    expect(within(stages).getByRole("link", { name: /Marketing 101/i })).toHaveAttribute("href", "/reach-them");
+    expect(within(stages).getByRole("link", { name: /Research frontier/i })).toHaveAttribute("href", "/summary#research-frontier");
   });
 
   it("previews a balanced culture directory with working local IP art and all links", () => {

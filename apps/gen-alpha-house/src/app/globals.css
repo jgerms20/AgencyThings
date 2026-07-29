@@ -244,6 +244,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 .room-lens-copy p { max-width: 700px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .room-lens-bar > span { color: var(--cyan); font: 10px var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
 .house-app[data-room-lens="girls"] .room-lens-bar > span { color: #ff8fd4; }
+.room-method-note { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 13px 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); background: color-mix(in srgb, var(--ink-soft) 78%, transparent); }
+.room-method-note p { max-width: 900px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.room-method-note strong { color: var(--paper); }
+.room-method-note a { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; color: var(--cyan); font: 9px var(--font-mono), monospace; letter-spacing: .06em; text-decoration: none; text-transform: uppercase; }
 
 .house-stage {
   position: relative;
@@ -461,6 +465,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 .drawer-insight-card h3 { margin: 18px 0 8px; font-family: var(--font-display), sans-serif; font-size: 19px; line-height: 1.2; }
 .drawer-insight-card > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .insight-card-scope { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--paper); font: 10px/1.5 var(--font-mono), monospace; }
+.insight-card-scope strong { display: block; margin-bottom: 3px; color: var(--drawer-accent); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .drawer-insight-card .insight-card-sources { margin-top: 7px; font-family: var(--font-mono), monospace; font-size: 9px; }
 .drawer-link {
   display: inline-flex;
@@ -524,6 +529,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   .room-lens-copy strong { font-size: 16px; }
   .room-lens-copy p { margin-top: 5px; }
   .room-lens-bar > span { white-space: normal; }
+  .room-method-note { align-items: flex-start; flex-direction: column; margin: 0 14px; padding: 13px; }
   .house-intro-line { align-items: flex-start; padding: 0 14px; }
   .house-intro-line p { max-width: 56%; line-height: 1.5; }
   .house-intro-line span { max-width: 42%; white-space: normal; text-align: right; line-height: 1.5; }

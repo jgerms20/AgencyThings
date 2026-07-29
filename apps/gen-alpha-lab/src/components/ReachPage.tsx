@@ -46,9 +46,9 @@ export default function ReachPage() {
       <SiteHeader />
 
       <section className="page-opening reach-opening">
-        <p className="reach-kicker">Ways in</p>
+        <p className="reach-kicker">Marketing 101 / established practice</p>
         <h1>Earn participation. Don&apos;t chase attention.</h1>
-        <p>Make the value obvious, fit the real-world context, and put the guardrail where people can see it.</p>
+        <p>These are useful starting points, not our proprietary point of view. Make the value obvious, fit the real-world context, and put the guardrail where people can see it.</p>
       </section>
 
       <section className="reach-boundaries" aria-label="Non-negotiable privacy and safety boundaries">

@@ -87,7 +87,16 @@ const option = (
   cohortRecord: ComparisonCohort,
   realDifference: string,
   caveat: string,
-): ComparisonOption => ({ comparisonClass, cohort: cohortRecord, realDifference, caveat });
+): ComparisonOption => {
+  let everydayExample = "Picture a real day, not two opposing stereotypes: use the Alpha evidence to understand the child in front of you, and treat the older cohort only as bounded context.";
+  if (realDifference.includes("creator-led")) everydayExample = "A child opens YouTube to find a walkthrough, recognizes the creator in a game, and brings the format into play with friends. An older sibling may use the same platforms, but entered that system later.";
+  if (realDifference.includes("continuity, not a generation contest")) everydayExample = "The game chat does not end when the console turns off. The same joke, build, or friendship can show up at school the next morning and return to the game that night.";
+  if (realDifference.includes("forming learning habits")) everydayExample = "A homework question moves from a teacher to YouTube to a chatbot and then to a parent who asks, ‘How do we know that answer is right?’";
+  if (realDifference.includes("cross-context continuity")) everydayExample = "A friend first met through a game can become part of a group chat, a playground conversation, and the next shared session.";
+  if (realDifference.includes("creation tools inside core play")) everydayExample = "Instead of only watching a finished story, a child changes the avatar, builds the room, records the clip, and sends the result to a friend.";
+  if (realDifference.includes("permission and payment")) everydayExample = "A child sees a product in a creator video, searches for it, adds it to a wish list, and asks an adult who still controls the final purchase.";
+  return { comparisonClass, cohort: cohortRecord, realDifference, everydayExample, caveat };
+};
 
 export const comparisonDimensions: ComparisonDimension[] = [
   {

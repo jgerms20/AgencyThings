@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import { summaryTakeaways, type SummaryTakeaway } from "@/lib/summary";
+import { researchFrontier } from "@/lib/research-frontier";
 
 const storageKey = "gen-alpha-summary-v1";
 
@@ -112,6 +113,24 @@ export default function SummaryPage() {
             </aside>
           </article>
         ))}
+      </section>
+
+      <section className="research-frontier" id="research-frontier" aria-label="Research frontier">
+        <header>
+          <p className="research-kicker">What comes next</p>
+          <h2>The baseline gets us smart. The frontier gives us something to prove.</h2>
+          <p>No invented originality here: the hunches are labeled, the gaps stay visible, and proprietary inputs have a place to land when they arrive.</p>
+        </header>
+        <div className="frontier-columns">
+          <article><span>01</span><h3>Established baseline</h3><ul>{researchFrontier.established.map((item) => <li key={item}>{item}</li>)}</ul></article>
+          <article><span>02</span><h3>Working hunches</h3><ul>{researchFrontier.hunches.map((item) => <li key={item}>{item}</li>)}</ul></article>
+          <article><span>03</span><h3>Open questions</h3><ul>{researchFrontier.questions.map((item) => <li key={item}>{item}</li>)}</ul></article>
+        </div>
+        <div className="frontier-inputs">
+          <div><p className="research-kicker">Proprietary and network inputs</p><h3>Ready for the next source pass.</h3></div>
+          <ul>{researchFrontier.pendingInputs.map((input) => <li key={input}><strong>{input}</strong><span>Pending internal input</span></li>)}</ul>
+        </div>
+        <div className="frontier-methods"><p>Next methods</p>{researchFrontier.nextMethods.map((method) => <span key={method}>{method}</span>)}</div>
       </section>
     </main>
   );

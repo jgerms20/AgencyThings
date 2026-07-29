@@ -9,7 +9,7 @@ const expectedDestinations = [
   ["Insights", "/insights"],
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
-  ["Ways in", "/reach-them"],
+  ["Marketing 101", "/reach-them"],
   ["Gender lens", "/gender"],
   ["Compare", "/compare"],
   ["Summary", "/summary"],
@@ -43,7 +43,7 @@ describe("responsive primary navigation", () => {
     render(<SiteHeader />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Ways in" })).toHaveAttribute("aria-current", "page");
+      expect(screen.getByRole("link", { name: "Marketing 101" })).toHaveAttribute("aria-current", "page");
     });
   });
 

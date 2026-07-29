@@ -72,6 +72,21 @@ describe("editable research summary", () => {
     print.mockRestore();
   });
 
+  it("makes the next research phase explicit without inventing proprietary findings", () => {
+    render(<SummaryPage />);
+
+    const frontier = screen.getByRole("region", { name: "Research frontier" });
+    expect(frontier).toHaveAttribute("id", "research-frontier");
+    expect(within(frontier).getByText("Established baseline")).toBeInTheDocument();
+    expect(within(frontier).getByText("Working hunches")).toBeInTheDocument();
+    expect(within(frontier).getByText("Open questions")).toBeInTheDocument();
+    expect(within(frontier).getByText(/creator discovery becomes a shared cart/i)).toBeInTheDocument();
+    for (const input of ["Backslash", "Canvas8", "Contagious", "U.S. network work"]) {
+      expect(within(frontier).getByText(input)).toBeInTheDocument();
+    }
+    expect(within(frontier).getAllByText("Pending internal input")).toHaveLength(4);
+  });
+
   it("keeps the retired briefing route as a redirect and gives Summary full mobile measure", () => {
     const redirectRoute = readFileSync("src/app/briefing/page.tsx", "utf8");
     const stylesheet = readFileSync("src/app/globals.css", "utf8");

@@ -71,6 +71,7 @@ describe("topic and cohort comparison", () => {
         expect(comparison.cohort.mentality).toMatch(/\S/);
         expect(comparison.realDifference).toBe(strategicDifferences[topic.id as TopicId][cohortKey]);
         expect(comparison.caveat).toMatch(/\S/);
+        expect(comparison.everydayExample).toMatch(/\S/);
         expect(comparison.comparisonClass).toMatch(/age-matched observed evidence|current cohort snapshot|directional interpretation/);
       }
 
@@ -124,6 +125,9 @@ describe("topic and cohort comparison", () => {
 
     const result = screen.getByRole("region", { name: "Comparison result" });
     expect(within(result).getByText("Strategic interpretation")).toBeInTheDocument();
+    expect(within(result).getByText("What that can look like")).toBeInTheDocument();
+    expect(within(result).getByText("Keep in mind")).toBeInTheDocument();
+    expect(within(result).getByText(/opens YouTube to find a walkthrough/i)).toBeInTheDocument();
     expect(within(result).getByText("Comparison class")).toBeInTheDocument();
     const proof = within(result).getByTestId("comparison-proof");
     expect(proof).not.toHaveAttribute("open");

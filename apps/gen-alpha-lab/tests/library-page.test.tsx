@@ -8,6 +8,27 @@ import { sources } from "../src/lib/content/sources";
 import { seedRecords } from "../src/lib/seed-data";
 
 describe("LibraryPage", () => {
+  it("starts with U.S. evidence and lets readers separate U.K. and global sources", async () => {
+    const user = userEvent.setup();
+    render(<LibraryPage initialRecords={seedRecords} />);
+
+    const marketFilters = within(screen.getByLabelText("Filter library by market"));
+    expect(marketFilters.getAllByRole("button").map((button) => button.textContent)).toEqual([
+      "U.S.", "U.K.", "Global / multi-market", "All markets"
+    ]);
+    expect(marketFilters.getByRole("button", { name: "U.S." })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: "Generation Alpha Survey 2026" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Children's Media Lives 2025" })).not.toBeInTheDocument();
+
+    await user.click(marketFilters.getByRole("button", { name: "U.K." }));
+    expect(screen.getByRole("heading", { name: "Children's Media Lives 2025" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Generation Alpha Survey 2026" })).not.toBeInTheDocument();
+
+    const ukCard = screen.getByRole("heading", { name: "Children's Media Lives 2025" }).closest("article");
+    expect(ukCard).toHaveTextContent("U.K. evidence");
+    expect(ukCard).toHaveTextContent("Varies by panel");
+  });
+
   it("houses the evidence-weighting system as a collapsible source guide", async () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
@@ -47,6 +68,7 @@ describe("LibraryPage", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Books" }));
+    await user.click(screen.getByRole("button", { name: "All markets" }));
     expect(screen.getByRole("link", { name: "Open source detail for Generation Alpha" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Videos" })).not.toBeInTheDocument();
   });
