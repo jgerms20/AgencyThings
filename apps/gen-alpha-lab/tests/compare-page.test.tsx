@@ -22,17 +22,17 @@ const cohortLabels = {
 
 const strategicDifferences = {
   "media-attention": {
-    genZ: "Gen Alpha enters a creator-led, algorithmic video mix earlier; Gen Z provides the clearest near-age precedent, not a fixed endpoint.",
+    genZ: "Treat Gen Z as the rough draft, not the final answer: Alpha meets the same participatory media system earlier, while childhood routines are still being formed.",
     genX: "Plan for different discovery defaults: child-first participatory video for Alpha, with the 30-49 adult band used only as a directional media proxy.",
     boomers: "Do not force one channel plan across the household: Alpha's video discovery is participatory, while the 65+ adult proxy shows broad YouTube reach but far less TikTok use.",
   },
   "compare-play-belonging": {
-    genZ: "Design for continuity, not a generation contest: both cohorts use games socially, while Alpha's evidence places making and learning inside the play space earlier.",
+    genZ: "The social instinct is shared, but Alpha meets it earlier: making, learning, and hanging out already live inside the same play space.",
     genX: "The useful contrast is developmental, not stereotypical: Alpha's play evidence is platformed and collaborative; no matched Gen X childhood measure is available.",
     boomers: "Treat Alpha's creation-game behavior as a current child snapshot; the evidence base does not support a scored comparison with Boomer childhood play.",
   },
   "learning-ai": {
-    genZ: "Alpha is forming learning habits with conversational AI present; the teen proxy shows adjacent adoption, not proof of a unique generational trait.",
+    genZ: "The difference is timing: Alpha is building learning habits with AI already in the room, while the teen evidence is an adjacent snapshot—not proof of a fixed generational trait.",
     genX: "Design verification and adult support around Alpha's current AI use; there is no matched Gen X learning measure in the canonical evidence.",
     boomers: "Use Alpha's AI-learning evidence to plan safeguards now, without inventing a Boomer learning-style opposite.",
   },
@@ -127,7 +127,7 @@ describe("topic and cohort comparison", () => {
     expect(within(result).getByText("Strategic interpretation")).toBeInTheDocument();
     expect(within(result).getByText("What that can look like")).toBeInTheDocument();
     expect(within(result).getByText("Keep in mind")).toBeInTheDocument();
-    expect(within(result).getByText(/opens YouTube to find a walkthrough/i)).toBeInTheDocument();
+    expect(within(result).getByText(/opens YouTube for a walkthrough/i)).toBeInTheDocument();
     expect(within(result).getByText("Comparison class")).toBeInTheDocument();
     const proof = within(result).getByTestId("comparison-proof");
     expect(proof).not.toHaveAttribute("open");
@@ -154,12 +154,47 @@ describe("topic and cohort comparison", () => {
     );
   });
 
+  it("uses human language for the three foundational comparisons", async () => {
+    const user = userEvent.setup();
+    render(<ComparePage />);
+
+    const result = screen.getByRole("region", { name: "Comparison result" });
+    expect(within(result).getByText(/media isn't a lineup; it's a living room/i)).toBeInTheDocument();
+    expect(within(result).getByText(/Treat Gen Z as the rough draft, not the final answer/i)).toBeInTheDocument();
+    expect(within(result).getByText(/spots the creator inside the game itself/i)).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "Comparison topic" }), "compare-play-belonging");
+    expect(within(result).getByText(/play isn't something you finish; it's somewhere you build/i)).toBeInTheDocument();
+    expect(within(result).getByText(/making, learning, and hanging out already live inside the same play space/i)).toBeInTheDocument();
+    expect(within(result).getByText(/same joke, build, or friendship can show up at school/i)).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "Comparison topic" }), "learning-ai");
+    expect(within(result).getByText(/AI is already in the room/i)).toBeInTheDocument();
+    expect(within(result).getByText(/difference is timing/i)).toBeInTheDocument();
+    expect(within(result).getByText(/How do we know that answer is right/i)).toBeInTheDocument();
+  });
+
+  it("keeps four internal observations collapsed until someone wants the research frontier", async () => {
+    const user = userEvent.setup();
+    render(<ComparePage />);
+
+    const observations = screen.getByTestId("comparison-observations");
+    expect(observations).not.toHaveAttribute("open");
+    expect(within(observations).getByText("Physical discovery still matters")).not.toBeVisible();
+
+    await user.click(within(observations).getByText("Human observations to investigate"));
+
+    expect(observations).toHaveAttribute("open");
+    expect(within(observations).getAllByText("Internal observation")).toHaveLength(4);
+    expect(within(observations).getAllByRole("link")).toHaveLength(4);
+  });
+
   it("uses a two-statement mobile stack rather than a four-column comparison rail", () => {
     const { container } = render(<ComparePage />);
     const styles = container.querySelector("style")?.textContent ?? "";
 
     expect(container.querySelector(".comparison-mentalities")?.children).toHaveLength(2);
-    expect(styles).not.toMatch(/grid-template-columns:\s*repeat\(4/i);
+    expect(styles).not.toMatch(/\.comparison-mentalities\s*\{[^}]*grid-template-columns:\s*repeat\(4/i);
     expect(styles).toMatch(/@media \(max-width: 700px\)[\s\S]*\.comparison-mentalities\s*\{\s*grid-template-columns:\s*1fr/);
   });
 });

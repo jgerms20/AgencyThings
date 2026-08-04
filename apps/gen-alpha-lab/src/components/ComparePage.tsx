@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
+import { comparisonObservations } from "@/lib/comparison-observations";
 import { insights } from "@/lib/content/insights";
 import {
   comparisonCohorts,
@@ -161,6 +162,26 @@ export default function ComparePage() {
         </section>
       </section>
 
+      <details className="comparison-observations" data-testid="comparison-observations">
+        <summary>
+          <span>
+            <strong>Human observations to investigate</strong>
+            <small>Promising patterns that still need direct evidence</small>
+          </span>
+          <ChevronDown aria-hidden="true" size={24} />
+        </summary>
+        <div className="comparison-observation-grid">
+          {comparisonObservations.map((observation) => (
+            <Link href={observation.href as Route} key={observation.title}>
+              <span>{observation.status.charAt(0).toUpperCase() + observation.status.slice(1)}</span>
+              <h2>{observation.title}</h2>
+              <p>{observation.summary}</p>
+              <ArrowUpRight aria-hidden="true" size={18} />
+            </Link>
+          ))}
+        </div>
+      </details>
+
       <aside className="comparison-principle">
         Gen Alpha remains the anchor. Age differences are not proof of a generational trait, and missing evidence stays visible instead of being filled with a stereotype.
       </aside>
@@ -220,6 +241,22 @@ export default function ComparePage() {
         .comparison-caveat { padding: 26px 0 4px; }
         .comparison-caveat > p:last-child { max-width: 880px; margin-top: 10px; font-size: .92rem; font-weight: 700; line-height: 1.5; }
         .comparison-principle { padding: 22px 32px 42px; color: var(--muted); font-size: .82rem; font-weight: 700; line-height: 1.45; }
+        .comparison-observations { margin: 54px 32px 0; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+        .comparison-observations > summary { display: flex; min-height: 96px; align-items: center; justify-content: space-between; gap: 24px; cursor: pointer; list-style: none; }
+        .comparison-observations > summary::-webkit-details-marker { display: none; }
+        .comparison-observations > summary > span { display: grid; gap: 6px; }
+        .comparison-observations > summary strong { font-family: var(--font-display); font-size: 1.5rem; }
+        .comparison-observations > summary small { color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+        .comparison-observations > summary svg { color: var(--acid); transition: transform .2s ease; }
+        .comparison-observations[open] > summary svg { transform: rotate(180deg); }
+        .comparison-observation-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+        .comparison-observation-grid > a { position: relative; display: flex; min-height: 255px; flex-direction: column; border-right: 1px solid var(--line); padding: 22px 44px 22px 20px; }
+        .comparison-observation-grid > a:last-child { border-right: 0; }
+        .comparison-observation-grid > a:hover, .comparison-observation-grid > a:focus-visible { background: var(--surface); outline: 3px solid var(--acid); outline-offset: -3px; }
+        .comparison-observation-grid span { color: var(--coral); font-size: .62rem; font-weight: 900; text-transform: uppercase; }
+        .comparison-observation-grid h2 { margin-top: 34px; font-size: 1.35rem; }
+        .comparison-observation-grid p { margin-top: 16px; color: var(--muted); font-size: .77rem; font-weight: 700; line-height: 1.5; }
+        .comparison-observation-grid svg { position: absolute; top: 22px; right: 20px; color: var(--cyan); }
         @media (max-width: 700px) {
           .compare-opening { min-height: 370px; padding-top: 62px; padding-bottom: 44px; }
           .comparison-controls, .comparison-result-header, .comparison-difference { grid-template-columns: 1fr; }
@@ -240,6 +277,10 @@ export default function ComparePage() {
           .comparison-scope-grid > section + section { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
           .comparison-evidence-column { padding-right: 0; }
           .comparison-evidence-column + .comparison-evidence-column { border-top: 1px solid var(--line); border-left: 0; padding-left: 0; }
+          .comparison-observations { margin-right: 18px; margin-left: 18px; }
+          .comparison-observation-grid { grid-template-columns: 1fr; }
+          .comparison-observation-grid > a { min-height: 190px; border-right: 0; border-bottom: 1px solid var(--line); }
+          .comparison-observation-grid > a:last-child { border-bottom: 0; }
         }
         @media (max-width: 420px) { .comparison-metadata { grid-template-columns: 1fr; } }
       `}</style>
