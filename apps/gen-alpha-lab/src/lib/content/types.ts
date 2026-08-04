@@ -166,6 +166,7 @@ export type ComparisonOption = {
   comparisonClass: ComparisonClass;
   cohort: ComparisonCohort;
   realDifference: string;
+  everydayExample: string;
   caveat: string;
 };
 

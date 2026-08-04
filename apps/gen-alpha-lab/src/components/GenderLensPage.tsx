@@ -5,17 +5,25 @@ import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import { genderLenses, genderMethodology, type GenderLensId } from "@/lib/gender-lens";
 
+const signalLabel = (signal: "difference" | "counter-pattern" | "evidence gap") =>
+  signal === "counter-pattern" ? "Counter-pattern" : signal === "evidence gap" ? "Evidence gap" : "Difference";
+
 export default function GenderLensPage() {
-  const [activeId, setActiveId] = useState<GenderLensId>("boys");
-  const active = genderLenses.find((lens) => lens.id === activeId) ?? genderLenses[0];
+  const [activeId, setActiveId] = useState<GenderLensId>("girls");
+  const active = genderLenses.find((lens) => lens.id === activeId) ?? genderLenses[1];
 
   return (
     <main className="gender-page research-page">
       <SiteHeader active="gender" />
       <section className="research-opening gender-opening">
-        <p className="research-kicker">Gender lens / evidence before assumption</p>
-        <h1>Gender is a lens, not a shortcut.</h1>
-        <p>Use the differences to ask sharper questions about access, identity, social context, and platform culture—not to turn children into pink and blue audience segments.</p>
+        <div className="gender-opening-thesis">
+          <p className="research-kicker">Gender lens / evidence before assumption</p>
+          <h1>Gender is a lens, not a shortcut.</h1>
+        </div>
+        <div className="gender-opening-copy">
+          <strong>Patterns are real enough to investigate and too incomplete to predict a child.</strong>
+          <p>Use the differences to ask sharper questions about access, identity, social context, and platform culture. Hold the contradictions. Keep the person bigger than the segment.</p>
+        </div>
       </section>
 
       <section className="gender-workspace" aria-label="Gender comparison workspace">
@@ -49,10 +57,13 @@ export default function GenderLensPage() {
 
           <div className="gender-finding-grid">
             {active.findings.map((finding) => (
-              <article className="gender-finding" key={finding.title}>
+              <article className={`gender-finding signal-${finding.signal.replace(" ", "-")}`} key={finding.title}>
                 <div className="gender-finding-topline">
                   {finding.metric ? <strong>{finding.metric}</strong> : <strong className="evidence-gap">Evidence gap</strong>}
-                  <span>{finding.evidenceClass}</span>
+                  <div>
+                    <span>{finding.evidenceClass}</span>
+                    <span className="gender-signal">{signalLabel(finding.signal)}</span>
+                  </div>
                 </div>
                 <h3>{finding.title}</h3>
                 <p>{finding.finding}</p>

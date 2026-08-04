@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import MobileNav, { type NavigationItem } from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 
-type NavigationId = "overview" | "insights" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "briefing" | "library";
+type NavigationId = "overview" | "insights" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "summary" | "library";
 
 type SiteHeaderProps = { active?: NavigationId };
 
@@ -14,11 +14,11 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "insights", label: "Insights", href: "/insights" },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
-  { id: "reach-them", label: "How to reach them", href: "/reach-them" },
+  { id: "reach-them", label: "Marketing 101", href: "/reach-them" },
   { id: "gender", label: "Gender lens", href: "/gender" },
   { id: "compare", label: "Compare", href: "/compare" },
-  { id: "briefing", label: "Briefing", href: "/briefing" },
-  { id: "library", label: "Library", href: "/library" }
+  { id: "summary", label: "Summary", href: "/summary" },
+  { id: "library", label: "Sources", href: "/library" }
 ];
 
 function navigationIdForPath(pathname: string): NavigationId | undefined {

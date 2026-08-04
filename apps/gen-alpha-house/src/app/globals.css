@@ -209,6 +209,46 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 .house-intro-line p { margin: 0; }
 .house-intro-line span { color: var(--cyan); white-space: nowrap; }
 
+.room-lens-bar {
+  display: grid;
+  grid-template-columns: auto minmax(260px, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 14px;
+}
+
+.room-lens-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+  border: 1px solid var(--line-strong);
+}
+
+.room-lens-tabs button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.room-lens-tabs button + button { border-left: 1px solid var(--line-strong); }
+.room-lens-tabs button[aria-selected="true"] { background: var(--paper); color: var(--ink); }
+.room-lens-copy { display: flex; min-width: 0; align-items: baseline; gap: 14px; }
+.room-lens-copy strong { color: var(--paper); font-family: var(--font-display), sans-serif; font-size: 17px; white-space: nowrap; }
+.room-lens-copy p { max-width: 700px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.room-lens-bar > span { color: var(--cyan); font: 10px var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.house-app[data-room-lens="girls"] .room-lens-bar > span { color: #ff8fd4; }
+.room-method-note { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 13px 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); background: color-mix(in srgb, var(--ink-soft) 78%, transparent); }
+.room-method-note p { max-width: 900px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.room-method-note strong { color: var(--paper); }
+.room-method-note a { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; color: var(--cyan); font: 9px var(--font-mono), monospace; letter-spacing: .06em; text-decoration: none; text-transform: uppercase; }
+
 .house-stage {
   position: relative;
   height: clamp(560px, calc(100svh - 154px), 900px);
@@ -270,6 +310,16 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   border-radius: 50%;
   background: color-mix(in srgb, var(--hotspot-accent) 26%, rgba(8,9,20,.68));
   box-shadow: 0 0 0 6px rgba(8,9,20,.3), 0 0 22px color-mix(in srgb, var(--hotspot-accent) 72%, transparent);
+}
+
+.hotspot-pulse > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #f7f4ec;
+  font: 700 7px var(--font-mono), monospace;
+  letter-spacing: -.02em;
 }
 
 .hotspot-pulse::after {
@@ -415,6 +465,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 .drawer-insight-card h3 { margin: 18px 0 8px; font-family: var(--font-display), sans-serif; font-size: 19px; line-height: 1.2; }
 .drawer-insight-card > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .insight-card-scope { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--paper); font: 10px/1.5 var(--font-mono), monospace; }
+.insight-card-scope strong { display: block; margin-bottom: 3px; color: var(--drawer-accent); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .drawer-insight-card .insight-card-sources { margin-top: 7px; font-family: var(--font-mono), monospace; font-size: 9px; }
 .drawer-link {
   display: inline-flex;
@@ -430,6 +481,20 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   text-transform: uppercase;
 }
 
+.drawer-source-link {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  margin-left: 14px;
+  color: var(--muted);
+  font: 9px var(--font-mono), monospace;
+  letter-spacing: .06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.drawer-source-link:hover { color: var(--paper); }
+
 @keyframes arrival-breathe { from { transform: scale(1.04); } to { transform: scale(1.1); } }
 @keyframes hotspot-radar { 0% { opacity: .9; transform: scale(.6); } 100% { opacity: 0; transform: scale(1.7); } }
 @keyframes drawer-in { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
@@ -439,6 +504,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   .map-link { display: none; }
   .lab-link { min-width: 0; }
   .house-experience { padding: 18px; }
+  .room-lens-bar { grid-template-columns: auto 1fr; }
+  .room-lens-bar > span { grid-column: 1 / -1; }
   .house-stage { height: 620px; }
   .house-art-frame { width: 1100px; transform: translateX(calc(-1% * var(--mobile-focus-x))); transition: transform 260ms ease; }
   .object-index { display: grid; }
@@ -456,6 +523,13 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   .arrival-actions { width: 100%; flex-direction: column; }
   .enter-button, .skip-button { width: 100%; }
   .house-experience { padding: 14px 0 0; }
+  .room-lens-bar { display: flex; padding: 0 14px; align-items: stretch; flex-direction: column; gap: 10px; }
+  .room-lens-tabs { width: 100%; }
+  .room-lens-copy { display: block; }
+  .room-lens-copy strong { font-size: 16px; }
+  .room-lens-copy p { margin-top: 5px; }
+  .room-lens-bar > span { white-space: normal; }
+  .room-method-note { align-items: flex-start; flex-direction: column; margin: 0 14px; padding: 13px; }
   .house-intro-line { align-items: flex-start; padding: 0 14px; }
   .house-intro-line p { max-width: 56%; line-height: 1.5; }
   .house-intro-line span { max-width: 42%; white-space: normal; text-align: right; line-height: 1.5; }
@@ -463,6 +537,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   .house-art-frame { width: 920px; }
   .hotspot { width: 40px; height: 40px; }
   .hotspot-pulse { inset: 8px; }
+  .hotspot-pulse > span { font-size: 7px; }
   .object-index { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   .insight-drawer { top: 8vh; width: 100%; border-top: 1px solid var(--drawer-accent); border-left: 0; animation: drawer-up 260ms ease-out; }
   .drawer-body { padding: 26px 18px 44px; }

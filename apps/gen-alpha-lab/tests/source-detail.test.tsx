@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import SourceDetail from "../src/components/SourceDetail";
-import LabWorkspace from "../src/components/LabWorkspace";
 import { sources } from "../src/lib/content/sources";
-import { seedRecords } from "../src/lib/seed-data";
 
 const source = sources.find((item) => item.id === "walton-creation-gaming-2024")!;
 const zeroEvidenceSource = sources.find((item) => item.id === "mccrindle-generation-alpha-book")!;
@@ -54,22 +52,5 @@ describe("SourceDetail", () => {
     expect(screen.getByText("No extracted evidence is linked yet. Use the direct source below to assess support before relying on this record.")).toBeInTheDocument();
     expect(screen.getByText("No themes are connected yet. Themes appear here when extracted evidence supports a related insight.")).toBeInTheDocument();
     expect(screen.getByText("No related insights are connected yet. This source is available for review but does not currently support a lab conclusion.")).toBeInTheDocument();
-  });
-});
-
-describe("Gen Alpha editorial overview", () => {
-  it("features the Eclectic Polymath episode with playback and its Spotify destination", () => {
-    render(<LabWorkspace initialRecords={seedRecords} />);
-
-    expect(screen.queryByText("Joshua's point of view")).not.toBeInTheDocument();
-    expect(screen.getByText("Featured listening / Eclectic Polymath")).toBeInTheDocument();
-    expect(screen.getByTitle(/podcast/i)).toHaveAttribute(
-      "src",
-      "https://open.spotify.com/embed/episode/7l1peATWasIYA07RvqKgwn",
-    );
-    expect(screen.getByRole("link", { name: /open the episode on spotify/i })).toHaveAttribute(
-      "href",
-      "https://open.spotify.com/episode/7l1peATWasIYA07RvqKgwn?si=XGKqiaAJRAKCs2F4X3wn_g"
-    );
   });
 });

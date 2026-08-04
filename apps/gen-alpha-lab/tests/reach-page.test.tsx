@@ -52,6 +52,8 @@ describe("Reach Them strategy", () => {
   it("groups all eight canonical plays into three scannable stages", () => {
     render(<ReachPage />);
 
+    expect(screen.getByText("Marketing 101 / established practice")).toBeInTheDocument();
+    expect(screen.getByText(/These are useful starting points, not our proprietary point of view/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Earn participation. Don't chase attention." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create value" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Fit the context" })).toBeInTheDocument();
@@ -62,25 +64,26 @@ describe("Reach Them strategy", () => {
       const disclosure = screen.getByTestId(`strategy-play-${play.id}`);
       const summary = disclosure.querySelector("summary");
 
-      if (index === 0) expect(disclosure).toHaveAttribute("open");
-      else expect(disclosure).not.toHaveAttribute("open");
+      expect(disclosure).not.toHaveAttribute("open");
       expect(summary).not.toBeNull();
       expect(summary).toHaveTextContent(String(index + 1).padStart(2, "0"));
       expect(summary).toHaveTextContent(play.title);
-      expect(summary).toHaveTextContent(play.directChildValue);
-      expect(summary).toHaveTextContent(play.whenAppropriate);
-      expect(summary).toHaveTextContent(play.ethicalConstraints[0]);
+      expect(summary).not.toHaveTextContent(play.whenAppropriate);
+      expect(summary).not.toHaveTextContent(play.ethicalConstraints[0]);
     }
   });
 
   it("keeps long supporting detail out of the visible default scan", () => {
     render(<ReachPage />);
 
-    const closedPlay = strategyPlays[1];
+    const closedPlay = strategyPlays[0];
     const disclosure = screen.getByTestId(`strategy-play-${closedPlay.id}`);
 
     expect(disclosure).not.toHaveAttribute("open");
     expect(within(disclosure).getByText(closedPlay.formats[0])).not.toBeVisible();
+    expect(within(disclosure).getByText(closedPlay.directChildValue)).not.toBeVisible();
+    expect(within(disclosure).getByText(closedPlay.whenAppropriate)).not.toBeVisible();
+    for (const node of within(disclosure).getAllByText(closedPlay.ethicalConstraints[0])) expect(node).not.toBeVisible();
     expect(disclosure.querySelector(`a[href="/insights/${closedPlay.insightIds[0]}"]`)).not.toBeVisible();
     expect(within(disclosure).queryByText(closedPlay.ageContext)).not.toBeInTheDocument();
     expect(within(disclosure).queryByText(closedPlay.evidenceRationale)).not.toBeInTheDocument();

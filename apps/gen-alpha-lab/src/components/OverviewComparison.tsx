@@ -44,6 +44,7 @@ export default function OverviewComparison() {
         <div className="overview-real-difference">
           <strong>Strategic interpretation</strong>
           <p>{genZComparison.realDifference}</p>
+          <p className="overview-comparison-example"><span>In real life</span>{genZComparison.everydayExample}</p>
         </div>
       </div>
     </section>

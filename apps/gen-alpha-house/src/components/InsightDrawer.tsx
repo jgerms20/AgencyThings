@@ -6,6 +6,8 @@ type InsightDrawerProps = {
   onClose: () => void;
 };
 
+const sentenceCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
 export default function InsightDrawer({ object, onClose }: InsightDrawerProps) {
   return (
     <aside
@@ -35,20 +37,30 @@ export default function InsightDrawer({ object, onClose }: InsightDrawerProps) {
             <article className="drawer-insight-card" key={`${object.id}-${insight.id}`}>
               <div className="insight-card-meta">
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <span>{insight.confidence} confidence</span>
-                <span>{insight.evidenceCount} evidence items</span>
+                <span>{sentenceCase(insight.evidenceStatus)}</span>
+                <span>{insight.market}</span>
               </div>
               <h3>{insight.title}</h3>
               <p>{insight.thesis}</p>
-              <div className="insight-card-scope">{insight.scope}</div>
+              <div className="insight-card-scope"><strong>Age / sample</strong>{insight.scope}</div>
               <p className="insight-card-sources">{insight.sources.join(" · ")}</p>
               <a
                 className="drawer-link"
                 href={insight.labUrl}
-                aria-label={`Open ${insight.title} in the Intelligence Lab`}
+                aria-label={insight.linkLabel ?? `Open ${insight.title} in the Intelligence Lab`}
               >
-                Open exact insight
+                {insight.linkLabel ?? "Open exact insight"}
                 <ArrowUpRight aria-hidden="true" size={17} />
+              </a>
+              <a
+                className="drawer-source-link"
+                href={insight.sourceUrl}
+                rel="noreferrer"
+                target="_blank"
+                aria-label={`Read source for ${insight.title}`}
+              >
+                Read source
+                <ArrowUpRight aria-hidden="true" size={14} />
               </a>
             </article>
           ))}

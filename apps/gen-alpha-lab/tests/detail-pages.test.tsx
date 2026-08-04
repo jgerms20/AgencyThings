@@ -19,11 +19,11 @@ describe("Insight-led detail pages", () => {
       "Insights",
       "Influencers",
       "Spaces",
-      "How to reach them",
+      "Marketing 101",
       "Gender lens",
       "Compare",
-      "Briefing",
-      "Library",
+      "Summary",
+      "Sources",
     ]);
     expect(screen.queryByText(/Evidence confidence/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related findings" })).not.toBeInTheDocument();

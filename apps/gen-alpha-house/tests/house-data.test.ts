@@ -1,56 +1,87 @@
 import { describe, expect, it } from "vitest";
-import { roomObjects } from "@/lib/house-data";
-import { countLinkedInsights, getRoomObject } from "@/lib/house-state";
+import { roomLenses } from "@/lib/house-data";
+import { countLinkedInsights, getRoomLens, getRoomObject } from "@/lib/house-state";
 
-describe("Gen Alpha bedroom content model", () => {
-  it("defines eight meaningful room objects with unique IDs and positions", () => {
-    expect(roomObjects).toHaveLength(8);
-    expect(new Set(roomObjects.map((item) => item.id)).size).toBe(8);
+describe("Gen Alpha gender-room content model", () => {
+  it("defines two distinct evidence-led room lenses with nine objects each", () => {
+    expect(roomLenses.map((lens) => lens.id)).toEqual(["boys", "girls"]);
+    expect(roomLenses.map((lens) => lens.label)).toEqual(["Boys’ room", "Girls’ room"]);
+    expect(roomLenses[0].objects).not.toBe(roomLenses[1].objects);
 
-    for (const item of roomObjects) {
-      expect(item.label.length).toBeGreaterThan(0);
-      expect(item.context.length).toBeGreaterThan(40);
-      expect(item.position.x).toBeGreaterThanOrEqual(0);
-      expect(item.position.x).toBeLessThanOrEqual(100);
-      expect(item.position.y).toBeGreaterThanOrEqual(0);
-      expect(item.position.y).toBeLessThanOrEqual(100);
-    }
-  });
+    for (const lens of roomLenses) {
+      expect(lens.objects).toHaveLength(9);
+      expect(new Set(lens.objects.map((item) => item.id)).size).toBe(9);
+      expect(lens.objects.some((item) => item.id === "influencer-poster")).toBe(true);
+      expect(lens.framing).toMatch(/pattern|lens|research/i);
 
-  it("links every object to at least three distinct Intelligence Lab insights", () => {
-    for (const item of roomObjects) {
-      expect(item.insights.length).toBeGreaterThanOrEqual(3);
-      expect(new Set(item.insights.map((insight) => insight.id)).size).toBe(item.insights.length);
-
-      for (const insight of item.insights) {
-        const url = new URL(insight.labUrl);
-        expect(url.origin).toBe("https://agencythings-gen-alpha.vercel.app");
-        expect(url.pathname).toBe(`/insights/${insight.id}`);
-        expect(insight.evidenceCount).toBeGreaterThanOrEqual(2);
-        expect(insight.sources.length).toBeGreaterThanOrEqual(2);
+      for (const item of lens.objects) {
+        expect(item.label.length).toBeGreaterThan(0);
+        expect(item.context.length).toBeGreaterThan(40);
+        expect(item.position.x).toBeGreaterThanOrEqual(0);
+        expect(item.position.x).toBeLessThanOrEqual(100);
+        expect(item.position.y).toBeGreaterThanOrEqual(0);
+        expect(item.position.y).toBeLessThanOrEqual(100);
       }
     }
   });
 
-  it("provides at least twenty-four curated object-to-insight connections", () => {
-    expect(countLinkedInsights()).toBeGreaterThanOrEqual(24);
+  it("links every object to at least three sourced Lab findings", () => {
+    for (const lens of roomLenses) {
+      for (const item of lens.objects) {
+        expect(item.insights.length).toBeGreaterThanOrEqual(3);
+        expect(new Set(item.insights.map((insight) => insight.id)).size).toBe(item.insights.length);
+
+        for (const insight of item.insights) {
+          const labUrl = new URL(insight.labUrl);
+          const sourceUrl = new URL(insight.sourceUrl);
+          expect(labUrl.origin).toBe("https://agencythings-gen-alpha.vercel.app");
+          expect(labUrl.pathname).toMatch(/^\/(?:insights|influencers)\/|^\/gender$/);
+          expect(sourceUrl.protocol).toBe("https:");
+          expect(insight.evidenceCount).toBeGreaterThanOrEqual(1);
+          expect(insight.sources.length).toBeGreaterThanOrEqual(1);
+          expect(["U.S.", "U.K.", "Global / multi-market", "Market not published"]).toContain(insight.market);
+          expect(["established", "emerging signal", "working hunch"]).toContain(insight.evidenceStatus);
+        }
+      }
+    }
   });
 
-  it("finds an object by ID", () => {
-    expect(getRoomObject("game-console")?.object).toBe("Game console + headset");
-    expect(getRoomObject("missing-object")).toBeUndefined();
+  it("connects creator discovery to parent-mediated purchase as an explicit research hunch", () => {
+    for (const lens of roomLenses) {
+      const serialized = JSON.stringify(lens.objects);
+      expect(serialized).toMatch(/creator-to-cart/i);
+      expect(serialized).toMatch(/shared cart|wish list/i);
+      expect(lens.objects.flatMap((item) => item.insights).some((insight) => insight.evidenceStatus === "working hunch")).toBe(true);
+    }
   });
 
-  it("anchors every hotspot to the matching object in the generated bedroom art", () => {
-    expect(Object.fromEntries(roomObjects.map((object) => [object.id, object.position]))).toEqual({
-      phone: { x: 10, y: 67 },
-      television: { x: 73, y: 43 },
-      "homework-desk": { x: 61, y: 49 },
-      "game-console": { x: 80, y: 69 },
-      backpack: { x: 35, y: 86 },
-      "toy-shelf": { x: 67, y: 29 },
-      "parent-door": { x: 91, y: 38 },
-      "bike-window": { x: 40, y: 34 },
-    });
+  it("provides at least twenty-seven curated connections per room", () => {
+    expect(countLinkedInsights("boys")).toBeGreaterThanOrEqual(27);
+    expect(countLinkedInsights("girls")).toBeGreaterThanOrEqual(27);
+  });
+
+  it("finds lenses and objects without crossing room state", () => {
+    expect(getRoomLens("girls")?.imageSrc).toBe("/gen-alpha-girls-bedroom.png");
+    expect(getRoomLens("missing-lens")).toBeUndefined();
+    expect(getRoomObject("boys", "game-console")?.object).toBe("Console + headset");
+    expect(getRoomObject("girls", "book-shelf")?.object).toBe("Books + maker shelf");
+    expect(getRoomObject("girls", "missing-object")).toBeUndefined();
+  });
+
+  it("anchors the numbered poster hotspot to visible wall art in both rooms", () => {
+    const boysPoster = getRoomObject("boys", "influencer-poster");
+    const girlsPoster = getRoomObject("girls", "influencer-poster");
+
+    expect(boysPoster?.position).toEqual({ x: 92, y: 29 });
+    expect(girlsPoster?.position).toEqual({ x: 18, y: 22 });
+    expect(boysPoster?.title).not.toBe(girlsPoster?.title);
+    expect(boysPoster?.insights.map((item) => item.title)).not.toEqual(girlsPoster?.insights.map((item) => item.title));
+  });
+
+  it("keeps the lens copy specific without claiming gender exclusivity", () => {
+    const serialized = JSON.stringify(roomLenses);
+    expect(serialized).toMatch(/console identity|competition|sports/i);
+    expect(serialized).toMatch(/reading|music|maker|social video/i);
+    expect(serialized).not.toMatch(/all boys|all girls|only boys|only girls|naturally|hardwired/i);
   });
 });

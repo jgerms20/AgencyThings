@@ -1,6 +1,9 @@
 export type ThemeMode = "day" | "night";
 
 export type ConfidenceLevel = "low" | "medium" | "high";
+export type EvidenceStatus = "established" | "emerging signal" | "working hunch";
+export type MarketLabel = "U.S." | "U.K." | "Global / multi-market" | "Market not published";
+export type RoomLensId = "boys" | "girls";
 
 export type RoomObjectId =
   | "phone"
@@ -8,9 +11,10 @@ export type RoomObjectId =
   | "homework-desk"
   | "game-console"
   | "backpack"
-  | "toy-shelf"
-  | "parent-door"
-  | "bike-window";
+  | "book-shelf"
+  | "caregiver-door"
+  | "outside-window"
+  | "influencer-poster";
 
 export type LinkedInsight = {
   id: string;
@@ -18,9 +22,13 @@ export type LinkedInsight = {
   thesis: string;
   confidence: ConfidenceLevel;
   evidenceCount: number;
+  evidenceStatus: EvidenceStatus;
+  market: MarketLabel;
   scope: string;
   sources: string[];
+  sourceUrl: string;
   labUrl: string;
+  linkLabel?: string;
 };
 
 export type RoomObject = {
@@ -34,4 +42,15 @@ export type RoomObject = {
   position: { x: number; y: number };
   mobileFocus: { x: number; y: number };
   insights: LinkedInsight[];
+};
+
+export type RoomLens = {
+  id: RoomLensId;
+  label: string;
+  title: string;
+  framing: string;
+  imageSrc: string;
+  imageAlt: string;
+  accent: string;
+  objects: RoomObject[];
 };

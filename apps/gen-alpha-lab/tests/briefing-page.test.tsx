@@ -1,45 +1,98 @@
 import { readFileSync } from "node:fs";
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import BriefingPage from "@/components/BriefingPage";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import SummaryPage from "@/components/SummaryPage";
+import { summaryTakeaways } from "@/lib/summary";
 
-describe("presentation briefing", () => {
-  it("turns the research into six presentation-ready headline insights", () => {
-    render(<BriefingPage />);
+describe("editable research summary", () => {
+  beforeEach(() => window.localStorage.clear());
 
-    expect(screen.getByRole("heading", { name: "The room, in six briefing slides." })).toBeInTheDocument();
-    const slides = screen.getAllByTestId("briefing-slide");
-    expect(slides).toHaveLength(6);
-    for (const slide of slides) {
-      expect(within(slide).getByRole("link", { name: /Open exact insight/ })).toHaveAttribute("href", expect.stringMatching(/^\/insights\//));
-      expect(slide).toHaveTextContent(/Confidence/);
-      expect(slide).toHaveTextContent(/Say it this way/);
+  it("presents six succinct takeaways with exact insight and source paths", () => {
+    render(<SummaryPage />);
+
+    expect(screen.getByRole("heading", { name: "The Gen Alpha summary." })).toBeInTheDocument();
+    const takeaways = screen.getAllByTestId("summary-takeaway");
+    expect(takeaways).toHaveLength(6);
+    for (const takeaway of takeaways) {
+      expect(within(takeaway).getByRole("link", { name: /Open exact insight/ })).toHaveAttribute("href", expect.stringMatching(/^\/insights\//));
+      expect(within(takeaway).getAllByRole("link", { name: /Open source/ }).length).toBeGreaterThanOrEqual(1);
+      expect(within(takeaway).getAllByRole("listitem")).toHaveLength(2);
     }
+
+    expect(screen.queryByText(/talk-ready|say it this way|bike outside the window/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Context—not screen time alone—determines what a media day means.")).toBeInTheDocument();
   });
 
-  it("makes the validity ladder explicit", () => {
-    render(<BriefingPage />);
+  it("lets the presenter edit and persist every headline and takeaway", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<SummaryPage />);
 
-    const validity = screen.getByRole("region", { name: "Evidence validity ladder" });
-    expect(within(validity).getAllByRole("listitem")).toHaveLength(5);
-    expect(validity).toHaveTextContent("Direct child research");
-    expect(validity).toHaveTextContent("Teen or adjacent-age proxy");
-    expect(validity).toHaveTextContent("Editorial interpretation");
-    expect(validity).toHaveTextContent(/web opinion is never treated as evidence/i);
+    await user.click(screen.getByRole("button", { name: "Edit summary" }));
+    const headline = screen.getByRole("textbox", { name: "Headline 1" });
+    const takeaway = screen.getByRole("textbox", { name: "Takeaway 1" });
+    await user.clear(headline);
+    await user.type(headline, "Devices feel private before life is independent.");
+    await user.clear(takeaway);
+    await user.type(takeaway, "A sharper synthesis for this department.");
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(screen.getByRole("heading", { name: "Devices feel private before life is independent." })).toBeInTheDocument();
+    expect(screen.getByText("A sharper synthesis for this department.")).toBeInTheDocument();
+    expect(JSON.parse(window.localStorage.getItem("gen-alpha-summary-v1") ?? "{}").items[0]).toMatchObject({
+      headline: "Devices feel private before life is independent.",
+      takeaway: "A sharper synthesis for this department.",
+    });
+
+    unmount();
+    render(<SummaryPage />);
+    expect(screen.getByRole("heading", { name: "Devices feel private before life is independent." })).toBeInTheDocument();
   });
 
-  it("offers a presentation print action", async () => {
+  it("resets local edits to the versioned default synthesis", async () => {
+    window.localStorage.setItem("gen-alpha-summary-v1", JSON.stringify({
+      version: 1,
+      items: summaryTakeaways.map((item, index) => index === 0 ? { ...item, headline: "Temporary headline" } : item),
+    }));
+    const user = userEvent.setup();
+    render(<SummaryPage />);
+
+    expect(screen.getByRole("heading", { name: "Temporary headline" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Edit summary" }));
+    await user.click(screen.getByRole("button", { name: "Reset defaults" }));
+    expect(screen.getByRole("heading", { name: summaryTakeaways[0].headline })).toBeInTheDocument();
+    expect(window.localStorage.getItem("gen-alpha-summary-v1")).toBeNull();
+  });
+
+  it("offers a clean print action", () => {
     const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
-    render(<BriefingPage />);
-    screen.getByRole("button", { name: "Print or save briefing" }).click();
+    render(<SummaryPage />);
+    screen.getByRole("button", { name: "Print or save summary" }).click();
     expect(print).toHaveBeenCalledOnce();
     print.mockRestore();
   });
 
-  it("gives slide headlines the full mobile measure", () => {
+  it("makes the next research phase explicit without inventing proprietary findings", () => {
+    render(<SummaryPage />);
+
+    const frontier = screen.getByRole("region", { name: "Research frontier" });
+    expect(frontier).toHaveAttribute("id", "research-frontier");
+    expect(within(frontier).getByText("Established baseline")).toBeInTheDocument();
+    expect(within(frontier).getByText("Working hunches")).toBeInTheDocument();
+    expect(within(frontier).getByText("Open questions")).toBeInTheDocument();
+    expect(within(frontier).getByText(/creator discovery becomes a shared cart/i)).toBeInTheDocument();
+    for (const input of ["Backslash", "Canvas8", "Contagious", "U.S. network work"]) {
+      expect(within(frontier).getByText(input)).toBeInTheDocument();
+    }
+    expect(within(frontier).getAllByText("Pending internal input")).toHaveLength(4);
+  });
+
+  it("keeps the retired briefing route as a redirect and gives Summary full mobile measure", () => {
+    const redirectRoute = readFileSync("src/app/briefing/page.tsx", "utf8");
     const stylesheet = readFileSync("src/app/globals.css", "utf8");
     const mobileRules = stylesheet.slice(stylesheet.indexOf("@media (max-width: 760px)"));
-    expect(mobileRules).toMatch(/\.briefing-slide\s*\{[^}]*grid-template-columns:\s*1fr/s);
-    expect(mobileRules).toMatch(/\.briefing-slide-proof\s*\{[^}]*grid-column:\s*1/s);
+
+    expect(redirectRoute).toMatch(/redirect\(["']\/summary["']\)/);
+    expect(mobileRules).toMatch(/\.summary-item\s*\{[^}]*grid-template-columns:\s*1fr/s);
   });
 });

@@ -9,11 +9,11 @@ const expectedDestinations = [
   ["Insights", "/insights"],
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
-  ["How to reach them", "/reach-them"],
+  ["Marketing 101", "/reach-them"],
   ["Gender lens", "/gender"],
   ["Compare", "/compare"],
-  ["Briefing", "/briefing"],
-  ["Library", "/library"],
+  ["Summary", "/summary"],
+  ["Sources", "/library"],
 ] as const;
 
 afterEach(() => {
@@ -43,7 +43,7 @@ describe("responsive primary navigation", () => {
     render(<SiteHeader />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "How to reach them" })).toHaveAttribute("aria-current", "page");
+      expect(screen.getByRole("link", { name: "Marketing 101" })).toHaveAttribute("aria-current", "page");
     });
   });
 

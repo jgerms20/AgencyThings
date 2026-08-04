@@ -1,6 +1,6 @@
 # Gen Alpha House
 
-An immersive companion to the [Gen Alpha Intelligence Lab](https://agencythings-gen-alpha.vercel.app). The experience maps 32 sourced research connections onto eight familiar objects in one Gen Alpha bedroom while keeping the Lab as the authoritative source for full insights and evidence.
+An immersive companion to the [Gen Alpha Intelligence Lab](https://agencythings-gen-alpha.vercel.app). The experience maps 54 sourced research connections onto 18 familiar objects across distinct boys’ and girls’ rooms while keeping the Lab as the authoritative source for full insights and evidence.
 
 ## Local development
 
@@ -30,6 +30,7 @@ The app is static and does not require environment variables. Do not point the e
 
 ## Generated artwork
 
-- `public/gen-alpha-bedroom.jpg` is the one-room production scene.
+- `public/gen-alpha-bedroom.jpg` is the boys’ room production scene.
+- `public/gen-alpha-girls-bedroom.png` is the girls’ room production scene.
 
 The assets were generated specifically for this project and contain no real brand logos or identifiable children.

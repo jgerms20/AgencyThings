@@ -19,6 +19,8 @@ export type {
 
 export type ComparisonEvidenceRecord = {
   id: string;
+  sourceId: string;
+  insightIds: string[];
   claim: string;
   locator: string;
   support: string;
@@ -85,14 +87,23 @@ const option = (
   cohortRecord: ComparisonCohort,
   realDifference: string,
   caveat: string,
-): ComparisonOption => ({ comparisonClass, cohort: cohortRecord, realDifference, caveat });
+): ComparisonOption => {
+  let everydayExample = "Picture a real day, not two opposing stereotypes: use the Alpha evidence to understand the child in front of you, and treat the older cohort only as bounded context.";
+  if (realDifference.includes("rough draft")) everydayExample = "A kid opens YouTube for a walkthrough, spots the creator inside the game itself, then carries the bit into play with friends. An older sibling may use the same platforms, but entered that system later.";
+  if (realDifference.includes("social instinct is shared")) everydayExample = "The game chat does not end when the console turns off. The same joke, build, or friendship can show up at school the next morning and return to the game that night.";
+  if (realDifference.includes("difference is timing")) everydayExample = "A homework question moves from a teacher to YouTube to a chatbot and then to a parent who asks, ‘How do we know that answer is right?’";
+  if (realDifference.includes("cross-context continuity")) everydayExample = "A friend first met through a game can become part of a group chat, a playground conversation, and the next shared session.";
+  if (realDifference.includes("creation tools inside core play")) everydayExample = "Instead of only watching a finished story, a child changes the avatar, builds the room, records the clip, and sends the result to a friend.";
+  if (realDifference.includes("permission and payment")) everydayExample = "A child sees a product in a creator video, searches for it, adds it to a wish list, and asks an adult who still controls the final purchase.";
+  return { comparisonClass, cohort: cohortRecord, realDifference, everydayExample, caveat };
+};
 
 export const comparisonDimensions: ComparisonDimension[] = [
   {
     id: "media-attention",
     title: "Media & attention",
     genAlpha: cohort(
-      "Media is a participatory mix: video, games, streaming, and conversational discovery sit close together.",
+      "Media isn't a lineup; it's a living room where video, games, creators, and chat are all happening at once.",
       "7-14",
       "United States",
       "2026",
@@ -104,7 +115,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
       genZ: option(
         "current cohort snapshot",
         cohort(
-          "Social and user-generated video take a larger share of the media day than traditional TV and movies in this current Gen Z snapshot.",
+          "Gen Z already ran the first experiment with scrolling, streaming, and creator-led media taking over the lineup.",
           "Gen Z, defined as 1997-2010",
           "United States",
           "2025",
@@ -112,7 +123,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
           ["deloitte-digital-media-trends-2025"],
           ["evidence-compare-deloitte-genz-media-1"],
         ),
-        "Gen Alpha enters a creator-led, algorithmic video mix earlier; Gen Z provides the clearest near-age precedent, not a fixed endpoint.",
+        "Treat Gen Z as the rough draft, not the final answer: Alpha meets the same participatory media system earlier, while childhood routines are still being formed.",
         "The Gen Alpha and Gen Z figures come from different surveys, years, age scopes, and measures. They establish adjacent media environments, not a causal cohort shift.",
       ),
       genX: option(
@@ -149,7 +160,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
     id: "compare-play-belonging",
     title: "Play & belonging",
     genAlpha: cohort(
-      "Play is also a place to make, learn, and maintain relationships, not only a finished thing to consume.",
+      "Play isn't something you finish; it's somewhere you build, learn, and keep a friendship going.",
       "5-13",
       "United States",
       "2024",
@@ -161,7 +172,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
       genZ: option(
         "directional interpretation",
         cohort(
-          "Teen players describe games as friendship spaces, with reported benefits to existing friendships and new online connections.",
+          "Gen Z helped establish games as real friendship spaces, where existing relationships deepen and new ones can begin online.",
           "13-17 teen sample; overlaps cohort boundaries",
           "United States",
           "2024",
@@ -169,7 +180,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
           ["pew-teens-video-games-2024"],
           ["evidence-play-social-infrastructure-1"],
         ),
-        "Design for continuity, not a generation contest: both cohorts use games socially, while Alpha's evidence places making and learning inside the play space earlier.",
+        "The social instinct is shared, but Alpha meets it earlier: making, learning, and hanging out already live inside the same play space.",
         "The studies use different age ranges and constructs: child creation-game social learning versus teen friendship outcomes. The contrast is directional, not a score.",
       ),
       genX: option(
@@ -190,7 +201,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
     id: "learning-ai",
     title: "Learning & AI",
     genAlpha: cohort(
-      "Conversational AI is arriving while learning habits, trust, and verification routines are still being formed.",
+      "AI is already in the room while learning habits, trust, and fact-checking routines are still being formed.",
       "Gen Alpha; exact public age band not published",
       "Countries not named in public release",
       "2026",
@@ -202,7 +213,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
       genZ: option(
         "directional interpretation",
         cohort(
-          "A tween-and-teen proxy shows AI already used for entertainment and homework, but the result is not published as a Gen Z-only cut.",
+          "The tween-and-teen evidence shows AI already used for entertainment and homework, but it is not a clean Gen Z-only cut.",
           "Tweens and teens; exact public ages not published",
           "United States",
           "2026",
@@ -210,7 +221,7 @@ export const comparisonDimensions: ComparisonDimension[] = [
           ["common-sense-ai-2026"],
           ["evidence-learning-ai-homework-1"],
         ),
-        "Alpha is forming learning habits with conversational AI present; the teen proxy shows adjacent adoption, not proof of a unique generational trait.",
+        "The difference is timing: Alpha is building learning habits with AI already in the room, while the teen evidence is an adjacent snapshot—not proof of a fixed generational trait.",
         "Neither public release provides a clean matched Alpha-versus-Z sample. The result supports planning context, not a quantified generation difference.",
       ),
       genX: option(
@@ -375,6 +386,8 @@ export const getComparisonEvidence = (cohortRecord: ComparisonCohort): Compariso
 
     return {
       id: evidence.id,
+      sourceId: evidence.sourceId,
+      insightIds: evidence.insightIds,
       claim: evidence.claim,
       locator: evidence.locator,
       support: cohortRecord.evidenceSupport[evidenceId],

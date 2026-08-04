@@ -2,22 +2,27 @@
 
 import { ArrowUpRight, ScanSearch, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { roomObjects } from "@/lib/house-data";
+import { roomLenses } from "@/lib/house-data";
 import { countLinkedInsights } from "@/lib/house-state";
-import type { RoomObject, ThemeMode } from "@/lib/house-types";
+import type { RoomLensId, RoomObject, ThemeMode } from "@/lib/house-types";
 import HouseCanvas from "./HouseCanvas";
 import InsightDrawer from "./InsightDrawer";
 import ObjectIndex from "./ObjectIndex";
 
 const enteredKey = "gen-alpha-house-entered";
+const roomKey = "gen-alpha-house-room-lens";
 
 export default function HouseExperience() {
   const [entered, setEntered] = useState(false);
+  const [activeLensId, setActiveLensId] = useState<RoomLensId>("boys");
   const [selectedObject, setSelectedObject] = useState<RoomObject | null>(null);
   const [theme, setTheme] = useState<ThemeMode>("night");
+  const activeLens = roomLenses.find((lens) => lens.id === activeLensId) ?? roomLenses[0];
 
   useEffect(() => {
     if (window.sessionStorage.getItem(enteredKey) === "true") setEntered(true);
+    const savedLens = window.sessionStorage.getItem(roomKey);
+    if (savedLens === "boys" || savedLens === "girls") setActiveLensId(savedLens);
     if (window.matchMedia?.("(prefers-color-scheme: light)").matches) setTheme("day");
   }, []);
 
@@ -39,15 +44,21 @@ export default function HouseExperience() {
     setEntered(true);
   }
 
+  function switchLens(lensId: RoomLensId) {
+    window.sessionStorage.setItem(roomKey, lensId);
+    setActiveLensId(lensId);
+    setSelectedObject(null);
+  }
+
   return (
-    <main className={`house-app ${selectedObject ? "has-open-drawer" : ""}`}>
+    <main className={`house-app ${selectedObject ? "has-open-drawer" : ""}`} data-room-lens={activeLens.id}>
       {!entered && (
         <section className="arrival" aria-labelledby="arrival-title">
           <div className="arrival-scrim" />
           <div className="arrival-content">
             <span className="arrival-mark" aria-hidden="true">GA</span>
             <h1 id="arrival-title">Come inside.</h1>
-            <p>One Gen Alpha bedroom. Eight familiar objects. Thirty-two sourced connections to the Intelligence Lab.</p>
+            <p>Two rooms. Eighteen objects. Fifty-four sourced connections to the Intelligence Lab.</p>
             <div className="arrival-actions">
               <button className="enter-button" type="button" onClick={enterRoom}>
                 Knock to enter
@@ -87,17 +98,37 @@ export default function HouseExperience() {
         </div>
       </header>
 
-      <section className="house-experience" id="house-canvas" role="region" aria-label="Interactive Gen Alpha bedroom">
-        <div className="house-intro-line">
-          <p>Start with the objects. Each one opens a set of sourced insights.</p>
-          <span>{roomObjects.length} objects / {countLinkedInsights()} insight connections</span>
+      <section className="house-experience" id="house-canvas" role="region" aria-label={`Interactive ${activeLens.label.toLowerCase()}`}>
+        <div className="room-lens-bar">
+          <div className="room-lens-tabs" role="tablist" aria-label="Room lens">
+            {roomLenses.map((lens) => (
+              <button
+                aria-selected={activeLens.id === lens.id}
+                key={lens.id}
+                onClick={() => switchLens(lens.id)}
+                role="tab"
+                type="button"
+              >
+                {lens.label}
+              </button>
+            ))}
+          </div>
+          <div className="room-lens-copy">
+            <strong>{activeLens.title}</strong>
+            <p>{activeLens.framing}</p>
+          </div>
+          <span>{activeLens.objects.length} objects / {countLinkedInsights(activeLens.id)} insight connections</span>
         </div>
+        <aside className="room-method-note">
+          <p><strong>These are composite rooms, not a rulebook.</strong> They turn patterns into objects; they do not describe every boy, every girl, or every gender-diverse child.</p>
+          <a href="https://agencythings-gen-alpha.vercel.app/gender">Read the gender evidence notes <ArrowUpRight aria-hidden="true" size={15} /></a>
+        </aside>
         <HouseCanvas
-          objects={roomObjects}
+          lens={activeLens}
           activeObjectId={selectedObject?.id}
           onActivate={setSelectedObject}
         />
-        <ObjectIndex objects={roomObjects} onActivate={setSelectedObject} />
+        <ObjectIndex label={activeLens.label} objects={activeLens.objects} onActivate={setSelectedObject} />
       </section>
 
       {selectedObject && (

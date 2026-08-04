@@ -27,13 +27,13 @@ const publicUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 export const metadata: Metadata = {
   metadataBase: new URL(publicUrl),
   title: "Gen Alpha House",
-  description: "A sourced field guide to Gen Alpha, mapped onto the objects in one lived-in bedroom.",
+  description: "A sourced field guide to Gen Alpha, mapped across distinct boys’ and girls’ rooms.",
   applicationName: "Gen Alpha House",
   icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "Gen Alpha House",
-    description: "Eight familiar objects. Thirty-two sourced connections to the Gen Alpha Intelligence Lab.",
-    images: ["/gen-alpha-bedroom.jpg"]
+    description: "Two rooms. Eighteen familiar objects. Fifty-four sourced connections to the Gen Alpha Intelligence Lab.",
+    images: ["/gen-alpha-girls-bedroom.png"]
   }
 };
 
