@@ -13,7 +13,7 @@ const expectedDestinations = [
   ["Gender lens", "/gender"],
   ["Compare", "/compare"],
   ["Summary", "/summary"],
-  ["Library", "/library"],
+  ["Sources", "/library"],
 ] as const;
 
 afterEach(() => {

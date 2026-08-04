@@ -23,7 +23,7 @@ describe("Insight-led detail pages", () => {
       "Gender lens",
       "Compare",
       "Summary",
-      "Library",
+      "Sources",
     ]);
     expect(screen.queryByText(/Evidence confidence/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related findings" })).not.toBeInTheDocument();

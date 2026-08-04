@@ -52,7 +52,7 @@ function EvidenceColumn({ label, cohort }: { label: string; cohort: ComparisonCo
                 <span>{record.sourceOrganization}</span>
                 {record.sourceTitle}<ArrowUpRight aria-hidden="true" size={15} />
               </a>
-              <Link href={`/library/${record.sourceId}` as Route} aria-label={`Open library record: ${record.sourceTitle}`}>Open library record <ArrowUpRight aria-hidden="true" size={15} /></Link>
+              <Link href={`/library/${record.sourceId}` as Route} aria-label={`Open source record: ${record.sourceTitle}`}>Open source record <ArrowUpRight aria-hidden="true" size={15} /></Link>
               {record.insightIds.flatMap((insightId) => {
                 const insight = insightById.get(insightId);
                 return insight ? [<Link href={`/insights/${insight.id}` as Route} aria-label={`Open connected insight: ${insight.title}`} key={insight.id}>{insight.title}<ArrowUpRight aria-hidden="true" size={15} /></Link>] : [];

@@ -139,7 +139,7 @@ describe("topic and cohort comparison", () => {
       "href",
       "https://www.deloitte.com/us/en/insights/industry/technology/digital-media-trends-consumption-habits-survey/2025.html",
     );
-    expect(within(result).getAllByRole("link", { name: /Open library record/i }).length).toBeGreaterThan(0);
+    expect(within(result).getAllByRole("link", { name: /Open source record/i }).length).toBeGreaterThan(0);
     expect(within(result).getAllByRole("link", { name: /Open connected insight/i }).length).toBeGreaterThan(0);
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Comparison cohort" }), "boomers");

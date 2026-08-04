@@ -18,7 +18,7 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "gender", label: "Gender lens", href: "/gender" },
   { id: "compare", label: "Compare", href: "/compare" },
   { id: "summary", label: "Summary", href: "/summary" },
-  { id: "library", label: "Library", href: "/library" }
+  { id: "library", label: "Sources", href: "/library" }
 ];
 
 function navigationIdForPath(pathname: string): NavigationId | undefined {

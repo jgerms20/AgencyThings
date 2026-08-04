@@ -12,7 +12,7 @@ describe("LibraryPage", () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
 
-    const marketFilters = within(screen.getByLabelText("Filter library by market"));
+    const marketFilters = within(screen.getByLabelText("Filter sources by market"));
     expect(marketFilters.getAllByRole("button").map((button) => button.textContent)).toEqual([
       "U.S.", "U.K.", "Global / multi-market", "All markets"
     ]);
@@ -50,7 +50,7 @@ describe("LibraryPage", () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
 
-    const filters = within(screen.getByLabelText("Filter library by format"));
+    const filters = within(screen.getByLabelText("Filter sources by format"));
     expect(filters.getAllByRole("button").map((button) => button.textContent)).toEqual([
       "All", "Podcasts", "Videos", "Articles", "Reports", "Books"
     ]);

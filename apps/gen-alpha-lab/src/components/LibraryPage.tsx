@@ -129,14 +129,14 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
         </div>
       </details>
 
-      <section className="library-workspace" aria-label="Research library">
+      <section className="library-workspace" aria-label="Research sources">
         <div className="library-market-control">
           <div>
             <p className="research-kicker">Market lens</p>
             <h2>Keep U.S. evidence separate from useful global context.</h2>
             <p>U.S. is the working default. Switch markets to compare; do not blend a U.K. finding into a U.S. claim.</p>
           </div>
-          <div className="library-filters library-market-filters" aria-label="Filter library by market">
+          <div className="library-filters library-market-filters" aria-label="Filter sources by market">
             {marketTabs.map((market) => (
               <button aria-pressed={activeMarket === market.id} className={activeMarket === market.id ? "active" : ""} key={market.id} onClick={() => setActiveMarket(market.id)} type="button">
                 {market.label}
@@ -144,7 +144,7 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
             ))}
           </div>
         </div>
-        <div className="library-filters" aria-label="Filter library by format">
+        <div className="library-filters" aria-label="Filter sources by format">
           {formatTabs.map((format) => (
             <button aria-pressed={activeFormat === format.id} className={activeFormat === format.id ? "active" : ""} key={format.id} onClick={() => setActiveFormat(format.id)} type="button">
               {format.label}
