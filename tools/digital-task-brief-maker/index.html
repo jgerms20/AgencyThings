@@ -8,7 +8,7 @@
     <meta http-equiv='Expires' content='0' />
     <title>Digital Task Brief Maker</title>
     <link rel='stylesheet' href='./src/styles.css' />
-    <link rel='stylesheet' href='./src/upgrade-styles.css?v=2026-07-13-agencythings-v3' />
+    <link rel='stylesheet' href='./src/upgrade-styles.css?v=2026-08-05-placement-decks' />
   </head>
   <body>
     <header class='app-header'>
@@ -30,7 +30,7 @@
         <ol class='stepper' aria-label='Digital task brief workflow'>
           <li><button class='step-button active' type='button' data-step='0'><span>01</span><strong>Upload</strong><small>Add the plan</small></button></li>
           <li><button class='step-button locked' type='button' data-step='1'><span>02</span><strong>Review</strong><small>Channel groups</small></button></li>
-          <li><button class='step-button locked' type='button' data-step='2'><span>03</span><strong>Sources</strong><small>Verify + search</small></button></li>
+          <li><button class='step-button locked' type='button' data-step='2'><span>03</span><strong>Sources</strong><small>Verify + select</small></button></li>
           <li><button class='step-button locked' type='button' data-step='3'><span>04</span><strong>Customize</strong><small>Deck settings</small></button></li>
           <li><button class='step-button locked' type='button' data-step='4'><span>05</span><strong>Export</strong><small>Brief output</small></button></li>
         </ol>
@@ -54,12 +54,27 @@
               <em id='file-status'>No file selected</em>
             </label>
 
-            <div class='paste-panel'>
-              <div class='paste-panel-header'>
-                <label for='plan-input'>Paste table rows instead</label>
-                <small>Use this only when you do not have a file. Keep columns separated by tabs or commas.</small>
+            <div id='table-workspace' class='table-workspace' aria-label='Media plan tables'>
+              <div class='table-command-bar'>
+                <div id='table-tabs' class='table-tabs' role='tablist' aria-label='Plan tables'></div>
+                <div class='button-row compact table-actions'>
+                  <button id='add-table' type='button' class='secondary'>Add table</button>
+                  <button id='rename-table' type='button' class='secondary'>Rename</button>
+                  <button id='duplicate-table' type='button' class='secondary'>Duplicate</button>
+                  <button id='remove-table' type='button' class='secondary'>Remove</button>
+                </div>
               </div>
-              <textarea id='plan-input' spellcheck='false' wrap='off' placeholder='Bucket,Channel,Partner,Asset,Format,Specs,Quantity&#10;SOCIAL,Social Video,Meta,:06s / :15s / :30s,mp4,4x5 / 9x16 / 1x1,3&#10;AUDIO,Streaming Audio,Spotify,:15s / :30s Audio Spot,Audio File,:15s / :30s,1'></textarea>
+              <div id='table-grid' class='plan-table-scroll' aria-live='polite'></div>
+              <div class='table-footer-actions'>
+                <button id='add-row' type='button' class='secondary'>Add row</button>
+                <details class='paste-drawer'>
+                  <summary>Paste rows</summary>
+                  <label for='paste-buffer'>Paste tab- or comma-separated rows into this table</label>
+                  <textarea id='paste-buffer' spellcheck='false' wrap='off' placeholder='Bucket,Channel,Partner,Asset,Asset Format,Specs,Placement,Quantity,Notes'></textarea>
+                  <button id='paste-rows' type='button' class='secondary'>Add pasted rows</button>
+                </details>
+              </div>
+              <textarea id='plan-input' class='serialization-boundary' aria-hidden='true' tabindex='-1'></textarea>
             </div>
           </div>
           <aside class='status-panel' aria-labelledby='status-title'>
@@ -128,45 +143,30 @@
           </div>
           <span id='deck-count' class='pill'>Deck outline</span>
         </div>
+        <div class='template-first-panel'>
+          <label class='template-upload' for='template-file' role='button' tabindex='0'>
+            <input id='template-file' class='file-input' type='file' accept='.pptx,.potx' />
+            <span>Import PowerPoint template</span>
+            <em>Start here. The tool reads the theme colors, then builds the title, timing, channel, placement, appendix, and closing sequence.</em>
+            <small id='template-status'>No template added</small>
+          </label>
+        </div>
+        <details class='customize-details'>
+          <summary>Customize brief details</summary>
         <div class='customize-grid'>
           <form id='brief-options' class='options-panel'>
             <label>Client name<input id='client-name' name='clientName' type='text' placeholder='Client / brand' /></label>
             <label>Campaign or job<input id='campaign-name' name='campaignName' type='text' placeholder='Campaign name' /></label>
-            <label>Campaign year<input id='campaign-year' name='campaignYear' type='text' placeholder='2026' /></label>
-            <label>Max slides<input id='slide-count' name='slideCount' type='number' min='1' max='40' value='12' /></label>
-            <label>Slide strategy
-              <select id='slide-strategy' name='slideStrategy'>
-                <option value='platform' selected>Group by channel / platform</option>
-                <option value='placement'>One slide per placement</option>
-                <option value='compact'>Compact summary</option>
-              </select>
-            </label>
-            <label>Brand look
-              <select id='template-style' name='templateStyle'>
-                <option value='gatorade' selected>Sport brand</option>
-                <option value='agency-clean'>Clean agency</option>
-                <option value='dark-launch'>Dark launch</option>
-                <option value='high-contrast'>High contrast</option>
-              </select>
-            </label>
+            <label>Campaign date<input id='campaign-date' name='campaignDate' type='date' /></label>
+            <label>Max slides<input id='slide-count' name='slideCount' type='number' min='1' max='80' value='40' /></label>
             <input id='primary-color' type='hidden' value='#ffd400' />
             <input id='accent-color' type='hidden' value='#00a7a7' />
-            <label class='template-upload' for='template-file'>
-              <input id='template-file' class='file-input' type='file' accept='.pptx,.potx' />
-              <span>Import PowerPoint brand template</span>
-              <em>Reads theme colors from a .pptx or .potx and applies them to the preview and exported deck.</em>
-              <small id='template-status'>No template added</small>
-            </label>
-            <div class='swatch-row' aria-label='Brand look presets'>
-              <button type='button' class='swatch-option active' data-template-style='gatorade'><span style='--swatch-a:#ffd400;--swatch-b:#00a7a7'></span>Sport</button>
-              <button type='button' class='swatch-option' data-template-style='agency-clean'><span style='--swatch-a:#f5f5f0;--swatch-b:#111111'></span>Clean</button>
-              <button type='button' class='swatch-option' data-template-style='dark-launch'><span style='--swatch-a:#15171c;--swatch-b:#ffcf24'></span>Dark</button>
-              <button type='button' class='swatch-option' data-template-style='high-contrast'><span style='--swatch-a:#ffffff;--swatch-b:#0057ff'></span>Bold</button>
-            </div>
             <div class='checkbox-stack'>
+              <label><input id='include-timing' type='checkbox' /> Include timing/date slide</label>
+              <label><input id='include-dividers' type='checkbox' checked /> Include channel divider slides</label>
+              <label><input id='include-closing' type='checkbox' checked /> Include closing slide</label>
+              <label><input id='include-appendix' type='checkbox' /> Include source appendix</label>
               <label><input id='include-safe-zones' type='checkbox' checked /> Include safe-zone reminders</label>
-              <label><input id='include-sources' type='checkbox' checked /> Include source appendix</label>
-              <label><input id='include-searches' type='checkbox' checked /> Include image-search prompts</label>
               <label><input id='include-review-status' type='checkbox' checked /> Include review status labels</label>
             </div>
           </form>
@@ -177,9 +177,10 @@
               <strong id='preview-client'>Client / brand</strong>
               <p id='preview-campaign'>Campaign name</p>
             </div>
-            <small>Template colors update here and carry into the downloaded deck.</small>
+            <small>The imported template profile and slide sequence carry into the downloaded deck.</small>
           </aside>
         </div>
+        </details>
         <div id='deck-plan' class='deck-plan empty-state'>Upload and review placements to see the deck plan.</div>
         <div class='step-footer'>
           <button type='button' class='secondary' data-prev-step>Back to sources</button>
@@ -197,7 +198,6 @@
             <button id='copy-brief' type='button' class='secondary'>Copy text</button>
             <button id='export-json' type='button' class='secondary'>Export JSON</button>
             <button id='export-ppt' type='button' class='secondary'>Download PowerPoint</button>
-            <button id='export-google' type='button' class='secondary'>Download for Google Slides</button>
             <button id='print-brief' type='button'>Export PDF</button>
           </div>
         </div>
@@ -208,6 +208,6 @@
       </section>
     </main>
 
-    <script type='module' src='./src/app-upgraded.js?v=2026-07-13-agencythings-v3'></script>
+    <script type='module' src='./src/app-upgraded.js?v=2026-08-05-placement-decks'></script>
   </body>
 </html>

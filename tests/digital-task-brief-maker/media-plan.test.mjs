@@ -2,13 +2,23 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
+  buildDeckSequence,
+  buildDurationSpecBlocks,
   buildGroups,
   buildSearchPack,
   buildSlidePlan,
+  createPlanTable,
+  duplicatePlanTable,
+  extractDurationVariants,
   extractInventoryTableRows,
   findBestPlacement,
+  imageCandidates,
   inventoryRowsToPlanText,
-  parsePlan
+  parsePlan,
+  planTablesToText,
+  removePlanTable,
+  renamePlanTable,
+  verifiedSourceUrls
 } from '../../tools/digital-task-brief-maker/src/mediaPlan.js';
 
 const fixtureRows = [
@@ -84,6 +94,9 @@ describe('media plan reasoning', () => {
     assert.ok(groups.find((group) => group.platform === 'SOCIAL' && group.placementName === 'TikTok - :06s, :15s, :30s'));
     assert.ok(groups.find((group) => group.platform === 'PROGRAMMATIC' && group.placementName === 'DSP, DV360, NBA - Banners'));
     assert.ok(groups.find((group) => group.platform === 'OOH' && group.placementName === 'GSTV - :05s Video'));
+    const sxmAudio = groups.find((group) => group.platform === 'AUDIO' && /SXM\/Pandora - :15s/.test(group.placementName));
+    assert.ok(sxmAudio);
+    assert.ok(!sxmAudio.matchedPlacement.copyFields.some((field) => /X Ads/i.test(field.limit)));
     assert.ok(groups.every((group) => !group.platform.startsWith('Inventory:')));
     assert.ok(groups.every((group) => group.specNotes.every((note) => note.length <= 180)));
   });
@@ -121,8 +134,98 @@ describe('media plan reasoning', () => {
       formats: ['MP4'],
       specNotes: ['1920 x 1080 HD']
     });
-    assert.ok(dimensionOnly.some((item) => /iab\.com/.test(item.url || '')));
+    assert.ok(dimensionOnly.some((item) => /iabtechlab\.com/.test(item.url || '')));
     assert.ok(dimensionOnly.every((item) => !/business\.x\.com/.test(item.url || '')));
     assert.ok(searchPack.some((item) => item.label === 'Brand examples' && /Gatorade Lower Sugar/.test(item.query)));
+  });
+});
+
+describe('editable plan tables', () => {
+  it('creates, renames, duplicates, removes, and serializes named tables', () => {
+    const first = createPlanTable('Paid media', [
+      ['SOCIAL', 'Social Video', 'Meta', ':15s Video', 'MP4', '9x16', '', '1', 'Launch']
+    ], 'table-paid');
+    const second = createPlanTable('Audio', [
+      ['AUDIO', 'Streaming Audio', 'Spotify', ':30s Audio Spot', 'Audio File', ':30s', '', '1', '']
+    ], 'table-audio');
+    const renamed = renamePlanTable([first, second], 'table-paid', 'Launch media');
+    const duplicated = duplicatePlanTable(renamed, 'table-audio', 'table-audio-copy');
+    const removed = removePlanTable(duplicated, 'table-paid');
+
+    assert.equal(renamed[0].name, 'Launch media');
+    assert.equal(duplicated[2].name, 'Audio copy');
+    assert.equal(duplicated[2].id, 'table-audio-copy');
+    assert.deepEqual(duplicated[2].rows, second.rows);
+    assert.notEqual(duplicated[2].rows, second.rows);
+    assert.deepEqual(removePlanTable([first], 'table-paid'), [first]);
+    assert.equal(removed.length, 2);
+    assert.equal(planTablesToText([first, second]), [
+      'Bucket\tChannel\tPartner\tAsset\tAsset Format\tSpecs\tPlacement\tQuantity\tNotes',
+      'SOCIAL\tSocial Video\tMeta\t:15s Video\tMP4\t9x16\t\t1\tLaunch',
+      'AUDIO\tStreaming Audio\tSpotify\t:30s Audio Spot\tAudio File\t:30s\t\t1\t'
+    ].join('\n'));
+  });
+});
+
+describe('placement-level source and deck planning', () => {
+  it('keeps every requested duration and creates duration-specific spec blocks', () => {
+    assert.deepEqual(extractDurationVariants(':15s or :30s Video Spot'), [':15', ':30']);
+    assert.deepEqual(extractDurationVariants(':15s / :30s'), [':15', ':30']);
+    assert.deepEqual(extractDurationVariants('15-30 sec video'), [':15', ':30']);
+    assert.deepEqual(extractDurationVariants('15-30 mbps bitrate'), []);
+
+    const blocks = buildDurationSpecBlocks({
+      placementName: 'All partners - :15s or :30s Video Spot',
+      assets: [':15s or :30s Video Spot'],
+      specNotes: ['16x9; 1920 x 1080; 15-30 mbps'],
+      matchedPlacement: { specs: [{ label: 'Format', value: 'MP4' }] }
+    });
+    assert.deepEqual(blocks.map((block) => block.duration), [':15', ':30']);
+    assert.ok(blocks.every((block) => block.specs.includes('Format: MP4')));
+  });
+
+  it('returns only verified sources and at most three attributed image candidates', () => {
+    const group = {
+      matchedPlacement: {
+        sourceUrls: [
+          'https://help.pinterest.com/en/business/article/pinterest-product-specs',
+          'https://help.pinterest.com/en/business/article/creative-specs',
+          'https://www.google.com/search?tbm=isch&q=pinterest'
+        ],
+        imageCandidates: [
+          { id: 'one', url: 'https://cdn.example.com/one.png', sourceLabel: 'Official gallery', sourceUrl: 'https://example.com/one' },
+          { id: 'two', url: 'https://cdn.example.com/two.png', sourceLabel: 'Case study', sourceUrl: 'https://example.com/two' },
+          { id: 'three', url: 'https://cdn.example.com/three.png', sourceLabel: 'Ad library', sourceUrl: 'https://example.com/three' },
+          { id: 'four', url: 'https://cdn.example.com/four.png', sourceLabel: 'Extra', sourceUrl: 'https://example.com/four' }
+        ]
+      }
+    };
+
+    assert.deepEqual(verifiedSourceUrls(group), ['https://help.pinterest.com/en/business/article/pinterest-product-specs']);
+    assert.deepEqual(imageCandidates(group).map((candidate) => candidate.id), ['one', 'two', 'three']);
+    assert.ok(imageCandidates(group).every((candidate) => candidate.sourceLabel && candidate.sourceUrl));
+  });
+
+  it('builds title, timing, divider, one slide per placement, appendix, and closing roles', () => {
+    const groups = [
+      { key: 'tvc-15', platform: 'TVC', placementName: ':15 Video' },
+      { key: 'polv-30', platform: 'POLV', placementName: ':30 Video' },
+      { key: 'audio-15', platform: 'AUDIO', placementName: 'Spotify :15' },
+      { key: 'audio-30', platform: 'AUDIO', placementName: 'Spotify :30' }
+    ];
+    const sequence = buildDeckSequence(groups, {
+      includeTiming: true,
+      includeDividers: true,
+      includeAppendix: true,
+      includeClosing: true,
+      campaignDate: '2026-08-06'
+    });
+
+    assert.deepEqual(sequence.map((slide) => slide.role), [
+      'title', 'timing', 'divider', 'placement', 'divider', 'placement', 'divider', 'placement', 'placement', 'appendix', 'closing'
+    ]);
+    assert.deepEqual(sequence.filter((slide) => slide.role === 'placement').map((slide) => slide.group.key), groups.map((group) => group.key));
+    assert.equal(sequence.find((slide) => slide.role === 'timing').date, '2026-08-06');
+    assert.ok(sequence.every((slide) => !/^Slide \d+:/i.test(slide.title || '')));
   });
 });

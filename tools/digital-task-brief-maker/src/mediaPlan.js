@@ -1,4 +1,103 @@
 const bucketOrder = ['TVC', 'POLV', 'AUDIO', 'SOCIAL', 'PROGRAMMATIC', 'CUSTOM', 'OOH', 'MEDIA PLAN'];
+export const planTableColumns = ['Bucket', 'Channel', 'Partner', 'Asset', 'Asset Format', 'Specs', 'Placement', 'Quantity', 'Notes'];
+
+export function createPlanTable(name = 'Table 1', rows = [], id = 'table-1') {
+  return {
+    id,
+    name: String(name || 'Untitled table').trim() || 'Untitled table',
+    rows: rows.map((row) => planTableColumns.map((_, index) => String(row?.[index] ?? '')))
+  };
+}
+
+export function renamePlanTable(tables, id, name) {
+  const nextName = String(name || '').trim();
+  if (!nextName) return tables;
+  return tables.map((table) => table.id === id ? { ...table, name: nextName } : table);
+}
+
+export function duplicatePlanTable(tables, id, nextId) {
+  const source = tables.find((table) => table.id === id);
+  if (!source) return tables;
+  return [...tables, createPlanTable(`${source.name} copy`, source.rows, nextId)];
+}
+
+export function removePlanTable(tables, id) {
+  return tables.length <= 1 ? tables : tables.filter((table) => table.id !== id);
+}
+
+export function planTablesToText(tables) {
+  const rows = tables.flatMap((table) => table.rows)
+    .filter((row) => row.some((cell) => String(cell || '').trim()))
+    .map((row) => planTableColumns.map((_, index) => inventoryCell(row[index])).join('\t'));
+  return [planTableColumns.join('\t'), ...rows].join('\n');
+}
+
+export function extractDurationVariants(value) {
+  const text = String(value || '').toLowerCase();
+  if (/mbps|kbps|bitrate/.test(text) && !/(?:second|seconds|secs?|spot|video|audio)/.test(text)) return [];
+  const values = [];
+  for (const match of text.matchAll(/:?\b(\d{1,3})\s*(?:s\b|sec\b|secs\b|second\b|seconds\b)/g)) values.push(Number(match[1]));
+  for (const match of text.matchAll(/\b(\d{1,3})\s*[-–]\s*(\d{1,3})\s*(?:s\b|sec\b|secs\b|second\b|seconds\b)/g)) {
+    values.push(Number(match[1]), Number(match[2]));
+  }
+  return [...new Set(values.filter((value) => value > 0 && value <= 180))].sort((a, b) => a - b).map((value) => `:${String(value).padStart(2, '0')}`);
+}
+
+export function buildDurationSpecBlocks(group) {
+  const placement = group?.matchedPlacement;
+  const context = [group?.placementName, ...(group?.assets || []), ...(group?.specNotes || [])].filter(Boolean).join(' ');
+  const durations = extractDurationVariants(context);
+  const specs = [
+    ...(placement?.specs || []).map((spec) => `${spec.label}: ${spec.value}`),
+    ...(group?.specNotes || [])
+  ].filter(Boolean);
+  return (durations.length ? durations : ['All']).map((duration) => ({ duration, specs: [...new Set(specs)] }));
+}
+
+export function verifiedSourceUrls(group) {
+  const urls = group?.matchedPlacement?.sourceUrls || [];
+  return [...new Set(urls)].filter((url) => {
+    if (!/^https:\/\//i.test(url)) return false;
+    if (/google\.com\/search|bing\.com\/images|help\.pinterest\.com\/en\/business\/article\/creative-specs/i.test(url)) return false;
+    return true;
+  });
+}
+
+export function imageCandidates(group) {
+  const explicit = (group?.matchedPlacement?.imageCandidates || [])
+    .filter((candidate) => candidate?.id && candidate?.url && candidate?.sourceLabel && candidate?.sourceUrl)
+    .slice(0, 3);
+  if (explicit.length) return explicit;
+
+  const text = normalize([group?.platform, group?.placementName, ...(group?.partners || []), ...(group?.assets || []), ...(group?.channels || [])].join(' '));
+  const reference = (id, file, label, alt) => ({
+    id,
+    url: `./assets/reference-examples/${file}`,
+    label,
+    alt,
+    sourceLabel: 'Provided Lower Sugar reference deck',
+    sourceUrl: `./assets/reference-examples/${file}`
+  });
+  const social = [
+    reference('social-feed', 'social-feed.png', 'Multi-device social feed', 'Social feed creative shown across multiple phones'),
+    reference('social-post', 'social-post.png', 'Social post example', 'Paid social post example on a phone'),
+    reference('campaign-athlete', 'campaign-athlete.png', 'Campaign creative system', 'Campaign athlete and product creative system')
+  ];
+  const video = [
+    reference('youtube-devices', 'youtube-devices.png', 'YouTube device system', 'YouTube video placement shown on several devices'),
+    reference('youtube-pause', 'youtube-pause-ad.png', 'YouTube pause ad', 'YouTube pause ad creative example'),
+    reference('connected-tv', 'connected-tv-ad.png', 'Connected TV ad', 'Connected TV advertising example')
+  ];
+  if (/tiktok/.test(text)) return [reference('tiktok-phone', 'tiktok-phone.png', 'TikTok vertical video', 'TikTok vertical video creative on a phone'), ...social.slice(0, 2)];
+  if (/pinterest/.test(text)) return [reference('pinterest-phone', 'pinterest-phone.png', 'Pinterest static placement', 'Pinterest placement shown on phones'), ...social.slice(0, 2)];
+  if (/instagram|facebook|meta|social|(^| )x( |$)|twitter/.test(text)) return social;
+  if (/tvc|polv|olv|video|youtube|ctv|programmatic|display|banner/.test(text)) return video;
+  return [
+    reference('campaign-product', 'campaign-product.png', 'Campaign product creative', 'Lower Sugar campaign product creative'),
+    reference('campaign-athlete', 'campaign-athlete.png', 'Campaign athlete creative', 'Lower Sugar campaign athlete creative'),
+    ...social.slice(0, 1)
+  ];
+}
 
 export function applyMergedSpreadsheetCells(sheet, rows) {
   for (const merge of sheet['!merges'] || []) {
@@ -130,7 +229,7 @@ function isTrustedStructuredLibraryMatch(row, libraryMatch) {
   if (!libraryMatch.placement || libraryMatch.confidence < 0.62) return false;
   const rowText = normalize([row.platform, row.bucket, row.channel, row.partner, row.asset, row.placement].join(' '));
   const platform = normalize(libraryMatch.placement.platform);
-  if (platform && rowText.includes(platform)) return true;
+  if (platform && ` ${rowText} `.includes(` ${platform} `)) return true;
   return (libraryMatch.placement.aliases || [])
     .map(normalize)
     .filter((alias) => alias.length > 2)
@@ -217,6 +316,26 @@ export function buildSlidePlan(groups, options = {}) {
   return slides.slice(0, slideCount);
 }
 
+export function buildDeckSequence(groups, options = {}) {
+  const includeTiming = Boolean(options.includeTiming);
+  const includeDividers = options.includeDividers !== false;
+  const includeAppendix = Boolean(options.includeAppendix);
+  const includeClosing = options.includeClosing !== false;
+  const sequence = [{ role: 'title', title: options.clientName || 'Digital Task Brief' }];
+  if (includeTiming) sequence.push({ role: 'timing', title: 'Timing', date: options.campaignDate || '' });
+
+  for (const [platform, platformGroups] of groupBy(groups, (group) => group.platform)) {
+    if (includeDividers) sequence.push({ role: 'divider', title: platform, platform });
+    for (const group of platformGroups) {
+      sequence.push({ role: 'placement', title: group.placementName, platform, group });
+    }
+  }
+
+  if (includeAppendix && groups.length) sequence.push({ role: 'appendix', title: 'Appendix', groups });
+  if (includeClosing) sequence.push({ role: 'closing', title: 'Thank you' });
+  return sequence;
+}
+
 export function buildSearchPack(group, options = {}) {
   const clientName = options.clientName && options.clientName !== 'Client / brand' ? options.clientName : '';
   const partner = group.partners?.[0] || '';
@@ -240,15 +359,15 @@ export function officialSourceUrls(group) {
   if (/meta|instagram|facebook/.test(text)) urls.push('https://www.facebook.com/business/ads-guide');
   if (/tiktok/.test(text)) urls.push('https://ads.tiktok.com/help/article/video-ads-specifications');
   if (/youtube|google/.test(text)) urls.push('https://support.google.com/google-ads/answer/17091270');
-  if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/creative-specs');
+  if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/pinterest-product-specs');
   if (/(^| )x( |$)|twitter|amplify/.test(partnerText)) urls.push('https://business.x.com/en/help/campaign-setup/creative-ad-specifications.html');
   if (/spotify/.test(text)) urls.push('https://ads.spotify.com/en-US/ad-specs/');
-  if (/pandora|sxm|siriusxm|soundcloud/.test(text)) urls.push('https://www.sxmmedia.com/advertising-solutions/audio');
-  if (/audacy/.test(text)) urls.push('https://audacyinc.com/advertising/');
+  if (/pandora|sxm|siriusxm|soundcloud/.test(text)) urls.push('https://www.siriusxmmedia.com/audio-ad-specs');
+  if (/audacy/.test(text)) urls.push('https://audacyinc.com/advertising-solutions/digital-audio/');
   if (/iheart/.test(text)) urls.push('https://www.iheartmedia.com/advertising/');
-  if (/programmatic|display|banner|dv360|dsp|iab|300x250|728x90|160x600|320x50|300x600/.test(text)) urls.push('https://www.iab.com/guidelines/iab-new-ad-portfolio/');
+  if (/programmatic|display|banner|dv360|dsp|iab|300x250|728x90|160x600|320x50|300x600/.test(text)) urls.push('https://iabtechlab.com/standards/iab-new-ad-portfolio-guidelines/');
   if (/ctv|connected tv/.test(text)) urls.push('https://iabtechlab.com/standards/ctv-ad-portfolio/');
-  if (/tvc|linear video|polv|olv|video spot/.test(text)) urls.push('https://www.iab.com/guidelines/digital-video-in-stream-ad-format-guidelines/');
+  if (/tvc|linear video|polv|olv|video spot/.test(text)) urls.push('https://iabtechlab.com/wp-content/uploads/2022/03/Ad-Format-Guidelines_DV-CTV.pdf');
   return [...new Set(urls)];
 }
 
@@ -403,8 +522,8 @@ function sourceUrlsForRow(row) {
   const urls = [];
   if (/meta|instagram|facebook/.test(text)) urls.push('https://www.facebook.com/business/ads-guide');
   if (/tiktok/.test(text)) urls.push('https://ads.tiktok.com/help/article/video-ads-specifications');
-  if (/youtube|google/.test(text)) urls.push('https://support.google.com/google-ads/answer/2375464');
-  if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/creative-specs');
+  if (/youtube|google/.test(text)) urls.push('https://support.google.com/google-ads/answer/17091270');
+  if (/pinterest/.test(text)) urls.push('https://help.pinterest.com/en/business/article/pinterest-product-specs');
   if (/\bx\b|twitter|amplify/.test(text)) urls.push('https://business.x.com/en/help/campaign-setup/creative-ad-specifications.html');
   return urls;
 }
