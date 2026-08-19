@@ -10,6 +10,7 @@ import {
   cultureShaperRubric,
   cultureShapers,
   getCultureShaper,
+  getCultureShaperImage,
   type CultureShaperType,
 } from "../src/lib/content/culture-shapers";
 import { insights } from "../src/lib/content/insights";
@@ -245,6 +246,22 @@ describe("canonical culture shapers", () => {
     }
   });
 
+  it("resolves franchise aliases and stores Minecraft and PAW Patrol key art", async () => {
+    const attribution = await readFile(join(process.cwd(), "public/culture/ATTRIBUTION.md"), "utf8");
+    const minecraft = getCultureShaper("minecraft")!;
+    const pawPatrol = getCultureShaper("paw-patrol")!;
+
+    expect(minecraft.id).toBe("minecraft-franchise");
+    expect(getCultureShaper("minecraft-franchise")).toEqual(minecraft);
+    expect(getCultureShaper("pokemon")?.id).toBe("pokemon-franchise");
+    expect(getCultureShaperImage(minecraft)).toBe("/culture/minecraft.jpg");
+    expect(getCultureShaperImage(pawPatrol)).toBe("/culture/paw-patrol.png");
+    expect(readJpegDimensions(await readFile(join(process.cwd(), "public/culture/minecraft.jpg"))).width).toBeGreaterThan(0);
+    expect((await readFile(join(process.cwd(), "public/culture/paw-patrol.png"))).length).toBeGreaterThan(0);
+    expect(attribution).toContain("`minecraft.jpg`");
+    expect(attribution).toContain("`paw-patrol.png`");
+  });
+
   it("includes women and girl-focused culture across relevant categories", () => {
     const representedTypes = new Set(
       cultureShapers
@@ -455,6 +472,8 @@ describe("indicator explanations", () => {
       "href",
       bluey.officialUrl,
     );
+    expect(screen.getByText("bluey")).toBeVisible();
+    expect(screen.getByRole("link", { name: /bluey\.tv/i })).toHaveAttribute("href", bluey.officialUrl);
   });
 
   it("renders related spaces as stable internal relations", () => {
@@ -464,5 +483,14 @@ describe("indicator explanations", () => {
     expect(screen.getByRole("heading", { name: "Related spaces" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Minecraft" })).toHaveAttribute("href", "/spaces#minecraft");
     expect(screen.getByRole("link", { name: "YouTube" })).toHaveAttribute("href", "/spaces#youtube");
+  });
+
+  it("shows a Lab ID and official destination for Minecraft via its public alias", () => {
+    render(<InfluencerDetail influencer={{ id: "minecraft" }} />);
+
+    expect(screen.getByRole("heading", { name: "Minecraft" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Minecraft" })).toHaveAttribute("src", "/culture/minecraft.jpg");
+    expect(screen.getByText("minecraft-franchise")).toBeVisible();
+    expect(screen.getByRole("link", { name: /minecraft\.net/i })).toHaveAttribute("href", "https://www.minecraft.net/");
   });
 });

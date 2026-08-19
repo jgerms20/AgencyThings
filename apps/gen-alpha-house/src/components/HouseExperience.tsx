@@ -11,24 +11,30 @@ import ObjectIndex from "./ObjectIndex";
 
 const enteredKey = "gen-alpha-house-entered";
 const roomKey = "gen-alpha-house-room-lens";
+const themeKey = "gen-alpha-house-theme";
 
 export default function HouseExperience() {
   const [entered, setEntered] = useState(false);
   const [activeLensId, setActiveLensId] = useState<RoomLensId>("boys");
   const [selectedObject, setSelectedObject] = useState<RoomObject | null>(null);
   const [theme, setTheme] = useState<ThemeMode>("night");
+  const [themeReady, setThemeReady] = useState(false);
   const activeLens = roomLenses.find((lens) => lens.id === activeLensId) ?? roomLenses[0];
 
   useEffect(() => {
     if (window.sessionStorage.getItem(enteredKey) === "true") setEntered(true);
     const savedLens = window.sessionStorage.getItem(roomKey);
     if (savedLens === "boys" || savedLens === "girls") setActiveLensId(savedLens);
-    if (window.matchMedia?.("(prefers-color-scheme: light)").matches) setTheme("day");
+    const savedTheme = window.localStorage.getItem(themeKey);
+    if (savedTheme === "day" || savedTheme === "night") setTheme(savedTheme);
+    else if (window.matchMedia?.("(prefers-color-scheme: light)").matches) setTheme("day");
+    setThemeReady(true);
   }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-  }, [theme]);
+    if (themeReady) window.localStorage.setItem(themeKey, theme);
+  }, [theme, themeReady]);
 
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {

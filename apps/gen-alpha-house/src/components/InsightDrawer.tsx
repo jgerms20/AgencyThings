@@ -43,6 +43,7 @@ export default function InsightDrawer({ object, onClose }: InsightDrawerProps) {
               <h3>{insight.title}</h3>
               <p>{insight.thesis}</p>
               <div className="insight-card-scope"><strong>Age / sample</strong>{insight.scope}</div>
+              <p className="insight-card-id"><strong>Lab ID</strong> {insight.labId}</p>
               <p className="insight-card-sources">{insight.sources.join(" · ")}</p>
               <a
                 className="drawer-link"

@@ -34,6 +34,8 @@ describe("Gen Alpha gender-room content model", () => {
         for (const insight of item.insights) {
           const labUrl = new URL(insight.labUrl);
           const sourceUrl = new URL(insight.sourceUrl);
+          expect(insight.labId.length).toBeGreaterThan(0);
+          expect(insight.labUrl.endsWith(insight.labId) || insight.labUrl.includes(`${insight.labId}`)).toBe(true);
           expect(labUrl.origin).toBe("https://agencythings-gen-alpha.vercel.app");
           expect(labUrl.pathname).toMatch(/^\/(?:insights|influencers)\/|^\/gender$/);
           expect(sourceUrl.protocol).toBe("https:");
@@ -82,6 +84,8 @@ describe("Gen Alpha gender-room content model", () => {
     const serialized = JSON.stringify(roomLenses);
     expect(serialized).toMatch(/console identity|competition|sports/i);
     expect(serialized).toMatch(/reading|music|maker|social video/i);
+    expect(serialized).toMatch(/minecraft-franchise/);
+    expect(serialized).toMatch(/paw-patrol/);
     expect(serialized).not.toMatch(/all boys|all girls|only boys|only girls|naturally|hardwired/i);
   });
 });

@@ -7,6 +7,7 @@ import HouseExperience from "@/components/HouseExperience";
 describe("HouseExperience", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
+    window.localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
   });
 
@@ -84,6 +85,7 @@ describe("HouseExperience", () => {
       "href",
       "https://agencythings-gen-alpha.vercel.app/influencers/ishowspeed",
     );
+    expect(within(dialog).getByText("influencers/ishowspeed")).toBeInTheDocument();
     expect(within(dialog).getAllByText(/U\.S\.|U\.K\.|Global \/ multi-market|Market not published/).length).toBeGreaterThan(0);
     expect(within(dialog).getAllByText(/Established|Emerging signal|Working hunch/).length).toBe(3);
   });

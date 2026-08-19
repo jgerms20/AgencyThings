@@ -3,9 +3,18 @@ import type { Route } from "next";
 import Link from "next/link";
 import IndicatorTooltip from "@/components/IndicatorTooltip";
 import SiteHeader from "@/components/SiteHeader";
-import { getCultureShaper, getCultureShaperImage, type CultureShaper } from "@/lib/content/culture-shapers";
+import { getCultureShaper, getCultureShaperImage, getCultureShaperPublicIds, type CultureShaper } from "@/lib/content/culture-shapers";
+import { getInsight } from "@/lib/content/insights";
 import { getSource } from "@/lib/content/selectors";
 import { spaces } from "@/lib/spaces";
+
+function hostnameFrom(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
 
 type InfluencerDetailProps = {
   influencer: CultureShaper | { id: string };
@@ -17,6 +26,10 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
   const relatedSpaces = profile.relatedSpaceIds
     .map((spaceId) => spaces.find((space) => space.id === spaceId))
     .filter((space) => space !== undefined);
+  const relatedInsights = profile.insightIds
+    .map((insightId) => getInsight(insightId))
+    .filter((insight) => insight !== undefined);
+  const publicIds = getCultureShaperPublicIds(profile);
   const embeddableVideos = profile.videos.filter((video) => video.embeddable);
 
   return (
@@ -35,6 +48,33 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           </div>
           {getCultureShaperImage(profile) ? <img src={getCultureShaperImage(profile)} alt={profile.name} /> : null}
         </header>
+
+        <section className="profile-locator" aria-label="Where to find this profile">
+          <div>
+            <span>Lab ID</span>
+            <strong>{profile.id}</strong>
+            {publicIds.length > 1 ? <p>Also routed as {publicIds.filter((id) => id !== profile.id).map((id) => `/${id}`).join(", ")}</p> : null}
+          </div>
+          <div>
+            <span>Find them</span>
+            <a href={profile.officialUrl} rel="noreferrer" target="_blank">
+              {hostnameFrom(profile.officialUrl)} <ArrowUpRight aria-hidden="true" size={15} />
+            </a>
+            <p>{profile.platforms.join(" · ")}</p>
+          </div>
+          <div>
+            <span>Connected insights</span>
+            {relatedInsights.length > 0 ? (
+              <ul>
+                {relatedInsights.map((insight) => (
+                  <li key={insight.id}><Link href={`/insights/${insight.id}` as Route}>{insight.title}</Link></li>
+                ))}
+              </ul>
+            ) : (
+              <p>No linked insight pages yet.</p>
+            )}
+          </div>
+        </section>
 
         <section className="influencer-indicators" aria-label="Editorial influence indicators">
           {Object.values(profile.indicators).map((indicator) => (

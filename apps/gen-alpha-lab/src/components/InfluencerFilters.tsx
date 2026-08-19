@@ -120,7 +120,7 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
       <div className="influencer-directory" aria-label="Influencers shaping Gen Alpha culture">
         {filtered.map((shaper, index) => (
           <article data-testid={shaper.type === "creator" ? "influencer-card" : "culture-shaper-card"} key={shaper.id}>
-            <Link href={`/influencers/${shaper.id}`} aria-label={`Explore ${shaper.name}`}>
+            <Link href={`/influencers/${shaper.id}`} aria-label={`Explore ${shaper.name}`} title={`Lab ID: ${shaper.id}`}>
               {getCultureShaperImage(shaper) ? <img src={getCultureShaperImage(shaper)} alt={shaper.name} loading="lazy" decoding="async" /> : (
                 <span className="culture-shaper-monogram" style={{ aspectRatio: "1 / 1", display: "grid", placeItems: "center" }} aria-hidden="true">
                   {shaper.name.slice(0, 2).toUpperCase()}

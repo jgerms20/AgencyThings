@@ -10,10 +10,15 @@ export const metadata: Metadata = {
   }
 };
 
+const themeBootScript = `try{var t=localStorage.getItem("gen-alpha-lab-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <body>{children}</body>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        {children}
+      </body>
     </html>
   );
 }
