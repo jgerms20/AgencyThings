@@ -28,6 +28,7 @@ export type LinkedInsight = {
   sources: string[];
   sourceUrl: string;
   labUrl: string;
+  labId: string;
   linkLabel?: string;
 };
 

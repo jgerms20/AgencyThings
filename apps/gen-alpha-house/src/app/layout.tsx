@@ -37,10 +37,15 @@ export const metadata: Metadata = {
   }
 };
 
+const themeBootScript = `try{var t=localStorage.getItem("gen-alpha-house-theme");if(t==="day"||t==="night")document.documentElement.dataset.theme=t;}catch(e){}`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${display.variable} ${body.variable} ${mono.variable}`}>{children}</body>
+      <body className={`${display.variable} ${body.variable} ${mono.variable}`}>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        {children}
+      </body>
     </html>
   );
 }

@@ -7,8 +7,13 @@ type Theme = "dark" | "light";
 
 const themeStorageKey = "gen-alpha-lab-theme";
 
+function themeFromDocument(): Theme {
+  if (typeof document === "undefined") return "dark";
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>(themeFromDocument);
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem(themeStorageKey);

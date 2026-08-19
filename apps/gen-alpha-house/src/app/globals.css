@@ -15,14 +15,15 @@
 }
 
 :root[data-theme="day"] {
-  --ink: #f2f5f9;
+  --ink: #f4f6f8;
   --ink-soft: #fff;
-  --paper: #111426;
-  --muted: #596273;
+  --paper: #16192a;
+  --muted: #3f4b59;
+  --cyan: #0a6d76;
   --line: rgba(17, 20, 38, 0.14);
   --line-strong: rgba(17, 20, 38, 0.3);
   --surface: rgba(249, 250, 252, 0.98);
-  --surface-glass: rgba(249, 250, 252, 0.88);
+  --surface-glass: rgba(249, 250, 252, 0.92);
   --shadow: 0 28px 90px rgba(40, 50, 75, 0.22);
   color-scheme: light;
 }
@@ -32,6 +33,9 @@
 html {
   background: var(--ink);
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -114,7 +118,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 
 .map-link:hover, .theme-toggle:hover { border-color: var(--line-strong); color: var(--paper); }
 .lab-link { border-color: color-mix(in srgb, var(--cyan) 70%, transparent); color: var(--cyan); }
-.lab-link:hover { background: var(--cyan); color: #071018; }
+.lab-link:hover { background: var(--cyan); color: var(--ink); }
 .theme-toggle { cursor: pointer; }
 
 .arrival {
@@ -459,13 +463,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
 .drawer-thesis { margin: 0; color: var(--paper); font-size: 18px; line-height: 1.55; }
 .drawer-context { margin: 18px 0 30px; color: var(--muted); font-size: 14px; line-height: 1.65; }
 .drawer-insights { display: grid; gap: 12px; }
-.drawer-insight-card { padding: 18px; border: 1px solid var(--line); background: color-mix(in srgb, var(--ink-soft) 76%, transparent); }
+.drawer-insight-card { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--ink-soft) 76%, transparent); }
 .insight-card-meta { display: flex; flex-wrap: wrap; gap: 5px 12px; color: var(--drawer-accent); font: 9px var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; }
 .insight-card-meta span:first-child { margin-right: auto; color: var(--muted); }
 .drawer-insight-card h3 { margin: 18px 0 8px; font-family: var(--font-display), sans-serif; font-size: 19px; line-height: 1.2; }
 .drawer-insight-card > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .insight-card-scope { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--paper); font: 10px/1.5 var(--font-mono), monospace; }
 .insight-card-scope strong { display: block; margin-bottom: 3px; color: var(--drawer-accent); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.insight-card-id { margin-top: 10px; color: var(--muted); font: 9px/1.45 var(--font-mono), monospace; letter-spacing: .04em; }
+.insight-card-id strong { color: var(--drawer-accent); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .drawer-insight-card .insight-card-sources { margin-top: 7px; font-family: var(--font-mono), monospace; font-size: 9px; }
 .drawer-link {
   display: inline-flex;
@@ -494,6 +500,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-
   text-transform: uppercase;
 }
 .drawer-source-link:hover { color: var(--paper); }
+
+:root[data-theme="day"] .drawer-object,
+:root[data-theme="day"] .drawer-link,
+:root[data-theme="day"] .insight-card-meta,
+:root[data-theme="day"] .insight-card-scope strong,
+:root[data-theme="day"] .insight-card-id strong {
+  color: color-mix(in srgb, var(--drawer-accent) 42%, #16192a);
+}
+:root[data-theme="day"] .insight-card-meta span:first-child { color: var(--muted); }
+:root[data-theme="day"] .map-link:hover,
+:root[data-theme="day"] .theme-toggle:hover { color: var(--paper); }
 
 @keyframes arrival-breathe { from { transform: scale(1.04); } to { transform: scale(1.1); } }
 @keyframes hotspot-radar { 0% { opacity: .9; transform: scale(.6); } 100% { opacity: 0; transform: scale(1.7); } }

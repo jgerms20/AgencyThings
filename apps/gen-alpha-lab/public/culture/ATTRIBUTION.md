@@ -6,6 +6,8 @@ These locally cached editorial images were retrieved from verified official Open
 - `kpop-demon-hunters.jpg`: Netflix official CDN, `https://occ-0-33-37.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABSe_ba5JNRl7OM3wBrvcNGBjjNprEMvlgiZdalvK_JNIHovsGe4D5PevqcdWsnOT-VRamEPpw878pzm09h0ntj7k5-mmqJsIo24L.jpg?r=dc4`.
 - `wednesday.jpg`: Netflix official CDN, `https://occ-0-33-37.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABXw376AyJ5QjtZbFyDlP69VozSIV8Zv-dTjHaXdX6HCD2ZWoDCY0IsnA4wEqzPuZU9W9HXGxmIbL9dobqhKnoPF4IsVd54AaPF6W.jpg?r=178`.
 - `disney-princess.jpg`: Disney official CDN, `https://lumiere-a.akamaihd.net/v1/images/og_disneyprincess_createyourworldcampaignportal_3497_59ceecda.jpeg?region=0%2C0%2C1200%2C630`.
+- `minecraft.jpg`: Minecraft official CDN creeper mark, `https://www.minecraft.net/content/dam/minecraftnet/franchise/logos/minecraft-creeper-face.jpg`.
+- `paw-patrol.png`: Wikimedia Commons / Wikipedia logo mark, `https://upload.wikimedia.org/wikipedia/en/5/5f/PAW_Patrol_Logo.png`.
 
 ## Portraits and marks
 

@@ -43,6 +43,7 @@ function finding(
     sources,
     sourceUrl,
     labUrl: `${lab}${labPath}`,
+    labId: labPath.replace(/^\//, ""),
     linkLabel,
   };
 }
@@ -123,7 +124,7 @@ const boysObjects: RoomObject[] = [
     position: { x: 31, y: 86 },
     mobileFocus: { x: 31, y: 78 },
     insights: [
-      finding("boys-screen-day", "Screen time is longer in early childhood", "Boys ages 0–8 average 2:38 of daily screen media versus 2:07 for girls.", "high", "U.S. children 0–8; parent report", ["Common Sense Media"], commonSense, "/gender#boys"),
+      finding("boys-screen-day", "Screen time is longer in early childhood", "Boys ages 0–8 average about 2½ hours of daily screen media versus about 2 hours for girls.", "high", "U.S. children 0–8; parent report", ["Common Sense Media"], commonSense, "/gender#boys"),
       finding("boys-reading-gap", "Daily reading is less common", "50% of boys ages 0–8 read or are read to daily, compared with 59% of girls.", "high", "U.S. children 0–8; parent report", ["Common Sense Media"], commonSense, "/gender#boys"),
       finding("learning-enablement", "The activity matters more than the hardware", "The useful question is what a device enables and who helps a child use it well.", "high", "School-age children; evidence synthesis", ["Systematic education review"], commonSense, "/insights/learning-enablement"),
     ],
@@ -134,14 +135,14 @@ const boysObjects: RoomObject[] = [
     object: "Figures + story shelf",
     title: "Building, collecting, and fandom rehearse identity",
     thesis: "Figures, lore, building games, sport stories, and avatar style are connected ways to practice mastery and signal affiliation.",
-    context: "The shelf keeps the boys lens from collapsing into screens. Physical objects, collections, books, and digital worlds can reinforce the same interests and social identity.",
+    context: "The shelf keeps the boys lens from collapsing into screens. Figures, collections, and Minecraft’s building grammar are one system: the same world can be a toy, a game, a tutorial, and a story.",
     accent: "#ffd27a",
     position: { x: 68, y: 25 },
     mobileFocus: { x: 68, y: 31 },
     insights: [
-      finding("boys-building-games", "Creative and building games lead the category", "54% of U.K. children who game name creative and building games among the most popular types.", "high", "U.K. children 3–17", ["Ofcom"], ofcom, "/gender#boys"),
+      finding("boys-building-games", "Creative and building games lead the category", "About half of U.K. children who game name creative and building games among the most popular types.", "high", "U.K. children 3–17", ["Ofcom"], ofcom, "/gender#boys"),
       finding("play-avatars-identity", "Avatar style carries affiliation", "Digital appearance lets children rehearse aesthetics, roles, teams, and group belonging.", "medium", "Children and young people; platform and industry studies", ["Roblox", "Razorfish"], ofcom, "/insights/play-avatars-identity"),
-      finding("media-properties-travel", "Stories travel between shelf and screen", "A world can enter through a figure, a clip, a game, a creator, a book, or a stream.", "medium", "Young audiences; multi-market", ["Ofcom", "PwC"], ofcomLives, "/insights/media-properties-travel"),
+      finding("shelf-minecraft", "Minecraft is the shared building language", "The Lab’s Minecraft profile is the closest object-level read of this shelf: a construction grammar that moves between play, tutorials, classrooms, and creator video.", "high", "Ages 6–15; creation-gaming research", ["Walton Family Foundation"], "https://www.minecraft.net/", "/influencers/minecraft-franchise", "Open Minecraft profile"),
     ],
   },
   {
@@ -281,14 +282,14 @@ const girlsObjects: RoomObject[] = [
     object: "Books + maker shelf",
     title: "Reading and making are identity work too",
     thesis: "Books, drawing, collectibles, craft, music, and avatar styling are not separate hobbies; they are ways to rehearse taste and make culture tangible.",
-    context: "The shelf gives the girls room a physical center of gravity. It shows an active child who reads, remixes, builds, collects, and makes—not a passive social-feed audience.",
+    context: "The shelf gives the girls room a physical center of gravity. Books, craft, and assigned-role play—including rescue IPs such as PAW Patrol—turn co-viewing into something a child can hold, assign, and restage.",
     accent: "#ffd27a",
     position: { x: 68, y: 35 },
     mobileFocus: { x: 68, y: 37 },
     insights: [
       finding("girls-reading-shelf", "Reading has a measurable early-childhood edge", "Daily reading is nine points higher among girls ages 0–8 in the 2025 Common Sense Census.", "high", "U.S. children 0–8; parent report", ["Common Sense Media"], commonSense, "/gender#girls"),
       finding("girls-maker-role", "Creation gives the child a role", "Making art, stories, avatars, and objects turns influence into participation and authorship.", "medium", "Children and young people; evidence synthesis", ["Ofcom", "Walton Family Foundation"], ofcom, "/insights/learning-remix"),
-      finding("media-properties-travel", "Fandom crosses physical and digital objects", "A story or creator can enter through a book, collectible, clip, game, stream, or handmade object.", "medium", "Young audiences; multi-market", ["Ofcom", "PwC"], ofcomLives, "/insights/media-properties-travel"),
+      finding("shelf-paw-patrol", "Rescue play still travels from screen to floor", "PAW Patrol is the Lab’s clearest preschool operating system for this shelf: color-coded roles, vehicles, and a mission phrase children can replay with toys.", "medium", "Preschool and family co-viewing context", ["Common Sense Media"], "https://www.pawpatrol.com/", "/influencers/paw-patrol", "Open PAW Patrol profile"),
     ],
   },
   {
