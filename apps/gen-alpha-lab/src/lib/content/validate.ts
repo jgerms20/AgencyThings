@@ -17,14 +17,16 @@ const canonicalThemeIds = ["play-belonging", "media-influence", "time-routines",
 const indicatorKeys = ["reach", "participation", "commercialPull", "audienceCenter"] as const;
 const expectedInsightsPerTheme = 10;
 const expectedSpaces = 54;
-const expectedComparisons = 8;
-const comparisonClasses = new Set(["age-matched observed evidence", "current cohort snapshot", "directional interpretation"]);
-const comparisonEvidenceStatuses = new Set(["direct cohort evidence", "near-age proxy", "adult age-band proxy", "evidence gap"]);
+const expectedComparisons = 6;
+const comparisonClasses = new Set(["age-matched observed evidence", "current cohort snapshot", "directional interpretation", "cultural canon"]);
+const comparisonEvidenceStatuses = new Set(["direct cohort evidence", "near-age proxy", "adult age-band proxy", "cultural canon", "editorial hypothesis", "evidence gap"]);
 const comparisonCohorts = [
   ["genZ", "Gen Z"],
+  ["millennials", "Millennials"],
   ["genX", "Gen X"],
   ["boomers", "Boomers"],
 ] as const;
+const adultComparisonStatuses = new Set(["adult age-band proxy", "evidence gap", "cultural canon", "editorial hypothesis"]);
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 const defaultGraph: ContentGraph = {
@@ -372,10 +374,8 @@ export const validateContentGraph = (graph: ContentGraph = defaultGraph): string
         issues.push(`Comparison has invalid comparisonClass: ${comparison.id} -> ${cohortLabel}`);
       }
       validateComparisonCohort(comparison.id, cohortLabel, option.cohort, sourceIds, evidenceById, issues);
-      if ((cohortKey === "genX" || cohortKey === "boomers")
-        && option.cohort.evidenceStatus !== "adult age-band proxy"
-        && option.cohort.evidenceStatus !== "evidence gap") {
-        issues.push(`Comparison adult cohort must use an age-band proxy or evidence gap: ${comparison.id} -> ${cohortLabel}`);
+      if ((cohortKey === "genX" || cohortKey === "boomers") && !adultComparisonStatuses.has(option.cohort.evidenceStatus)) {
+        issues.push(`Comparison adult cohort must use an age-band proxy, cultural canon, editorial hypothesis, or evidence gap: ${comparison.id} -> ${cohortLabel}`);
       }
     }
   }

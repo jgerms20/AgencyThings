@@ -17,6 +17,7 @@ describe("Insight-led detail pages", () => {
     expect(within(primaryNavigation).getAllByRole("link").map((link) => link.textContent)).toEqual([
       "Overview",
       "Insights",
+      "Humor",
       "Influencers",
       "Spaces",
       "Marketing 101",

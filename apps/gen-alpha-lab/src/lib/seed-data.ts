@@ -710,6 +710,21 @@ export const seedRecords: ResearchRecord[] = [
     createdAt: "2026-07-16T00:05:00.000Z"
   },
   {
+    id: "snap-omnicom-humor-2026",
+    kind: "report",
+    sourceClass: "industry research",
+    title: "How to Laugh (and Win) with Next Gen",
+    source: "Snap Inc. x Omnicom Advertising",
+    url: "https://forbusiness.snapchat.com/blog/how-to-laugh-and-win-nextgen",
+    summary: "Six-country survey of 6,028 daily social-app users aged 13-28 on humor as social language, joke mechanics, brand timing, and Snapchat as a sharing environment.",
+    tags: ["humor", "snapchat", "gen-z", "market-global"],
+    useModes: ["think", "learn"],
+    status: "reviewed",
+    confidence: "high",
+    publishedAt: "2026-08-05",
+    createdAt: "2026-08-20T21:00:00.000Z"
+  },
+  {
     id: "field-cousin-placeholder",
     kind: "interview",
     sourceClass: "owned",
