@@ -73,6 +73,19 @@ describe("LibraryPage", () => {
     expect(screen.queryByRole("heading", { name: "Videos" })).not.toBeInTheDocument();
   });
 
+  it("does not show U.S. seed videos when the U.K. market and Videos format are selected", async () => {
+    const user = userEvent.setup();
+    render(<LibraryPage initialRecords={seedRecords} />);
+
+    const marketFilters = within(screen.getByLabelText("Filter sources by market"));
+    await user.click(marketFilters.getByRole("button", { name: "U.K." }));
+    await user.click(screen.getByRole("button", { name: "Videos" }));
+
+    expect(screen.queryByRole("heading", { name: "Media and Young Kids: New Research, Real Tips for Parents" })).not.toBeInTheDocument();
+    expect(screen.queryByTitle(/Media and Young Kids/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "No sources match this market and format." })).toBeInTheDocument();
+  });
+
   it("features the Eclectic Polymath episode before other playable podcasts", async () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
@@ -102,6 +115,7 @@ describe("LibraryPage", () => {
     const user = userEvent.setup();
     render(<LibraryPage initialRecords={seedRecords} />);
 
+    await user.click(screen.getByRole("button", { name: "All markets" }));
     await user.click(screen.getByRole("button", { name: "Videos" }));
 
     const embeds = screen.getAllByTitle(/video$/i);

@@ -59,7 +59,7 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
 
         <section className="detail-section detail-evidence">
           <p className="detail-eyebrow">Trace the claim</p>
-          <h2>Evidence ledger</h2>
+          <h2>What the sources actually say</h2>
           <div className="library-list">
             {evidence.map((item) => {
               const source = getSource(item.sourceId)!;
@@ -88,7 +88,7 @@ export default function InsightDetail({ insight }: InsightDetailProps) {
 
         <section className="detail-section detail-why">
           <p className="detail-eyebrow">Pressure test</p>
-          <h2>Nuance and counterpoint</h2>
+          <h2>Where the story gets messier</h2>
           <p className="detail-lede">{insight.nuance}</p>
           {insight.genZComparison ? (
             <aside className="gen-z-contrast">

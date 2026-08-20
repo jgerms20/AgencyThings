@@ -85,6 +85,7 @@ export type Insight = {
   relatedCreatorIds: string[];
   relatedSpaceIds: string[];
   tags: string[];
+  featured?: boolean;
 };
 
 export type IndicatorKey = "reach" | "participation" | "commercialPull" | "audienceCenter";

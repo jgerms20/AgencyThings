@@ -1,45 +1,25 @@
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
+import AnimatedShareBars from "@/components/AnimatedShareBars";
+import PopulationCount from "@/components/PopulationCount";
 import {
   demographicHeadlineFacts,
   demographicSources,
+  demographicSynthesis,
   deeperRoutes,
+  generationBoundaryCopy,
   getDemographicSource,
   globalCoverageNote,
   globalRegions,
-  olderTeenIdentity,
+  globalYouthHeadline,
   usEthnicityContext,
+  usPopulationHeadline,
   usRaceAlone,
   usRegions,
   usSexSplit,
   usTopStates,
-  type DemographicShare,
 } from "@/lib/demographics";
-
-type ProportionBarsProps = {
-  items: readonly DemographicShare[];
-  color?: "acid" | "cyan" | "coral" | "violet";
-};
-
-function ProportionBars({ items, color = "acid" }: ProportionBarsProps) {
-  return (
-    <div className={`demographic-bars demographic-bars-${color}`}>
-      {items.map((item) => (
-        <div className="demographic-bar-row" key={item.label}>
-          <div className="demographic-bar-label">
-            <span>{item.label}</span>
-            <strong>{item.value.toFixed(item.value % 1 === 0 ? 0 : 1)}%</strong>
-          </div>
-          <div className="demographic-bar-track" aria-hidden="true">
-            <span style={{ width: `${item.value}%` }} />
-          </div>
-          {item.detail ? <p>{item.detail}</p> : null}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function SourceLink({ sourceId, children }: { sourceId: string; children: React.ReactNode }) {
   const source = getDemographicSource(sourceId);
@@ -58,10 +38,9 @@ export default function DemographicOverview() {
     <>
       <section className="demographic-opening">
         <div className="demographic-opening-copy">
+          <p className="demographic-opening-kicker">{generationBoundaryCopy.kicker}</p>
           <h1>Who is Gen Alpha?</h1>
-          <p>
-            This Lab uses 2010–2024 as a working definition. Generation boundaries are conventions, not an official Census category—so the cleanest opening portrait uses age-based population data and says exactly where each measure stops.
-          </p>
+          <p>{generationBoundaryCopy.opening}</p>
         </div>
 
         <div className="demographic-age-rail" aria-label="Gen Alpha working birth-year range from 2010 to 2024">
@@ -89,23 +68,23 @@ export default function DemographicOverview() {
       </section>
 
       <section className="demographic-section us-demographic-section" aria-label="U.S. demographic portrait">
-        <header className="demographic-section-heading">
-          <div>
-            <p className="demographic-section-label">United States / primary view</p>
-            <h2>59.7 million young people, seen before interpreted.</h2>
-          </div>
-          <p>
-            The July 2024 Census estimate counted 59,698,140 U.S. residents ages 0–14. That is the closest clean population proxy for the Lab’s 2010–2024 cohort at that date—not a custom official count of “Gen Alpha.”
-          </p>
+        <header className="demographic-us-hero">
+          <p className="demographic-section-label">United States</p>
+          <PopulationCount
+            value={usPopulationHeadline.value}
+            display={usPopulationHeadline.display}
+            data-testid="us-population-count"
+          />
+          <p className="demographic-population-disclaimer">{usPopulationHeadline.disclaimer}</p>
         </header>
 
         <div className="demographic-us-grid">
           <article className="demographic-measure demographic-measure-sex">
             <header>
-              <h3>Sex in the population estimate</h3>
-              <p>Census binary sex categories, not a complete measure of gender identity.</p>
+              <h3>Sex</h3>
+              <p>Census binary sex categories in the July 2024 ages 0–14 estimate.</p>
             </header>
-            <ProportionBars items={usSexSplit} color="acid" />
+            <AnimatedShareBars items={usSexSplit} color="acid" />
             <SourceLink sourceId="census-age-sex">Census age and sex data</SourceLink>
           </article>
 
@@ -114,7 +93,7 @@ export default function DemographicOverview() {
               <h3>Where they live</h3>
               <p>Share of the U.S. ages 0–14 population by Census region.</p>
             </header>
-            <ProportionBars items={usRegions} color="cyan" />
+            <AnimatedShareBars items={usRegions} color="cyan" />
             <div className="demographic-state-pair">
               {usTopStates.map((state) => (
                 <div key={state.label}>
@@ -130,69 +109,48 @@ export default function DemographicOverview() {
 
           <article className="demographic-measure demographic-measure-race">
             <header>
-              <h3>Race, shown as race alone</h3>
-              <p>These six mutually exclusive race-alone categories add to 100% after rounding.</p>
+              <h3>Race alone</h3>
+              <p>Six mutually exclusive race-alone categories that add to 100% after rounding.</p>
             </header>
-            <ProportionBars items={usRaceAlone} color="violet" />
+            <AnimatedShareBars items={usRaceAlone} color="violet" />
             <SourceLink sourceId="census-race">Census race and Hispanic-origin data</SourceLink>
           </article>
 
           <article className="demographic-measure demographic-measure-ethnicity">
             <header>
-              <h3>Hispanic origin is a separate lens</h3>
-              <p>Hispanic or Latino origin can be reported with any race, so these figures do not form another 100% split.</p>
+              <h3>Hispanic origin</h3>
+              <p>Reported separately from race — these figures do not form another 100% split.</p>
             </header>
-            <ProportionBars items={usEthnicityContext} color="coral" />
+            <AnimatedShareBars items={usEthnicityContext} color="coral" />
             <p className="demographic-measure-note">Keep race and Hispanic origin separate when presenting this portrait.</p>
           </article>
         </div>
       </section>
 
-      <section className="demographic-section demographic-identity-section" aria-label="Older edge identity data">
-        <header className="demographic-section-heading compact">
-          <div>
-            <p className="demographic-section-label">Identity / careful scope</p>
-            <h2>Identity data exists only for the older edge.</h2>
-          </div>
-          <p>{olderTeenIdentity.scope}. It should not be applied to younger children or treated as a full-generation estimate.</p>
-        </header>
-
-        <details className="demographic-disclosure">
-          <summary>
-            <span>
-              <strong>Older edge only</strong>
-              <small>Open the 2023 national YRBS snapshot</small>
-            </span>
-            <ChevronDown aria-hidden="true" size={24} />
-          </summary>
-          <div className="demographic-disclosure-content">
-            <article>
-              <h3>Sexual identity</h3>
-              <ProportionBars items={olderTeenIdentity.sexualIdentity} color="coral" />
-              <SourceLink sourceId="cdc-sexual-identity">CDC survey and methods</SourceLink>
-            </article>
-            <article>
-              <h3>Gender identity</h3>
-              <ProportionBars items={olderTeenIdentity.genderIdentity} color="cyan" />
-              <SourceLink sourceId="cdc-gender-identity">CDC gender-identity analysis</SourceLink>
-            </article>
-          </div>
-        </details>
-      </section>
-
       <section className="demographic-section global-demographic-section" aria-label="Global snapshot">
         <header className="global-demographic-opening">
           <div>
-            <p className="demographic-section-label">Global / separate universe</p>
-            <h2>The global story is larger—and much younger in some regions.</h2>
+            <p className="demographic-section-label">Global</p>
+            <h2>The world’s youth population is larger — and unevenly distributed.</h2>
           </div>
           <div className="global-total">
-            <strong>2.01 billion</strong>
-            <span>people ages 0–14 worldwide in 2024</span>
+            <PopulationCount
+              value={globalYouthHeadline.value}
+              display={globalYouthHeadline.display}
+              className="global-population-count"
+              data-testid="global-population-count"
+            />
+            <span>{globalYouthHeadline.detail}</span>
           </div>
         </header>
         <div className="global-demographic-body">
-          <ProportionBars items={globalRegions} color="acid" />
+          <AnimatedShareBars
+            items={globalRegions}
+            color="acid"
+            showCounts
+            highlightLabel="North America"
+            variant="global"
+          />
           <aside>
             <h3>What is intentionally absent</h3>
             <p>{globalCoverageNote}</p>
@@ -201,9 +159,17 @@ export default function DemographicOverview() {
         </div>
       </section>
 
+      <section className="demographic-section demographic-synthesis" aria-label="Demographic insight">
+        <div className="demographic-synthesis-box">
+          <p className="demographic-section-label">Insight</p>
+          <h2>{demographicSynthesis.title}</h2>
+          <p>{demographicSynthesis.body}</p>
+        </div>
+      </section>
+
       <section className="demographic-section demographic-next" aria-label="Continue into the Lab">
         <header>
-          <h2>Now move from who they are to how life feels.</h2>
+          <h2>From who they are to how they live.</h2>
           <p>Demographics establish the population. The rest of the Lab handles behavior, culture, comparison, and evidence.</p>
         </header>
         <div className="demographic-next-grid">

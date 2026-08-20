@@ -7,8 +7,8 @@ export default function SpacesPage() {
     <main className="spaces-page">
       <SiteHeader active="spaces" />
       <section className="page-opening spaces-opening">
-        <h1>Where time becomes culture.</h1>
-        <p>Fifty-four digital, physical, and hybrid environments reveal different patterns of play, identity, friendship, discovery, making, and family life.</p>
+        <h1>Where they actually spend time.</h1>
+        <p>Twenty-five featured places anchor the directory. Every space still has a deep link for culture-shaper cross-references and filtered browsing.</p>
       </section>
       <SpaceFilters spaces={spaces} />
     </main>

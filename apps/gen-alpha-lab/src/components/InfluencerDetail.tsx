@@ -1,9 +1,9 @@
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import IndicatorTooltip from "@/components/IndicatorTooltip";
 import SiteHeader from "@/components/SiteHeader";
 import { getCultureShaper, getCultureShaperImage, getCultureShaperPublicIds, type CultureShaper } from "@/lib/content/culture-shapers";
+import { getHumanProfile } from "@/lib/content/profiles";
 import { getInsight } from "@/lib/content/insights";
 import { getSource } from "@/lib/content/selectors";
 import { spaces } from "@/lib/spaces";
@@ -23,6 +23,8 @@ type InfluencerDetailProps = {
 export default function InfluencerDetail({ influencer }: InfluencerDetailProps) {
   const profile = getCultureShaper(influencer.id);
   if (!profile) return null;
+
+  const human = getHumanProfile(profile.id);
   const relatedSpaces = profile.relatedSpaceIds
     .map((spaceId) => spaces.find((space) => space.id === spaceId))
     .filter((space) => space !== undefined);
@@ -31,6 +33,8 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
     .filter((insight) => insight !== undefined);
   const publicIds = getCultureShaperPublicIds(profile);
   const embeddableVideos = profile.videos.filter((video) => video.embeddable);
+  const knownFor = human?.knownFor ?? profile.definingMoments;
+  const heroSummary = human?.whoTheyAre ?? profile.summary;
 
   return (
     <main className="influencer-detail-page">
@@ -44,26 +48,117 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
           <div>
             <span>{profile.type.replace("screen-ip", "Screen / IP")} / {profile.category}</span>
             <h1>{profile.name}</h1>
-            <p>{profile.summary}</p>
+            <p>{heroSummary}</p>
           </div>
           {getCultureShaperImage(profile) ? <img src={getCultureShaperImage(profile)} alt={profile.name} /> : null}
         </header>
 
-        <section className="profile-locator" aria-label="Where to find this profile">
+        <section className="profile-human">
           <div>
-            <span>Lab ID</span>
-            <strong>{profile.id}</strong>
-            {publicIds.length > 1 ? <p>Also routed as {publicIds.filter((id) => id !== profile.id).map((id) => `/${id}`).join(", ")}</p> : null}
+            <span>Profile</span>
+            <h2>Who they are</h2>
+            {human ? (
+              <>
+                <p>{human.origin}</p>
+                <p>{human.whoTheyAre}</p>
+                {human.wikipediaUrl ? (
+                  <a className="text-link profile-wikipedia-link" href={human.wikipediaUrl} rel="noreferrer" target="_blank">
+                    Read on Wikipedia <ArrowUpRight aria-hidden="true" size={15} />
+                  </a>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <p>{profile.summary}</p>
+                <p>{profile.role}</p>
+              </>
+            )}
           </div>
           <div>
-            <span>Find them</span>
+            <span>Audience</span>
+            <h2>Who they reach</h2>
+            <p>{human?.whoTheyReach ?? profile.audience.center}</p>
+            {!human ? <p>{profile.audience.broader}</p> : null}
+          </div>
+        </section>
+
+        <section className="profile-human">
+          <div>
+            <span>Content</span>
+            <h2>What they make</h2>
+            <p>{human?.whatTheyMake ?? `${profile.category}. ${profile.formats.join(", ")}.`}</p>
+          </div>
+          {human?.footprint ? (
+            <div>
+              <span>Footprint</span>
+              <h2>Scale and presence</h2>
+              <p>{human.footprint}</p>
+            </div>
+          ) : (
+            <div>
+              <span>Where they show up</span>
+              <h2>Platforms</h2>
+              <ul>{profile.platforms.map((platform) => <li key={platform}>{platform}</li>)}</ul>
+            </div>
+          )}
+        </section>
+
+        <section className="profile-moments">
+          <h2>{human ? "Known for" : "Big moments"}</h2>
+          <div>
+            {knownFor.map((moment, index) => (
+              <article key={moment}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{moment}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="profile-human">
+          <div>
+            <span>Sphere of influence</span>
+            <h2>What they shape</h2>
+            <p>{human?.sphere ?? profile.category}</p>
+          </div>
+          <div>
+            <span>Where you&apos;d have seen them</span>
+            <h2>Everyday touchpoints</h2>
+            <p>{human?.whereYouSeeThem ?? profile.platforms.join(" · ")}</p>
+          </div>
+        </section>
+
+        <section className="profile-human profile-human-solo">
+          <div>
+            <span>Influence</span>
+            <h2>Why {profile.pronouns} matters</h2>
+            <p>{profile.influenceMechanism}</p>
+          </div>
+        </section>
+
+        <section className="profile-destination" aria-label="Official destination and platforms">
+          <div>
+            <span>Official destination</span>
             <a href={profile.officialUrl} rel="noreferrer" target="_blank">
               {hostnameFrom(profile.officialUrl)} <ArrowUpRight aria-hidden="true" size={15} />
             </a>
-            <p>{profile.platforms.join(" · ")}</p>
           </div>
           <div>
-            <span>Connected insights</span>
+            <span>Platforms</span>
+            <p>{profile.platforms.join(" · ")}</p>
+          </div>
+        </section>
+
+        <aside className="profile-lab-id" aria-label="Lab identifier">
+          <span>Lab ID</span>
+          <strong>{profile.id}</strong>
+          {publicIds.length > 1 ? <p>Also routed as {publicIds.filter((id) => id !== profile.id).map((id) => `/${id}`).join(", ")}</p> : null}
+        </aside>
+
+        <section className="profile-intelligence" aria-label="Related insights and spaces">
+          <div>
+            <span>Related insights</span>
+            <h2>Follow the connections</h2>
             {relatedInsights.length > 0 ? (
               <ul>
                 {relatedInsights.map((insight) => (
@@ -73,58 +168,22 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
             ) : (
               <p>No linked insight pages yet.</p>
             )}
-          </div>
-        </section>
-
-        <section className="influencer-indicators" aria-label="Editorial influence indicators">
-          {Object.values(profile.indicators).map((indicator) => (
-            <div data-testid="influencer-indicator" key={indicator.indicator}>
-              <span>{indicator.label} <IndicatorTooltip assessment={indicator} /></span>
-              <strong>Tier {indicator.tier}</strong>
-              <p>{indicator.definition}</p>
-              <p>{indicator.rationale}</p>
-            </div>
-          ))}
-        </section>
-
-        <section className="profile-intelligence">
-          <div>
-            <span>Influence thesis</span>
-            <h2>Why {profile.pronouns} matters</h2>
-            <p>{profile.influenceMechanism}</p>
+            <h3>Related spaces</h3>
+            <ul>{relatedSpaces.map((space) => <li key={space.id}><Link href={`/spaces#${space.id}` as Route}>{space.name}</Link></li>)}</ul>
+            {profile.relatedEntities.length > 0 ? (
+              <>
+                <h3>Related profiles</h3>
+                <ul>{profile.relatedEntities.map((entity) => <li key={entity.id}><Link href={entity.href as Route}>{entity.label}</Link></li>)}</ul>
+              </>
+            ) : null}
           </div>
           <div>
-            <span>Audience</span>
-            <h2>Who is watching</h2>
-            <p>{profile.audience.center}</p>
-            <p>{profile.audience.broader}</p>
-            <p><strong>{profile.audience.confidence} confidence.</strong> {profile.audience.confidenceRationale}</p>
-            <ul>{profile.audienceSegments.map((segment) => <li key={segment}>{segment}</li>)}</ul>
-          </div>
-        </section>
-
-        <section className="profile-intelligence" aria-label="Topics, formats, and platforms">
-          <div>
-            <span>Topics</span>
-            <h2>What it carries</h2>
-            <ul>{profile.topics.map((topic) => <li key={topic}>{topic}</li>)}</ul>
-          </div>
-          <div>
-            <span>Formats and platforms</span>
-            <h2>How it travels</h2>
-            <ul>{[...profile.formats, ...profile.platforms].map((item) => <li key={item}>{item}</li>)}</ul>
-          </div>
-        </section>
-
-        <section className="profile-moments">
-          <h2>Key formats and moments</h2>
-          <div>
-            {profile.definingMoments.map((moment, index) => (
-              <article key={moment}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <p>{moment}</p>
-              </article>
-            ))}
+            <span>Evidence notes</span>
+            <h2>How to read this profile</h2>
+            {profile.sourceNotes.map((sourceNote) => {
+              const source = getSource(sourceNote.sourceId);
+              return source ? <p key={sourceNote.sourceId}>{sourceNote.note} <a href={source.url} target="_blank" rel="noreferrer">{source.organization} <ArrowUpRight aria-hidden="true" size={15} /></a></p> : null;
+            })}
           </div>
         </section>
 
@@ -159,24 +218,6 @@ export default function InfluencerDetail({ influencer }: InfluencerDetailProps) 
             <p>{profile.mediaFallback}</p>
           </aside>
         ) : null}
-
-        <section className="profile-intelligence" aria-label="Related intelligence and sources">
-          <div>
-            <span>Related intelligence</span>
-            <h2>Follow the connections</h2>
-            <ul>{profile.relatedEntities.map((entity) => <li key={entity.id}><Link href={entity.href as Route}>{entity.label}</Link></li>)}</ul>
-            <h3>Related spaces</h3>
-            <ul>{relatedSpaces.map((space) => <li key={space.id}><Link href={`/spaces#${space.id}` as Route}>{space.name}</Link></li>)}</ul>
-          </div>
-          <div>
-            <span>Evidence notes</span>
-            <h2>How to read this profile</h2>
-            {profile.sourceNotes.map((sourceNote) => {
-              const source = getSource(sourceNote.sourceId);
-              return source ? <p key={sourceNote.sourceId}>{sourceNote.note} <a href={source.url} target="_blank" rel="noreferrer">{source.organization} <ArrowUpRight aria-hidden="true" size={15} /></a></p> : null;
-            })}
-          </div>
-        </section>
 
         <a className="profile-channel-link" href={profile.officialUrl} target="_blank" rel="noreferrer">
           Open official destination <ArrowUpRight aria-hidden="true" size={18} />

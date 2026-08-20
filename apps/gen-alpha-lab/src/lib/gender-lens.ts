@@ -36,8 +36,8 @@ export const genderLenses: GenderLens[] = [
   {
     id: "boys",
     label: "Boys",
-    headline: "Gaming is a stronger identity signal—and a larger exposure surface.",
-    framing: "The direct-child evidence shows longer screen and gaming time plus more console use among boys. Teen evidence adds gamer identity, social play, and harassment. The contradiction matters: participation and exposure rise together.",
+    headline: "More screen time, more gaming, more social play—and more harassment risk.",
+    framing: "Boys log longer screen days and heavier console use. Teen data adds gamer identity and social play. Participation and exposure rise together.",
     findings: [
       {
         metric: "2:38",
@@ -111,8 +111,8 @@ export const genderLenses: GenderLens[] = [
   {
     id: "girls",
     label: "Girls",
-    headline: "Social connection, reading, gaming, and pressure coexist.",
-    framing: "The girls lens becomes useful when it holds apparent contradictions: gaming is widespread even when gamer identity is lower; online spaces can strengthen friendship while also intensifying popularity pressure; reading and social video both have stronger signals.",
+    headline: "Girls game, read, connect online—and report more pressure.",
+    framing: "Gaming is nearly universal even when gamer identity stays lower. Online life can strengthen friendship and intensify popularity pressure at the same time.",
     findings: [
       {
         metric: "86%",
@@ -186,8 +186,8 @@ export const genderLenses: GenderLens[] = [
   {
     id: "gender-diverse",
     label: "Gender-diverse youth",
-    headline: "Visibility is measurable. A distinct Gen Alpha media profile is not.",
-    framing: "Binary media tables cannot describe this audience. National youth data establishes that trans and questioning students are present and face distinct safety conditions, while smaller qualitative studies explain why online spaces can matter. None of that supports inventing a Gen Alpha media routine.",
+    headline: "Presence is measurable. A media profile is not.",
+    framing: "Binary media tables cannot describe this audience. National data shows trans and questioning students are present and face distinct safety conditions—but none of that supports inventing a Gen Alpha media routine.",
     findings: [
       {
         metric: "3.3%",

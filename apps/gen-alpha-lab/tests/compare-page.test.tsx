@@ -12,6 +12,8 @@ const topicTitles = [
   "Friendship & connection",
   "Creation & expression",
   "Household influence",
+  "Top music artists",
+  "Creators they follow",
 ];
 
 const cohortLabels = {
@@ -51,13 +53,23 @@ const strategicDifferences = {
     genX: "Separate child desire from adult decision power: Alpha evidence measures household participation, while a matched Gen X commerce comparison is absent.",
     boomers: "Plan for a multi-generational decision system rather than opposing child and Boomer mentalities; the available evidence only measures Alpha's side.",
   },
+  "top-music-artists": {
+    genZ: "Alpha meets artist culture through video-first discovery while childhood playlists are still forming; Gen Z supplies the adjacent social-and-streaming mix, not a matched childhood music ranking.",
+    genX: "Plan for soundtrack travel across clips, games, and playlists; this library has no matched Gen X childhood measure for today's artist-attention pattern.",
+    boomers: "Use Alpha's format evidence to plan for sound-led discovery without inventing a Boomer opposite or a single household soundtrack.",
+  },
+  "creators-they-follow": {
+    genZ: "Alpha's creator roster forms earlier and wider: leagues, brands, and peers all model participation through creator formats, while Gen Z evidence shows the adjacent social shift—not a finished follow list.",
+    genX: "Design for translated, repeatable creator formats; do not assume Gen X childhood fandom looked like today's follow graph.",
+    boomers: "Plan for the creator maps children have now rather than opposing them to a nostalgia version of celebrity culture.",
+  },
 } as const;
 
 type TopicId = keyof typeof strategicDifferences;
 const comparisonTopics: ComparisonDimension[] = comparisonDimensions;
 
 describe("topic and cohort comparison", () => {
-  it("defines six high-value topics and an exact strategic difference for every cohort combination", () => {
+  it("defines eight high-value topics and an exact strategic difference for every cohort combination", () => {
     expect(comparisonTopics.map((topic) => topic.title)).toEqual(topicTitles);
 
     for (const topic of comparisonTopics) {
@@ -100,7 +112,7 @@ describe("topic and cohort comparison", () => {
     const user = userEvent.setup();
     const { container } = render(<ComparePage />);
 
-    expect(screen.getByRole("heading", { name: "Compare Gen Alpha by topic and cohort." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Gen Alpha vs. older cohorts, topic by topic." })).toBeInTheDocument();
     const cohortControl = screen.getByRole("combobox", { name: "Comparison cohort" });
     const topicControl = screen.getByRole("combobox", { name: "Comparison topic" });
     expect(within(cohortControl).getAllByRole("option").map((option) => option.textContent)).toEqual(Object.values(cohortLabels));
@@ -111,7 +123,7 @@ describe("topic and cohort comparison", () => {
     await user.selectOptions(topicControl, "compare-play-belonging");
 
     const result = screen.getByRole("region", { name: "Comparison result" });
-    expect(within(result).getByRole("heading", { name: "Play & belonging: Gen Alpha and Gen X" })).toBeInTheDocument();
+    expect(within(result).getByRole("heading", { name: "Play & belonging" })).toBeInTheDocument();
     expect(within(result).getByText(strategicDifferences["compare-play-belonging"].genX)).toBeInTheDocument();
     expect(within(result).getByText("Evidence gap")).toBeInTheDocument();
     expect(within(result).queryByText(strategicDifferences["media-attention"].genZ)).not.toBeInTheDocument();
@@ -124,29 +136,29 @@ describe("topic and cohort comparison", () => {
     render(<ComparePage />);
 
     const result = screen.getByRole("region", { name: "Comparison result" });
-    expect(within(result).getByText("Strategic interpretation")).toBeInTheDocument();
-    expect(within(result).getByText("What that can look like")).toBeInTheDocument();
-    expect(within(result).getByText("Keep in mind")).toBeInTheDocument();
-    expect(within(result).getByText(/opens YouTube for a walkthrough/i)).toBeInTheDocument();
-    expect(within(result).getByText("Comparison class")).toBeInTheDocument();
+    expect(within(result).getByText(strategicDifferences["media-attention"].genZ)).toBeInTheDocument();
     const proof = within(result).getByTestId("comparison-proof");
     expect(proof).not.toHaveAttribute("open");
-    expect(within(proof).getByText(/54% more time.*26% less time/i)).not.toBeVisible();
-    await user.click(within(proof).getByText("Open evidence and methodology"));
+    expect(within(proof).getByText("What that can look like")).toBeInTheDocument();
+    expect(within(proof).getByText("Keep in mind")).toBeInTheDocument();
+    expect(within(proof).getByText("Comparison class")).toBeInTheDocument();
+    expect(within(proof).getByText(/opens YouTube for a walkthrough/i)).not.toBeVisible();
+    await user.click(within(proof).getByText("Evidence and methodology"));
     expect(proof).toHaveAttribute("open");
+    expect(within(proof).getByText(/opens YouTube for a walkthrough/i)).toBeVisible();
     expect(within(proof).getByText(/54% more time.*26% less time/i)).toBeVisible();
-    expect(within(result).getByRole("link", { name: "Open direct source: 2025 Digital Media Trends" })).toHaveAttribute(
+    expect(within(proof).getByRole("link", { name: "Open direct source: 2025 Digital Media Trends" })).toHaveAttribute(
       "href",
       "https://www.deloitte.com/us/en/insights/industry/technology/digital-media-trends-consumption-habits-survey/2025.html",
     );
-    expect(within(result).getAllByRole("link", { name: /Open source record/i }).length).toBeGreaterThan(0);
-    expect(within(result).getAllByRole("link", { name: /Open connected insight/i }).length).toBeGreaterThan(0);
+    expect(within(proof).getAllByRole("link", { name: /Open source record/i }).length).toBeGreaterThan(0);
+    expect(within(proof).getAllByRole("link", { name: /Open connected insight/i }).length).toBeGreaterThan(0);
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Comparison cohort" }), "boomers");
     expect(within(result).getByText("Adult age-band proxy")).toBeInTheDocument();
     const boomerProof = within(result).getByTestId("comparison-proof");
     expect(boomerProof).not.toHaveAttribute("open");
-    await user.click(within(boomerProof).getByText("Open evidence and methodology"));
+    await user.click(within(boomerProof).getByText("Evidence and methodology"));
     expect(within(boomerProof).getByText(/64% among ages 65\+.*TikTok use was.*12%/i)).toBeVisible();
     expect(within(boomerProof).getByRole("link", { name: "Open direct source: Americans' Social Media Use 2025" })).toHaveAttribute(
       "href",
@@ -161,17 +173,14 @@ describe("topic and cohort comparison", () => {
     const result = screen.getByRole("region", { name: "Comparison result" });
     expect(within(result).getByText(/media isn't a lineup; it's a living room/i)).toBeInTheDocument();
     expect(within(result).getByText(/Treat Gen Z as the rough draft, not the final answer/i)).toBeInTheDocument();
-    expect(within(result).getByText(/spots the creator inside the game itself/i)).toBeInTheDocument();
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Comparison topic" }), "compare-play-belonging");
     expect(within(result).getByText(/play isn't something you finish; it's somewhere you build/i)).toBeInTheDocument();
     expect(within(result).getByText(/making, learning, and hanging out already live inside the same play space/i)).toBeInTheDocument();
-    expect(within(result).getByText(/same joke, build, or friendship can show up at school/i)).toBeInTheDocument();
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Comparison topic" }), "learning-ai");
     expect(within(result).getByText(/AI is already in the room/i)).toBeInTheDocument();
     expect(within(result).getByText(/difference is timing/i)).toBeInTheDocument();
-    expect(within(result).getByText(/How do we know that answer is right/i)).toBeInTheDocument();
   });
 
   it("keeps four internal observations collapsed until someone wants the research frontier", async () => {

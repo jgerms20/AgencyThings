@@ -12,12 +12,15 @@ describe("Gen Alpha demographic overview", () => {
 
     await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "dark"));
     expect(screen.getByRole("heading", { name: "Who is Gen Alpha?" })).toBeInTheDocument();
+    expect(screen.getByText("Generation boundaries are conventions")).toBeInTheDocument();
     expect(screen.getAllByTestId("demographic-headline-fact")).toHaveLength(4);
     expect(screen.getByText("59.7M")).toBeInTheDocument();
     expect(screen.getByText("2.01B")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "U.S. demographic portrait" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Global snapshot" })).toBeInTheDocument();
-    expect(screen.getByText(/high-school students, not the full Gen Alpha generation/i)).toBeInTheDocument();
+    expect(screen.getByText(/North America is only 3\.2%/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "From who they are to how they live." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "How they live" })).toBeInTheDocument();
     expect(screen.getAllByTestId("deeper-route")).toHaveLength(4);
   });
 
@@ -30,20 +33,11 @@ describe("Gen Alpha demographic overview", () => {
     expect(screen.queryByText("Curated media shelf")).not.toBeInTheDocument();
   });
 
-  it("keeps older-teen identity detail collapsed until the presenter asks for it", async () => {
-    const user = userEvent.setup();
+  it("does not surface older-teen identity data on the overview page", () => {
     render(<LabWorkspace initialRecords={seedRecords} />);
 
-    const section = screen.getByRole("region", { name: "Older edge identity data" });
-    const disclosure = within(section).getByText("Older edge only").closest("details");
-    expect(disclosure).not.toHaveAttribute("open");
-    expect(within(section).queryByText("73.3%", { exact: true })).not.toBeVisible();
-
-    await user.click(within(section).getByText("Older edge only"));
-
-    expect(disclosure).toHaveAttribute("open");
-    expect(within(section).getByText("73.3%", { exact: true })).toBeVisible();
-    expect(within(section).getByText("3.3%", { exact: true })).toBeVisible();
+    expect(screen.queryByRole("region", { name: "Older edge identity data" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/high-school students, not the full Gen Alpha generation/i)).not.toBeInTheDocument();
   });
 
   it("routes deeper analysis without previewing the whole Lab", () => {

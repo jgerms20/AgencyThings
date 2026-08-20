@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import { genderLenses, genderMethodology, type GenderLensId } from "@/lib/gender-lens";
@@ -17,12 +17,12 @@ export default function GenderLensPage() {
       <SiteHeader active="gender" />
       <section className="research-opening gender-opening">
         <div className="gender-opening-thesis">
-          <p className="research-kicker">Gender lens / evidence before assumption</p>
+          <p className="research-kicker">Gender lens</p>
           <h1>Gender is a lens, not a shortcut.</h1>
         </div>
         <div className="gender-opening-copy">
           <strong>Patterns are real enough to investigate and too incomplete to predict a child.</strong>
-          <p>Use the differences to ask sharper questions about access, identity, social context, and platform culture. Hold the contradictions. Keep the person bigger than the segment.</p>
+          <p>Use the gaps to ask sharper questions. Keep the person bigger than the segment.</p>
         </div>
       </section>
 
@@ -49,8 +49,7 @@ export default function GenderLensPage() {
           id={`gender-panel-${active.id}`}
           role="tabpanel"
         >
-          <header>
-            <p>{active.label} / current evidence</p>
+          <header className="gender-panel-header">
             <h2>{active.headline}</h2>
             <p>{active.framing}</p>
           </header>
@@ -60,17 +59,14 @@ export default function GenderLensPage() {
               <article className={`gender-finding signal-${finding.signal.replace(" ", "-")}`} key={finding.title}>
                 <div className="gender-finding-topline">
                   {finding.metric ? <strong>{finding.metric}</strong> : <strong className="evidence-gap">Evidence gap</strong>}
-                  <div>
-                    <span>{finding.evidenceClass}</span>
+                  <div className="gender-finding-tags">
+                    <span className="gender-evidence-class">{finding.evidenceClass}</span>
                     <span className="gender-signal">{signalLabel(finding.signal)}</span>
                   </div>
                 </div>
                 <h3>{finding.title}</h3>
-                <p>{finding.finding}</p>
-                <aside>
-                  <span>Read this as</span>
-                  <p>{finding.interpretation}</p>
-                </aside>
+                <p className="gender-finding-lead">{finding.finding}</p>
+                <p className="gender-finding-read">{finding.interpretation}</p>
                 <a href={finding.sourceUrl} rel="noreferrer" target="_blank" aria-label={`Open source: ${finding.sourceTitle}`}>
                   <span>{finding.sourceOrganization}</span>
                   {finding.sourceTitle}
@@ -87,18 +83,26 @@ export default function GenderLensPage() {
         </div>
       </section>
 
-      <section className="methodology-panel" role="region" aria-label="How to read this evidence">
-        <header><p>Validity / what this can and cannot tell us</p><h2>How to read this evidence.</h2></header>
-        <ol>
-          <li><span>Sample</span><p>{genderMethodology.sample}</p></li>
-          <li><span>Cohort fit</span><p>{genderMethodology.proxy}</p></li>
-          <li><span>Measurement</span><p>{genderMethodology.measurement}</p></li>
-          <li><span>Interpretation</span><p>{genderMethodology.interpretation}</p></li>
-        </ol>
-        <a href="https://www.pewresearch.org/internet/2024/12/12/teens-social-media-tech-methodology/" rel="noreferrer" target="_blank">
-          Read the full Pew methodology <ArrowUpRight aria-hidden="true" size={17} />
-        </a>
-      </section>
+      <details className="methodology-panel gender-methodology" role="region" aria-label="How to read this evidence">
+        <summary>
+          <div>
+            <p>Validity / what this can and cannot tell us</p>
+            <h2>How to read this evidence.</h2>
+          </div>
+          <ChevronDown aria-hidden="true" size={24} />
+        </summary>
+        <div className="gender-methodology-body">
+          <ol>
+            <li><span>Sample</span><p>{genderMethodology.sample}</p></li>
+            <li><span>Cohort fit</span><p>{genderMethodology.proxy}</p></li>
+            <li><span>Measurement</span><p>{genderMethodology.measurement}</p></li>
+            <li><span>Interpretation</span><p>{genderMethodology.interpretation}</p></li>
+          </ol>
+          <a href="https://www.pewresearch.org/internet/2024/12/12/teens-social-media-tech-methodology/" rel="noreferrer" target="_blank">
+            Read the full Pew methodology <ArrowUpRight aria-hidden="true" size={17} />
+          </a>
+        </div>
+      </details>
     </main>
   );
 }

@@ -42,6 +42,24 @@ const sourceMarket = (geography: string): Exclude<MarketFilter, "all"> => {
   return "global";
 };
 
+const recordMarket = (record: ResearchRecord): Exclude<MarketFilter, "all"> => {
+  if (record.tags.includes("market-us")) return "us";
+  if (record.tags.includes("market-uk")) return "uk";
+  if (record.tags.includes("market-global")) return "global";
+
+  const source = record.source.toLowerCase();
+  const title = record.title.toLowerCase();
+  const url = record.url?.toLowerCase() ?? "";
+
+  if (source.includes("ofcom") || title.includes("ofcom")) return "uk";
+  if (url.includes("podcasts.apple.com/gb") || url.includes("/uk/")) return "uk";
+  if (source.includes("common sense") || source.includes("cbs") || source.includes("pew") || source.includes("pwc") || source.includes("nielsen")) return "us";
+  if (url.includes("podcasts.apple.com/us") || url.includes("open.spotify.com/episode")) return "us";
+  if (source.includes("mccrindle")) return "global";
+
+  return "global";
+};
+
 const sourceMarketLabel = (source: Source) => {
   const market = sourceMarket(source.geography);
   if (market === "us") return "U.S. evidence";
@@ -61,6 +79,7 @@ const sourceFormatForLibraryFormat: Partial<Record<LibraryFormat, Source["format
   reports: "report",
   articles: "article",
   books: "book",
+  podcasts: "podcast",
   videos: "video"
 };
 
@@ -86,6 +105,14 @@ const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice
 export default function LibraryPage({ initialRecords }: LibraryPageProps) {
   const [activeFormat, setActiveFormat] = useState<LibraryFormat>("all");
   const [activeMarket, setActiveMarket] = useState<MarketFilter>("us");
+  const seedRecords = useMemo(
+    () => initialRecords.filter((record) => !sources.some((source) => source.id === record.id)),
+    [initialRecords]
+  );
+  const marketFilteredSeedRecords = useMemo(
+    () => seedRecords.filter((record) => activeMarket === "all" || recordMarket(record) === activeMarket),
+    [activeMarket, seedRecords]
+  );
   const canonicalSources = useMemo(
     () => browsableSources.filter((source) => {
       const matchesFormat = activeFormat === "all" || source.format === sourceFormatForLibraryFormat[activeFormat];
@@ -95,9 +122,10 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
     [activeFormat, activeMarket]
   );
   const sections = useMemo(
-    () => getLibrarySections(filterLibraryByFormat(initialRecords.filter((record) => !sources.some((source) => source.id === record.id)), activeFormat)).filter((section) => section.records.length > 0),
-    [activeFormat, initialRecords]
+    () => getLibrarySections(filterLibraryByFormat(marketFilteredSeedRecords, activeFormat)).filter((section) => section.records.length > 0),
+    [activeFormat, marketFilteredSeedRecords]
   );
+  const hasResults = canonicalSources.length > 0 || sections.length > 0;
 
   return (
     <main className="library-page">
@@ -153,6 +181,12 @@ export default function LibraryPage({ initialRecords }: LibraryPageProps) {
         </div>
 
         <div className="library-groups">
+          {!hasResults ? (
+            <section className="library-empty" aria-live="polite">
+              <h2>No sources match this market and format.</h2>
+              <p>Try another market lens or switch back to All markets.</p>
+            </section>
+          ) : null}
           {canonicalSources.length > 0 ? (
             <section className="library-group" aria-labelledby="canonical-sources-heading">
               <div className="library-group-heading"><FileText aria-hidden="true" size={21} /><div><h2 id="canonical-sources-heading">Source records</h2><p>Directly linked source records with extracted evidence, scope, strength, and related conclusions.</p></div></div>

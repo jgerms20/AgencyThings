@@ -1,6 +1,7 @@
 export type DemographicShare = {
   label: string;
   value: number;
+  count?: string;
   detail?: string;
 };
 
@@ -84,14 +85,39 @@ export const olderTeenIdentity = {
 } as const;
 
 export const globalRegions: DemographicShare[] = [
-  { label: "Sub-Saharan Africa", value: 26.1 },
-  { label: "East Asia & Pacific", value: 21.4 },
-  { label: "South Asia", value: 20.8 },
-  { label: "Middle East, North Africa, Afghanistan & Pakistan", value: 13 },
-  { label: "Europe & Central Asia", value: 8 },
-  { label: "Latin America & Caribbean", value: 7.4 },
-  { label: "North America", value: 3.2 },
+  { label: "Sub-Saharan Africa", value: 26.1, count: "~525M" },
+  { label: "East Asia & Pacific", value: 21.4, count: "~430M" },
+  { label: "South Asia", value: 20.8, count: "~418M" },
+  { label: "Middle East, North Africa, Afghanistan & Pakistan", value: 13, count: "~261M" },
+  { label: "Europe & Central Asia", value: 8, count: "~161M" },
+  { label: "Latin America & Caribbean", value: 7.4, count: "~149M" },
+  { label: "North America", value: 3.2, count: "~64M" },
 ];
+
+export const usPopulationHeadline = {
+  value: 59_698_140,
+  display: "59.7 million",
+  compact: "59.7M",
+  disclaimer: "July 2024 Census estimate of U.S. residents ages 0–14 — the closest clean proxy for this Lab’s 2010–2024 working definition, not an official “Gen Alpha” count.",
+} as const;
+
+export const globalYouthHeadline = {
+  value: 2_010_000_000,
+  display: "2.01 billion",
+  compact: "2.01B",
+  detail: "people ages 0–14 worldwide in 2024",
+} as const;
+
+export const generationBoundaryCopy = {
+  kicker: "Generation boundaries are conventions",
+  opening:
+    "There is no official Census category called Gen Alpha. This Lab uses 2010–2024 as a working definition so age-based population data can be read honestly — and so it is clear exactly where each measure stops.",
+} as const;
+
+export const demographicSynthesis = {
+  title: "The youth majority is already outside North America.",
+  body: "North America is only 3.2% of the world’s ages 0–14 population. The next wave of youth culture is being shaped in many countries and languages at once — already visible in KPop Demon Hunters and K-pop, in IShowSpeed’s global soccer streams, and in teenagers like Lamine Yamal becoming worldwide references before they leave their teens.",
+} as const;
 
 export const globalCoverageNote =
   "There is no combined global race, ethnicity, sexual-orientation, or gender-identity rollup here. Countries do not measure those categories consistently enough to combine them responsibly.";
@@ -143,8 +169,8 @@ export const demographicSources: DemographicSource[] = [
 
 export const deeperRoutes = [
   {
-    title: "What their days feel like",
-    description: "Move from demographic context into play, learning, media, identity, and family life.",
+    title: "How they live",
+    description: "Play, media, time, and learning — what their days feel like once you leave the census tables.",
     href: "/insights",
     action: "Explore insights",
   },
