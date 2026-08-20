@@ -142,15 +142,27 @@ export type CultureShaperReference = ContentEntityReference & {
 export type ComparisonClass =
   | "age-matched observed evidence"
   | "current cohort snapshot"
-  | "directional interpretation";
+  | "directional interpretation"
+  | "cultural canon";
 
 export type ComparisonEvidenceStatus =
   | "direct cohort evidence"
   | "near-age proxy"
   | "adult age-band proxy"
+  | "cultural canon"
+  | "editorial hypothesis"
   | "evidence gap";
 
-export type ComparisonCohortKey = "genZ" | "genX" | "boomers";
+export type ComparisonCohortKey = "genZ" | "millennials" | "genX" | "boomers";
+export type GenerationKey = "genAlpha" | ComparisonCohortKey;
+export type ComparisonTopicKind = "moments" | "culture" | "measured";
+
+export type CanonEntry = {
+  id: string;
+  year?: number;
+  label: string;
+  note: string;
+};
 
 export type ComparisonCohort = {
   mentality: string;
@@ -161,6 +173,7 @@ export type ComparisonCohort = {
   sourceIds: string[];
   evidenceIds: string[];
   evidenceSupport: Record<string, string>;
+  entries?: CanonEntry[];
 };
 
 export type ComparisonOption = {
@@ -174,8 +187,12 @@ export type ComparisonOption = {
 export type ComparisonDimension = {
   id: string;
   title: string;
+  kind: ComparisonTopicKind;
+  prompt: string;
+  method: string;
   genAlpha: ComparisonCohort;
   comparisons: Record<ComparisonCohortKey, ComparisonOption>;
+  pairReads: Record<string, string>;
 };
 
 export type CultureShaperType = "creator" | "artist" | "athlete" | "screen-ip" | "franchise";

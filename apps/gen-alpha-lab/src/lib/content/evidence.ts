@@ -413,6 +413,8 @@ const comparisonEvidence = (
   claim: string,
   locator: string,
   supportRationale: string,
+  claimKind: EvidenceClaimKind = "metric",
+  evidenceType: EvidenceType = "self-reported",
 ): EvidenceItem => {
   const source = sourceById.get(sourceId);
   if (!source) throw new Error(`Unknown comparison source ${sourceId}`);
@@ -421,10 +423,10 @@ const comparisonEvidence = (
     id,
     sourceId,
     claim,
-    claimKind: "metric",
+    claimKind,
     supportRationale,
     locator,
-    evidenceType: "self-reported",
+    evidenceType,
     population: source.population,
     ageRange: source.ageRange,
     geography: source.geography,
@@ -456,6 +458,43 @@ const comparisonEvidenceItems: EvidenceItem[] = [
     "YouTube use was 95% among ages 18-29, 92% among ages 30-49, 85% among ages 50-64, and 64% among ages 65+; TikTok use was 63%, 44%, 30%, and 12%, respectively.",
     "Large age gaps in use of many platforms section, age-group figure and appendix table.",
     "Provides scoped adult age-band media proxies for Gen X and Boomers without claiming the age bands are exact generation samples.",
+  ),
+  comparisonEvidence(
+    "evidence-compare-canon-1",
+    "lab-generation-canon-2026",
+    "The Compare page treats shows, films, music, public events, and formative moments as an editorial canon board: documented events and widely reported properties placed on generation timelines, not a ranked survey of taste.",
+    "Overview of generation birth-year conventions; Lab editorial culture lists are not Pew survey results.",
+    "Keeps the culture comparisons honest by naming them as a canon board with overlaps, rather than inventing a head-to-head measurement that this library does not contain.",
+    "editorial inference",
+    "editorial inference",
+  ),
+  comparisonEvidence(
+    "evidence-snap-humor-serious-1",
+    "snap-omnicom-humor-2026",
+    "82% of Next Gen daily social-app users agreed that humor is how their generation talks about serious things, and 85% said humor helps them say things they would not normally say directly.",
+    "Chapter 1 headline findings on humor as emotional infrastructure, pages covering the 6,028-person Next Gen sample.",
+    "Extracts the labeled emotional-infrastructure metrics from the Snap x Omnicom study without treating 13-28 Next Gen as the Lab’s full 0-16 Gen Alpha cohort.",
+  ),
+  comparisonEvidence(
+    "evidence-snap-humor-brands-1",
+    "snap-omnicom-humor-2026",
+    "Three in four Next Gen daily social-app users said brands online often feel like older people trying to joke with them.",
+    "Chapter 1 section on the brand challenge, three-in-four finding from the 6,028-person sample.",
+    "Captures the study’s warning about brand participation without converting it into a universal claim about every child or every platform.",
+  ),
+  comparisonEvidence(
+    "evidence-snap-humor-mechanics-1",
+    "snap-omnicom-humor-2026",
+    "Humor that feels completely random was the #1 type Next Gen enjoys, and 92% agreed the best jokes seem random but have logic behind them; 88% said humor gets funnier the more it builds or continues.",
+    "Chapter 2 sections titled Random Has Rules and Escalate Or Die, 6,028-person Next Gen sample.",
+    "Pulls the labeled joke-mechanic metrics used on the Humor page rather than restating the Lab’s play, media, or time insights.",
+  ),
+  comparisonEvidence(
+    "evidence-snap-humor-snapchat-1",
+    "snap-omnicom-humor-2026",
+    "On Snapchat, jokes were 5.7 times more likely to be shared than discovered, 64% of Next Gen said the funniest memories happen in private or group chats, and 79% of Next Gen Snapchatters share memes, jokes, or funny videos with best friends on the app.",
+    "Chapter 4 sections on turning laughs into Snaps, sharing-versus-discovery headline and private-chat finding.",
+    "Locates Snapchat’s distinct role as a sharing and chat environment, which the Spaces page describes as a product and this page measures as humor behavior.",
   ),
 ];
 

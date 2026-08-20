@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { useEffect, useState } from "react";
 import MobileNav, { type NavigationItem } from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 
-type NavigationId = "overview" | "insights" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "summary" | "library";
+type NavigationId = "overview" | "insights" | "humor" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "summary" | "library";
 
 type SiteHeaderProps = { active?: NavigationId };
 
 const links: readonly NavigationItem<NavigationId>[] = [
   { id: "overview", label: "Overview", href: "/" },
   { id: "insights", label: "Insights", href: "/insights" },
+  { id: "humor", label: "Humor", href: "/humor" as Route },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
   { id: "reach-them", label: "Marketing 101", href: "/reach-them" },

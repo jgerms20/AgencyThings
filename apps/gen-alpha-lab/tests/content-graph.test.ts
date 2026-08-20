@@ -99,7 +99,7 @@ describe("canonical content graph", () => {
     ["themes", { themes: themes.slice(0, 3) }, "Expected exactly 4 themes, received 3"],
     ["insights in a theme", { insights: insights.filter((insight) => insight.themeId !== "play-belonging" || insight.sequence !== 10) }, "Theme must have exactly 10 insights: play-belonging (9)"],
     ["spaces", { spaces: spaces.slice(0, 53) }, "Expected exactly 54 spaces, received 53"],
-    ["comparisons", { comparisons: comparisonDimensions.slice(0, 7) }, "Expected exactly 8 comparison topics, received 7"],
+    ["comparisons", { comparisons: comparisonDimensions.slice(0, 5) }, "Expected exactly 6 comparison topics, received 5"],
   ] as const)("rejects a non-canonical %s count", (_label, changes, expectedIssue) => {
     const issueList = validateContentGraph({ ...canonicalGraph, ...changes } as ContentGraph);
 
@@ -262,7 +262,7 @@ describe("canonical content graph", () => {
         : candidate),
     } as unknown as ContentGraph);
 
-    expect(issueList).toContain(`Comparison adult cohort must use an age-band proxy or evidence gap: ${comparison.id} -> Boomers`);
+    expect(issueList).toContain(`Comparison adult cohort must use an age-band proxy, cultural canon, editorial hypothesis, or evidence gap: ${comparison.id} -> Boomers`);
   });
 
   it("includes canonical Deloitte and Pew comparison evidence with honest scope", () => {

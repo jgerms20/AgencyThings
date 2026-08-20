@@ -7,6 +7,7 @@ import SiteHeader from "../src/components/SiteHeader";
 const expectedDestinations = [
   ["Overview", "/"],
   ["Insights", "/insights"],
+  ["Humor", "/humor"],
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
   ["Marketing 101", "/reach-them"],
@@ -21,7 +22,7 @@ afterEach(() => {
 });
 
 describe("responsive primary navigation", () => {
-  it("renders all nine desktop destinations in the approved order", () => {
+  it("renders all ten desktop destinations in the approved order", () => {
     render(<SiteHeader active="overview" />);
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
