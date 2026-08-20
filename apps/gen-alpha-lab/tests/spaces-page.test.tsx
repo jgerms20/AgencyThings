@@ -6,37 +6,42 @@ import SpacesPage from "../src/components/SpacesPage";
 import { cultureShapers } from "../src/lib/content/culture-shapers";
 
 describe("Spaces page", () => {
-  it("renders the expanded evidence-aware profiles without the broken field label", () => {
+  it("renders featured place cards by default without the old evidence dump layout", () => {
     render(<SpacesPage />);
 
-    expect(screen.getByRole("heading", { name: "Where time becomes culture." })).toBeInTheDocument();
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(54);
+    expect(screen.getByRole("heading", { name: "Where they actually spend time." })).toBeInTheDocument();
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(25);
+    expect(screen.getAllByTestId("space-profile-compact")).toHaveLength(29);
     for (const name of ["Roblox", "YouTube", "Discord", "Spotify", "ChatGPT", "School"]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
     expect(screen.queryByText("What it enables")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Why they go")).toHaveLength(54);
-    expect(screen.getAllByText("What happens there")).toHaveLength(54);
-    expect(screen.getAllByText("Safety and age caveat")).toHaveLength(54);
+    expect(screen.queryByText("Safety and age caveat")).not.toBeInTheDocument();
+    expect(screen.queryByText("What happens there")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Why they go")).toHaveLength(25);
+    expect(screen.getByRole("status")).toHaveTextContent("25 featured spaces");
   });
 
-  it("filters by category, environment, and age and restores all results", async () => {
+  it("filters by category, environment, and age and restores featured results", async () => {
     const user = userEvent.setup();
     render(<SpacesPage />);
 
     const directory = screen.getByRole("region", { name: "Space directory" });
     expect(directory).toHaveStyle({ maxWidth: "100%" });
-    expect(screen.getByRole("status")).toHaveTextContent("54 spaces shown");
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Category" }), "Games & Participatory Worlds");
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(15);
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(5);
+    expect(screen.getAllByTestId("space-profile-compact")).toHaveLength(10);
     expect(screen.getByRole("heading", { name: "Geometry Dash" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Spotify" })).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("15 spaces shown");
 
     await user.click(screen.getByRole("button", { name: "Clear all space filters" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Environment" }), "physical");
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(4);
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(3);
+    expect(screen.getAllByTestId("space-profile-compact")).toHaveLength(1);
     expect(screen.getByRole("heading", { name: "After-school sports and clubs" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("4 spaces shown");
 
     await user.click(screen.getByRole("button", { name: "Clear all space filters" }));
     await user.selectOptions(screen.getByRole("combobox", { name: "Audience age" }), "3-5");
@@ -45,10 +50,12 @@ describe("Spaces page", () => {
     expect(screen.queryByRole("heading", { name: "Discord" })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Clear all space filters" }));
-    expect(screen.getAllByTestId("space-profile")).toHaveLength(54);
+    expect(screen.getAllByTestId("space-profile")).toHaveLength(25);
+    expect(screen.getAllByTestId("space-profile-compact")).toHaveLength(29);
+    expect(screen.getByRole("status")).toHaveTextContent("25 featured spaces");
   });
 
-  it("reveals one related format reference at a time with an always-mounted accessible panel", async () => {
+  it("reveals one related format reference at a time on compact cards", async () => {
     const user = userEvent.setup();
     const spacesPage = render(<SpacesPage />);
 

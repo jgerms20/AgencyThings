@@ -37,7 +37,7 @@ describe("Gen Alpha demographic model", () => {
   it("preserves ethnicity, geography, and global figures as separate universes", () => {
     expect(usEthnicityContext).toContainEqual({ label: "Hispanic or Latino, any race", value: 27 });
     expect(usRegions).toContainEqual({ label: "South", value: 40.2 });
-    expect(globalRegions).toContainEqual({ label: "Sub-Saharan Africa", value: 26.1 });
+    expect(globalRegions).toContainEqual({ label: "Sub-Saharan Africa", value: 26.1, count: "~525M" });
   });
 
   it("labels older-teen identity data and global identity limits honestly", () => {

@@ -49,6 +49,10 @@ const comparisonEvidenceSupport: Record<string, string> = {
   "evidence-play-friendship-travels-2": "Shows children's shared interests moving between games, messaging, video, and in-person friend groups.",
   "evidence-learning-remix-1": "Documents child-reported creativity and problem-solving through active building in Roblox and Minecraft.",
   "evidence-learning-remix-2": "Adds an editorial, interest-segmented example of consumption turning into self-made media.",
+  "evidence-media-short-form-shape-1": "Documents short-form video growth inside young children's changing media mix.",
+  "evidence-media-short-form-shape-2": "Quantifies daily TikTok use among teens as a near-age proxy for short-form music and creator discovery.",
+  "evidence-media-creators-templates-1": "Documents organizations partnering with young creators to translate culture into familiar formats.",
+  "evidence-media-creators-templates-2": "Measures social media as a reported purchase prompt tied to modeled creator interests.",
 };
 
 const cohort = (
@@ -95,6 +99,8 @@ const option = (
   if (realDifference.includes("cross-context continuity")) everydayExample = "A friend first met through a game can become part of a group chat, a playground conversation, and the next shared session.";
   if (realDifference.includes("creation tools inside core play")) everydayExample = "Instead of only watching a finished story, a child changes the avatar, builds the room, records the clip, and sends the result to a friend.";
   if (realDifference.includes("permission and payment")) everydayExample = "A child sees a product in a creator video, searches for it, adds it to a wish list, and asks an adult who still controls the final purchase.";
+  if (realDifference.includes("video-first discovery")) everydayExample = "A chorus from a short clip becomes the playground chant, the Roblox emote, and the song they ask Alexa to replay—often before they know the artist's album.";
+  if (realDifference.includes("creator roster")) everydayExample = "The same person shows up in a YouTube challenge, a game collab, and a group chat recommendation—so 'who they follow' is closer to a cultural map than a fan list.";
   return { comparisonClass, cohort: cohortRecord, realDifference, everydayExample, caveat };
 };
 
@@ -350,6 +356,88 @@ export const comparisonDimensions: ComparisonDimension[] = [
         evidenceGap("Directional interpretation: Boomers may participate in multi-generational households, but the graph does not measure a shared purchase role."),
         "Plan for a multi-generational decision system rather than opposing child and Boomer mentalities; the available evidence only measures Alpha's side.",
         "No canonical source measures Boomer household influence against the Alpha child measure. Household composition and decision authority vary substantially.",
+      ),
+    },
+  },
+  {
+    id: "top-music-artists",
+    title: "Top music artists",
+    genAlpha: cohort(
+      "Favorite artists show up as clips, sounds, and fandom rituals—not just albums on a shelf.",
+      "0-14",
+      "United States",
+      "2025",
+      "direct cohort evidence",
+      ["common-sense-census-2025", "pwc-alpha-2026"],
+      ["evidence-media-short-form-shape-1", "evidence-media-video-default-2"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        cohort(
+          "Gen Z already shifted time toward social platforms and user-generated media over traditional TV and movies.",
+          "Gen Z, defined as 1997-2010",
+          "United States",
+          "2025",
+          "direct cohort evidence",
+          ["deloitte-digital-media-trends-2025"],
+          ["evidence-compare-deloitte-genz-media-1"],
+        ),
+        "Alpha meets artist culture through video-first discovery while childhood playlists are still forming; Gen Z supplies the adjacent social-and-streaming mix, not a matched childhood music ranking.",
+        "The Alpha evidence tracks platform and format use; Deloitte measures Gen Z media time, not favorite artists. Neither is a head-to-head music chart.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Gen X childhood music discovery ran through radio, MTV, and retail—not the short-form feeds measured here."),
+        "Plan for soundtrack travel across clips, games, and playlists; this library has no matched Gen X childhood measure for today's artist-attention pattern.",
+        "No canonical source compares Gen X childhood music discovery with Gen Alpha's short-form and video-led routines. The gap stays visible.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Boomer childhood music habits cannot be reconstructed from the current short-form and platform evidence."),
+        "Use Alpha's format evidence to plan for sound-led discovery without inventing a Boomer opposite or a single household soundtrack.",
+        "No matched Boomer childhood music series is present. Nostalgia about albums or radio is not treated as comparable measurement.",
+      ),
+    },
+  },
+  {
+    id: "creators-they-follow",
+    title: "Creators they follow",
+    genAlpha: cohort(
+      "Creators translate culture—sports, beauty, games, music—into formats kids already watch, copy, and argue about.",
+      "7-14",
+      "United States",
+      "2026",
+      "direct cohort evidence",
+      ["pwc-alpha-2026", "ap-sports-alpha-2026"],
+      ["evidence-media-creators-templates-2", "evidence-media-creators-templates-1"],
+    ),
+    comparisons: {
+      genZ: option(
+        "directional interpretation",
+        cohort(
+          "Gen Z helped normalize creator-led discovery, and major properties now partner with young creators to reach younger audiences.",
+          "Gen Z, defined as 1997-2010; teen creator examples overlap cohort boundaries",
+          "United States",
+          "2025-2026",
+          "near-age proxy",
+          ["deloitte-digital-media-trends-2025", "ap-sports-alpha-2026"],
+          ["evidence-compare-deloitte-genz-media-1", "evidence-media-creators-templates-1"],
+        ),
+        "Alpha's creator roster forms earlier and wider: leagues, brands, and peers all model participation through creator formats, while Gen Z evidence shows the adjacent social shift—not a finished follow list.",
+        "PwC measures Alpha purchase prompts; AP and Deloitte supply creator and media-mix context for Gen Z and teens. The constructs differ and none publish a matched follow roster.",
+      ),
+      genX: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: Gen X grew up before creator platforms, and this graph has no matched childhood follow measure."),
+        "Design for translated, repeatable creator formats; do not assume Gen X childhood fandom looked like today's follow graph.",
+        "No canonical source measures Gen X childhood creator or influencer following against today's Gen Alpha environment.",
+      ),
+      boomers: option(
+        "directional interpretation",
+        evidenceGap("Directional interpretation: the available evidence cannot reconstruct Boomer childhood creator following as a matched comparison."),
+        "Plan for the creator maps children have now rather than opposing them to a nostalgia version of celebrity culture.",
+        "No matched Boomer childhood creator series exists in the research library, so the evidence gap remains explicit.",
       ),
     },
   },

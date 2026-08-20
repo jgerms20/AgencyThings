@@ -226,7 +226,7 @@ type InsightEditorial = Pick<
 
 const editorialByInsightId: Record<string, InsightEditorial> = {
   "play-social-infrastructure": {
-    interpretation: "Gaming matters here as a recurring place to maintain friendship, not simply as entertainment consumed alone.", confidence: "medium", confidenceReason: "A national teen survey and child-focused creation-gaming research converge on friendship and social learning, but cover different age groups.", nuance: "The evidence shows social value for many players; it does not mean every game, server, or friendship is supportive.", genZComparison: "Gen Z normalized multiplayer friendship; Gen Alpha meets social play earlier and inside more creator-built worlds.", agencyImplication: "Give a group something useful to do together repeatedly, with private-by-default social choices.", relatedCreatorIds: ["aphmau"], relatedSpaceIds: ["roblox"],
+    interpretation: "Gaming matters here as a recurring place to maintain friendship, not simply as entertainment consumed alone. For many children, the same world can be a game, a studio, and an informal classroom — creation tools make participation part of play, not a separate mode. Repeated play and private messaging give a known friend group recurring places to coordinate and stay connected.", confidence: "medium", confidenceReason: "A national teen survey and child-focused creation-gaming research converge on friendship and social learning, but cover different age groups.", nuance: "The evidence shows social value for many players; it does not mean every game, server, or friendship is supportive.", genZComparison: "Gen Z normalized multiplayer friendship; Gen Alpha meets social play earlier and inside more creator-built worlds.", agencyImplication: "Give a small crew something useful to do together repeatedly — making, playing, and coordinating in one shared place, with private-by-default social choices.", relatedCreatorIds: ["aphmau"], relatedSpaceIds: ["roblox"],
   },
   "play-making-interface": {
     interpretation: "For many children, the same world can be a game, a studio, and an informal classroom.", confidence: "medium", confidenceReason: "Child survey findings on desired learning are reinforced by first-party behavior signals from a major creation platform.", nuance: "Interest in learning through a game is not evidence that every in-game lesson works or transfers beyond the platform.", genZComparison: "Gen Z often moved from playing to separate creator tools; Gen Alpha increasingly encounters both in one environment.", agencyImplication: "Offer flexible materials, prompts, or mechanics that reward making rather than a finished branded object.", relatedCreatorIds: ["aphmau"], relatedSpaceIds: ["minecraft"],
@@ -347,11 +347,35 @@ const editorialByInsightId: Record<string, InsightEditorial> = {
   },
 };
 
+const featuredInsightIds = new Set([
+  "play-social-infrastructure",
+  "play-friendship-travels",
+  "play-family-coplay",
+  "play-offline-rebound",
+  "play-competition-performance",
+  "media-video-default",
+  "media-short-form-shape",
+  "media-creators-templates",
+  "media-household-negotiation",
+  "media-repeatable-formats",
+  "time-screen-purpose",
+  "time-youtube-rhythm",
+  "time-parent-context",
+  "time-age-change",
+  "time-coexistence",
+  "learning-assembled",
+  "learning-creation-skills",
+  "learning-ai-homework",
+  "learning-verification",
+  "learning-remix",
+]);
+
 export const insights: Insight[] = insightSeeds.map((seed) => ({
   ...seed,
   evidenceIds: factsForInsight(seed.id).map((item) => `evidence-${item.insightId}-${item.slot}`),
   ageRange: "Varies by supporting evidence",
   geography: "Varies by supporting evidence",
+  featured: featuredInsightIds.has(seed.id),
   ...editorialByInsightId[seed.id],
 }));
 

@@ -4,8 +4,7 @@ import { ChevronDown, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import { useState } from "react";
-import { getInsightsForTheme, themes } from "@/lib/content/insights";
-import type { Theme } from "@/lib/content/types";
+import { getFeaturedInsightsForTheme, getInsightsForTheme, themes } from "@/lib/content/insights";
 
 const toneByTheme = {
   "play-belonging": "acid",
@@ -15,13 +14,18 @@ const toneByTheme = {
 } as const;
 
 export default function InsightDirectory() {
-  const [openInsightByTheme, setOpenInsightByTheme] = useState<Partial<Record<Theme["id"], string>>>({});
+  const [openInsightIds, setOpenInsightIds] = useState<Set<string>>(() => new Set());
 
-  const toggleInsight = (themeId: Theme["id"], insightId: string) => {
-    setOpenInsightByTheme((current) => ({
-      ...current,
-      [themeId]: current[themeId] === insightId ? undefined : insightId,
-    }));
+  const toggleInsight = (insightId: string) => {
+    setOpenInsightIds((current) => {
+      const next = new Set(current);
+      if (next.has(insightId)) {
+        next.delete(insightId);
+      } else {
+        next.add(insightId);
+      }
+      return next;
+    });
   };
 
   return (
@@ -37,8 +41,8 @@ export default function InsightDirectory() {
             <p>{theme.description}</p>
           </header>
           <div className="insight-cluster-list">
-            {getInsightsForTheme(theme.id).map((insight) => {
-              const isOpen = openInsightByTheme[theme.id] === insight.id;
+            {getFeaturedInsightsForTheme(theme.id).map((insight) => {
+              const isOpen = openInsightIds.has(insight.id);
               const triggerId = `insight-trigger-${insight.id}`;
               const titleId = `insight-title-${insight.id}`;
               const panelId = `insight-panel-${insight.id}`;
@@ -52,7 +56,7 @@ export default function InsightDirectory() {
                       aria-labelledby={titleId}
                       className="insight-directory-trigger"
                       id={triggerId}
-                      onClick={() => toggleInsight(theme.id, insight.id)}
+                      onClick={() => toggleInsight(insight.id)}
                       type="button"
                     >
                       <span>{String(insight.sequence).padStart(2, "0")}</span>
@@ -67,9 +71,7 @@ export default function InsightDirectory() {
                     id={panelId}
                     role="region"
                   >
-                    <p>{insight.interpretation}</p>
-                    <p><strong>Nuance:</strong> {insight.nuance}</p>
-                    <p><strong>Confidence:</strong> {insight.confidence}</p>
+                    <p className="insight-directory-lede">{insight.interpretation}</p>
                     <Link href={`/insights/${insight.id}` as Route} aria-label={`Explore full detail: ${insight.title}`}>
                       Explore full detail <ArrowUpRight aria-hidden="true" size={18} />
                     </Link>
@@ -77,6 +79,16 @@ export default function InsightDirectory() {
                 </article>
               );
             })}
+            <aside className="insight-cluster-pocket" aria-label={`${theme.title} further reading`}>
+              <p>Also in this theme</p>
+              <ul>
+                {getInsightsForTheme(theme.id).filter((insight) => !insight.featured).map((insight) => (
+                  <li data-testid="insight-directory-pocket" key={insight.id}>
+                    <Link href={`/insights/${insight.id}` as Route}>{insight.title}</Link>
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
         </section>
       ))}

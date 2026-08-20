@@ -9,7 +9,7 @@ describe("Influencers directory", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Influence has a face, a format, and an audience."
+        name: "People shaping what Gen Alpha watches, plays, and copies."
       })
     ).toBeInTheDocument();
     expect(screen.getAllByTestId("influencer-card")).toHaveLength(30);

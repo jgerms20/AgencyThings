@@ -7,3 +7,6 @@ export const getInsight = (id: string) => insights.find((insight) => insight.id 
 
 export const getInsightsForTheme = (id: Theme["id"]) =>
   insights.filter((insight) => insight.themeId === id).sort((left, right) => left.sequence - right.sequence);
+
+export const getFeaturedInsightsForTheme = (id: Theme["id"]) =>
+  getInsightsForTheme(id).filter((insight) => insight.featured);

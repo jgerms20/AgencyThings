@@ -2,18 +2,17 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import InfluencerDetail from "../src/components/InfluencerDetail";
 import { getCultureShaper } from "../src/lib/content/culture-shapers";
+import { getHumanProfile } from "../src/lib/content/profiles";
 
 describe("Influencer detail", () => {
-  it("explains audience, influence, key moments, indicators, and a featured video", () => {
+  it("explains influence, key moments, and a featured video without indicator tiers", () => {
     const mrBeast = getCultureShaper("mrbeast");
     expect(mrBeast).toBeDefined();
     render(<InfluencerDetail influencer={mrBeast!} />);
 
     expect(screen.getByRole("heading", { name: "MrBeast" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Why he matters" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Who is watching" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Key formats and moments" })).toBeInTheDocument();
-    expect(screen.getAllByTestId("influencer-indicator")).toHaveLength(4);
+    expect(screen.queryAllByTestId("influencer-indicator")).toHaveLength(0);
     expect(screen.getByTitle(/MrBeast video/i)).toHaveAttribute(
       "src",
       expect.stringContaining("youtube-nocookie.com/embed/")
@@ -26,11 +25,12 @@ describe("Influencer detail", () => {
 
   it("renders local IP portrait imagery and its bespoke influence reasoning", () => {
     const bluey = getCultureShaper("bluey")!;
+    const human = getHumanProfile("bluey");
     render(<InfluencerDetail influencer={bluey} />);
 
     expect(screen.getByRole("img", { name: "Bluey" })).toHaveAttribute("src", "/culture/bluey.jpg");
     expect(screen.getByText(bluey.influenceMechanism)).toBeVisible();
-    for (const moment of bluey.definingMoments) expect(screen.getByText(moment)).toBeVisible();
+    for (const moment of human?.knownFor ?? bluey.definingMoments) expect(screen.getByText(moment)).toBeVisible();
   });
 
   it("renders official media when available and sourced local portraits for featured athletes", () => {
@@ -42,9 +42,7 @@ describe("Influencer detail", () => {
       "src",
       expect.stringContaining("youtube-nocookie.com/embed/"),
     );
-    expect(
-      screen.getAllByText(artist.indicators.participation.rationale).some((node) => !node.hasAttribute("hidden")),
-    ).toBe(true);
+    expect(screen.queryAllByTestId("influencer-indicator")).toHaveLength(0);
 
     unmount();
     render(<InfluencerDetail influencer={athlete} />);

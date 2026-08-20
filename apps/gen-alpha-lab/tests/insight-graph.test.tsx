@@ -80,9 +80,15 @@ describe("forty-insight evidence graph", () => {
   it("renders forty unique direct insight links in the directory", () => {
     const { container } = render(<InsightsPage />);
 
-    const links = Array.from(
+    const featuredLinks = Array.from(
       container.querySelectorAll<HTMLAnchorElement>("[data-testid='insight-directory-item'] a[href^='/insights/']"),
     );
+    const pocketLinks = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>("[data-testid='insight-directory-pocket'] a[href^='/insights/']"),
+    );
+    const links = [...featuredLinks, ...pocketLinks];
+    expect(featuredLinks).toHaveLength(20);
+    expect(pocketLinks).toHaveLength(20);
     expect(links).toHaveLength(40);
     expect(new Set(links.map((link) => link.getAttribute("href")))).toHaveProperty("size", 40);
     expect(links.every((link) => link.getAttribute("href")?.startsWith("/insights/"))).toBe(true);
@@ -117,10 +123,10 @@ describe("forty-insight evidence graph", () => {
     render(<InsightDetail insight={insight!} />);
 
     expect(screen.getByRole("heading", { name: insight!.title })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Evidence ledger" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What the sources actually say" })).toBeInTheDocument();
     expect(screen.getAllByText("Methodology")).toHaveLength(2);
     expect(screen.getAllByText("Limitations")).toHaveLength(2);
-    expect(screen.getByRole("heading", { name: "Nuance and counterpoint" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Where the story gets messier" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Related culture shapers and spaces" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Roblox" })).toHaveAttribute("href", "/spaces#roblox");
 

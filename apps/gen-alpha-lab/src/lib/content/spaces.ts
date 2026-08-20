@@ -45,6 +45,10 @@ export type Space = {
   relatedCultureShaperIds: string[];
   relatedFormatReference?: SpaceRelatedFormatReference;
   tone: SpaceTone;
+  featured?: boolean;
+  image?: string;
+  culturalEvidenceUrl?: string;
+  culturalEvidenceLabel?: string;
 };
 
 type EvidenceLink = Pick<Space, "evidenceStatus" | "evidenceSummary" | "sourceIds" | "evidenceIds">;
@@ -162,7 +166,7 @@ const seeds: SpaceSeed[] = [
   },
   {
     id: "youtube", name: "YouTube", category: "Video, Streaming & Live Media", environment: "digital", ageContext: "Used across childhood; content and independence change sharply with age.", ageBands: allAges,
-    whatItIs: "A video ecosystem spanning shows, Shorts, livestreams, music, tutorials, and creators.", whyTheyGo: "It can answer a question, fill time, deepen fandom, provide company, or start a new interest.", whatHappens: "Children watch, search, learn, follow personalities, replay formats, comment, and move references elsewhere.", whoIsThere: "Children, caregivers, creators, educators, media companies, advertisers, and recommendation systems.",
+    whatItIs: "The default video ecosystem for this cohort: YouTube, YouTube Kids for younger viewers, and Shorts for rapid discovery, plus livestreams, music, tutorials, and creators.", whyTheyGo: "It can answer a question, fill time, deepen fandom, provide company, or start a new interest.", whatHappens: "Children watch, search, learn, follow personalities, replay formats, comment, and move references elsewhere.", whoIsThere: "Children, caregivers, creators, educators, media companies, advertisers, and recommendation systems.",
     evidence: backed("Young-child census data and adjacent teen research both place YouTube inside daily media routines, with explicit age and method limits.", ["common-sense-census-2025", "pew-teens-social-2024"], ["evidence-media-video-default-1", "evidence-time-youtube-rhythm-2"]),
     strategyRelevance: "A repeatable useful format with a recognizable host can travel farther than a conventional spot.", safetyCaveat: "Recommendations, comments, ads, creator disclosure, and age-inappropriate material require protective design.", relatedInsightIds: ["media-video-default", "time-youtube-rhythm"], relatedCultureShaperIds: ["mrbeast", "ms-rachel", "aphmau"],
   },
@@ -400,8 +404,79 @@ const seeds: SpaceSeed[] = [
   },
 ];
 
+const featuredSpaceIds = new Set([
+  "roblox",
+  "minecraft",
+  "fortnite",
+  "nintendo-switch",
+  "pokemon",
+  "youtube",
+  "tiktok",
+  "twitch",
+  "netflix",
+  "disney-plus",
+  "snapchat",
+  "discord",
+  "instagram",
+  "whatsapp",
+  "imessage-facetime",
+  "spotify",
+  "chatgpt",
+  "capcut",
+  "scratch",
+  "school",
+  "after-school-sports-clubs",
+  "home-family-routines",
+  "parks-playgrounds-pickup-play",
+  "cinemas-live-entertainment",
+  "retail-fandom-collector-spaces",
+]);
+
+const spaceImages: Record<string, string> = {
+  roblox: "/spaces/roblox.jpg",
+  minecraft: "/culture/minecraft.jpg",
+  fortnite: "/spaces/fortnite.jpg",
+  "nintendo-switch": "/spaces/nintendo-switch.jpg",
+  pokemon: "/culture/pokemon.png",
+  youtube: "/spaces/youtube.jpg",
+  tiktok: "/spaces/tiktok.jpg",
+  twitch: "/spaces/twitch.jpg",
+  netflix: "/spaces/netflix.jpg",
+  "disney-plus": "/spaces/disney-plus.jpg",
+  snapchat: "/spaces/snapchat.jpg",
+  discord: "/spaces/discord.jpg",
+  instagram: "/spaces/instagram.jpg",
+  whatsapp: "/spaces/whatsapp.jpg",
+  "imessage-facetime": "/spaces/imessage.jpg",
+  spotify: "/spaces/spotify.jpg",
+  chatgpt: "/spaces/chatgpt.jpg",
+  capcut: "/spaces/capcut.jpg",
+  scratch: "/spaces/scratch.jpg",
+  school: "/spaces/school.jpg",
+  "after-school-sports-clubs": "/spaces/sports.jpg",
+  "home-family-routines": "/spaces/home.jpg",
+  "parks-playgrounds-pickup-play": "/spaces/parks.jpg",
+  "cinemas-live-entertainment": "/spaces/cinema.jpg",
+  "retail-fandom-collector-spaces": "/spaces/retail.jpg",
+};
+
+const culturalEvidence: Record<string, { url: string; label: string }> = {
+  roblox: { url: "https://www.waltonfamilyfoundation.org/bodacious-and-walton-family-foundation-unveil-new-report-on-generation-alphas-use-of-creation-gaming-for-learning-and-development", label: "Creation gaming research" },
+  minecraft: { url: "https://www.waltonfamilyfoundation.org/bodacious-and-walton-family-foundation-unveil-new-report-on-generation-alphas-use-of-creation-gaming-for-learning-and-development", label: "Creation gaming research" },
+  youtube: { url: "https://www.commonsensemedia.org/research/the-2025-common-sense-census-media-use-by-kids-zero-to-eight", label: "Common Sense Census" },
+  tiktok: { url: "https://www.pewresearch.org/internet/2024/12/12/teens-social-media-and-technology-2024/", label: "Pew teens social media" },
+  discord: { url: "https://www.ofcom.org.uk/media-use-and-attitudes/media-literacy/childrens-media-lives", label: "Ofcom Children's Media Lives" },
+  "after-school-sports-clubs": { url: "https://projectplay.org/state-of-play-2025/introduction", label: "State of Play 2025" },
+  school: { url: "https://link.springer.com/article/10.1007/s44217-024-00218-3", label: "Education for Generation Alpha review" },
+  chatgpt: { url: "https://www.nielsen.com/news-center/2026/gen-alpha-leads-shift-to-ai-powered-entertainment-search-discovery-and-recommendations/", label: "Nielsen AI discovery" },
+};
+
 export const spaces: Space[] = seeds.map(({ evidence, ...seed }, index) => ({
   ...seed,
   ...evidence,
+  featured: featuredSpaceIds.has(seed.id),
+  image: spaceImages[seed.id],
+  culturalEvidenceUrl: culturalEvidence[seed.id]?.url,
+  culturalEvidenceLabel: culturalEvidence[seed.id]?.label,
   tone: tones[index % tones.length],
 }));

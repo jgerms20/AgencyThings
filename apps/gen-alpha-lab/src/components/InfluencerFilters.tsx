@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, RotateCcw } from "lucide-react";
+import { ArrowUpRight, RotateCcw, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { getCultureShaperImage, type CultureShaper } from "@/lib/content/culture-shapers";
@@ -18,18 +18,101 @@ const typeOptions: Array<{ value: CultureShaperDirectoryType; label: string }> =
   { value: "ip", label: "IP" },
 ];
 
-const ageOptions = ["all", "1-5", "3-8", "6-9", "8-12", "10-14", "13-18"];
+const platformOptions = [
+  "YouTube",
+  "TikTok",
+  "Snapchat",
+  "Twitch",
+  "Instagram",
+  "Roblox",
+  "Minecraft",
+  "Spotify",
+  "Netflix",
+] as const;
 
-function optionsFor(shapers: CultureShaper[], key: "topics" | "platforms" | "formats" | "audienceSegments") {
-  return [...new Set(shapers.flatMap((shaper) => shaper[key]))].sort((left, right) => left.localeCompare(right));
-}
+const ageOptions = [
+  { value: "0-7", label: "Under 8" },
+  { value: "8-12", label: "8–12" },
+  { value: "13-17", label: "13–17" },
+] as const;
+
+const topicOptions = [
+  "music",
+  "gaming",
+  "sports",
+  "family",
+  "fashion",
+  "comedy",
+  "learning",
+  "fandom",
+] as const;
+
+type TopicFilter = (typeof topicOptions)[number];
+type PlatformFilter = (typeof platformOptions)[number];
+
+const platformAliases: Record<PlatformFilter, string[]> = {
+  YouTube: ["youtube"],
+  TikTok: ["tiktok"],
+  Snapchat: ["snapchat"],
+  Twitch: ["twitch"],
+  Instagram: ["instagram"],
+  Roblox: ["roblox"],
+  Minecraft: ["minecraft"],
+  Spotify: ["spotify"],
+  Netflix: ["netflix"],
+};
+
+const topicKeywords: Record<TopicFilter, string[]> = {
+  music: ["music", "song", "dance", "pop", "nursery rhyme", "sound"],
+  gaming: ["gaming", "minecraft", "roblox", "game", "gameplay", "video game"],
+  sports: ["sports", "basketball", "football", "gymnastics", "competition", "tennis", "basketball", "training", "athlete"],
+  family: ["family", "siblings", "co-viewing", "parent", "household"],
+  fashion: ["fashion", "beauty", "style", "dress-up", "costume"],
+  comedy: ["comedy", "humor", "sketch", "prank", "funny"],
+  learning: ["learning", "language", "education", "science", "lesson", "early learning"],
+  fandom: ["fandom", "collecting", "identity", "fan", "fantasy", "franchise"],
+};
 
 function overlapsAge(profileRange: string, selectedRange: string) {
-  if (selectedRange === "all") return true;
   const profile = profileRange.match(/(\d+)-(\d+)/);
   const selected = selectedRange.match(/(\d+)-(\d+)/);
   if (!profile || !selected) return false;
   return Number(profile[1]) <= Number(selected[2]) && Number(selected[1]) <= Number(profile[2]);
+}
+
+function matchesAnyAge(shaper: CultureShaper, selectedAges: string[]) {
+  if (selectedAges.length === 0) return true;
+  return selectedAges.some((age) => overlapsAge(shaper.audience.ageRange, age));
+}
+
+function matchesPlatform(shaper: CultureShaper, selectedPlatforms: PlatformFilter[]) {
+  if (selectedPlatforms.length === 0) return true;
+  const normalized = shaper.platforms.map((platform) => platform.toLowerCase());
+  return selectedPlatforms.some((platform) => {
+    const aliases = platformAliases[platform];
+    return normalized.some((entry) => aliases.some((alias) => entry.includes(alias)));
+  });
+}
+
+function matchesTopic(shaper: CultureShaper, selectedTopics: TopicFilter[]) {
+  if (selectedTopics.length === 0) return true;
+  const normalizedTopics = shaper.topics.map((topic) => topic.toLowerCase());
+  return selectedTopics.some((topic) =>
+    topicKeywords[topic].some((keyword) =>
+      normalizedTopics.some((entry) => entry.includes(keyword) || keyword.includes(entry)),
+    ),
+  );
+}
+
+function matchesSearch(shaper: CultureShaper, query: string) {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return true;
+  return (
+    shaper.name.toLowerCase().includes(trimmed)
+    || shaper.role.toLowerCase().includes(trimmed)
+    || shaper.category.toLowerCase().includes(trimmed)
+    || shaper.topics.some((topic) => topic.toLowerCase().includes(trimmed))
+  );
 }
 
 function interleaveCultureTypes(shapers: CultureShaper[]) {
@@ -50,32 +133,33 @@ function interleaveCultureTypes(shapers: CultureShaper[]) {
   return result;
 }
 
+function toggleSelection<T extends string>(current: T[], value: T) {
+  return current.includes(value) ? current.filter((entry) => entry !== value) : [...current, value];
+}
+
 export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
   const [type, setType] = useState<CultureShaperDirectoryType>("all");
-  const [age, setAge] = useState("all");
-  const [topic, setTopic] = useState("all");
-  const [platform, setPlatform] = useState("all");
-  const [format, setFormat] = useState("all");
-  const [segment, setSegment] = useState("all");
+  const [search, setSearch] = useState("");
+  const [platforms, setPlatforms] = useState<PlatformFilter[]>([]);
+  const [ages, setAges] = useState<string[]>([]);
+  const [topics, setTopics] = useState<TopicFilter[]>([]);
 
   const filtered = useMemo(
     () => interleaveCultureTypes(shapers.filter((shaper) =>
       (type === "all" || (type === "ip" ? shaper.type === "screen-ip" || shaper.type === "franchise" : shaper.type === type))
-      && overlapsAge(shaper.audience.ageRange, age)
-      && (topic === "all" || shaper.topics.includes(topic))
-      && (platform === "all" || shaper.platforms.includes(platform))
-      && (format === "all" || shaper.formats.includes(format))
-      && (segment === "all" || shaper.audienceSegments.includes(segment)))),
-    [age, format, platform, segment, shapers, topic, type],
+      && matchesSearch(shaper, search)
+      && matchesAnyAge(shaper, ages)
+      && matchesTopic(shaper, topics)
+      && matchesPlatform(shaper, platforms))),
+    [ages, platforms, search, shapers, topics, type],
   );
 
   const clear = () => {
     setType("all");
-    setAge("all");
-    setTopic("all");
-    setPlatform("all");
-    setFormat("all");
-    setSegment("all");
+    setSearch("");
+    setPlatforms([]);
+    setAges([]);
+    setTopics([]);
   };
 
   const resultLabel = type === "all"
@@ -101,13 +185,67 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
           </div>
         </fieldset>
 
-        <div className="influencer-filter-selects">
-          <label>Audience age<select aria-label="Audience age" value={age} onChange={(event) => setAge(event.target.value)}>{ageOptions.map((value) => <option value={value} key={value}>{value === "all" ? "All ages" : value}</option>)}</select></label>
-          <label>Topic<select aria-label="Topic" value={topic} onChange={(event) => setTopic(event.target.value)}><option value="all">All topics</option>{optionsFor(shapers, "topics").map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
-          <label>Platform<select aria-label="Platform" value={platform} onChange={(event) => setPlatform(event.target.value)}><option value="all">All platforms</option>{optionsFor(shapers, "platforms").map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
-          <label>Format<select aria-label="Format" value={format} onChange={(event) => setFormat(event.target.value)}><option value="all">All formats</option>{optionsFor(shapers, "formats").map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
-          <label>Audience segment<select aria-label="Audience segment" value={segment} onChange={(event) => setSegment(event.target.value)}><option value="all">All segments</option>{optionsFor(shapers, "audienceSegments").map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
-        </div>
+        <label className="influencer-filter-search">
+          Search
+          <span>
+            <Search aria-hidden="true" size={16} />
+            <input
+              aria-label="Search by name or topic"
+              placeholder="Type a name or topic"
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </span>
+        </label>
+
+        <fieldset className="influencer-filter-chips">
+          <legend>Platform</legend>
+          <div>
+            {platformOptions.map((platform) => (
+              <button
+                key={platform}
+                type="button"
+                aria-pressed={platforms.includes(platform)}
+                onClick={() => setPlatforms((current) => toggleSelection(current, platform))}
+              >
+                {platform}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="influencer-filter-chips influencer-filter-chips-age">
+          <legend>Audience age</legend>
+          <div>
+            {ageOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={ages.includes(option.value)}
+                onClick={() => setAges((current) => toggleSelection(current, option.value))}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="influencer-filter-chips influencer-filter-chips-topic">
+          <legend>Topic</legend>
+          <div>
+            {topicOptions.map((topic) => (
+              <button
+                key={topic}
+                type="button"
+                aria-pressed={topics.includes(topic)}
+                onClick={() => setTopics((current) => toggleSelection(current, topic))}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+        </fieldset>
 
         <div className="influencer-filter-summary">
           <p role="status" aria-live="polite">{resultLabel}</p>

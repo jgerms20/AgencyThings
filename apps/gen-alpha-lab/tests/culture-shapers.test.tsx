@@ -396,7 +396,7 @@ describe("culture shaper directory filters", () => {
     }
   });
 
-  it("filters all six dimensions, reports results, and clears without losing keyboard access", async () => {
+  it("filters by type, search, age, topic, and platform, then clears without losing keyboard access", async () => {
     const user = userEvent.setup();
     render(<PeoplePage />);
 
@@ -416,8 +416,9 @@ describe("culture shaper directory filters", () => {
       );
     }
 
-    const dimensions = ["Audience age", "Topic", "Platform", "Format", "Audience segment"];
-    for (const label of dimensions) expect(screen.getByRole("combobox", { name: label })).toBeEnabled();
+    expect(screen.getByRole("searchbox", { name: "Search by name or topic" })).toBeEnabled();
+    expect(screen.queryByRole("combobox", { name: "Format" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Audience segment" })).not.toBeInTheDocument();
 
     const artistButton = screen.getByRole("button", { name: "Artist" });
     artistButton.focus();
@@ -425,16 +426,17 @@ describe("culture shaper directory filters", () => {
     await user.keyboard("{Enter}");
     expect(screen.getByText(/artists? shown/i)).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Audience age" }), "8-12");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Topic" }), "music");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Platform" }), "Netflix");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Format" }), "feature film");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Audience segment" }), "girls");
+    await user.click(screen.getByRole("button", { name: "8–12" }));
+    await user.click(screen.getByRole("button", { name: "music" }));
+    await user.click(screen.getByRole("button", { name: "Netflix" }));
     expect(screen.getByRole("status")).toHaveTextContent(/shown/i);
 
     await user.click(screen.getByRole("button", { name: "Clear all filters" }));
     expect(screen.getByRole("button", { name: "All types" })).toHaveAttribute("aria-pressed", "true");
-    for (const label of dimensions) expect(screen.getByRole("combobox", { name: label })).toHaveValue("all");
+    expect(screen.getByRole("searchbox", { name: "Search by name or topic" })).toHaveValue("");
+    expect(screen.getByRole("button", { name: "8–12" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "music" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Netflix" })).toHaveAttribute("aria-pressed", "false");
   });
 });
 
@@ -460,14 +462,14 @@ describe("indicator explanations", () => {
     expect(document.getElementById(tooltipId)).toBeVisible();
   });
 
-  it("keeps every rubric definition and profile rationale visible on detail", () => {
+  it("keeps a human profile and official destination visible on detail", () => {
     const bluey = getCultureShaper("bluey")!;
     render(<InfluencerDetail influencer={bluey} />);
 
-    for (const assessment of Object.values(bluey.indicators)) {
-      expect(screen.getByText(assessment.definition)).toBeVisible();
-      expect(screen.getAllByText(assessment.rationale).some((node) => !node.hasAttribute("hidden"))).toBe(true);
-    }
+    expect(screen.getByRole("heading", { name: "Who they are" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Who they reach" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Why she matters" })).toBeVisible();
+    expect(screen.queryAllByTestId("influencer-indicator")).toHaveLength(0);
     expect(screen.getByRole("link", { name: /official destination/i })).toHaveAttribute(
       "href",
       bluey.officialUrl,
