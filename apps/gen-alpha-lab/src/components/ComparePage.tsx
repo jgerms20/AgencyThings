@@ -3,13 +3,11 @@
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import { insights } from "@/lib/content/insights";
 import {
   comparisonDimensions,
-  defaultSelectedGenerations,
-  generationRank,
   generations,
   getComparisonEvidence,
   getGeneration,
@@ -17,6 +15,7 @@ import {
   getPairRead,
   overlappingEntryIds,
   type ComparisonCohort,
+  type ComparisonCohortKey,
   type GenerationKey,
 } from "@/lib/content/comparisons";
 
@@ -59,27 +58,23 @@ function EvidenceColumn({ label, cohort }: { label: string; cohort: ComparisonCo
 
 export default function ComparePage() {
   const [activeTopicId, setActiveTopicId] = useState(comparisonDimensions[0].id);
-  const [selected, setSelected] = useState<GenerationKey[]>(defaultSelectedGenerations);
+  const [left, setLeft] = useState<GenerationKey>("genZ");
+  const [right, setRight] = useState<GenerationKey>("genAlpha");
   const activeTopic = comparisonDimensions.find((topic) => topic.id === activeTopicId) ?? comparisonDimensions[0];
-  const orderedSelected = useMemo(
-    () => [...selected].sort((left, right) => generationRank[left] - generationRank[right]),
-    [selected],
-  );
-  const overlaps = overlappingEntryIds(activeTopic, orderedSelected);
-  const oldest = orderedSelected[0];
-  const youngest = orderedSelected[orderedSelected.length - 1];
-  const pairRead = oldest && youngest && oldest !== youngest ? getPairRead(activeTopic, oldest, youngest) : "";
+  const selected = [left, right];
+  const overlaps = overlappingEntryIds(activeTopic, selected);
+  const pairRead = getPairRead(activeTopic, left, right);
   const cultureTopics = comparisonDimensions.filter((topic) => topic.kind !== "measured");
   const measuredTopics = comparisonDimensions.filter((topic) => topic.kind === "measured");
 
-  const toggleGeneration = (id: GenerationKey) => {
-    setSelected((current) => {
-      if (current.includes(id)) {
-        if (current.length === 2) return current;
-        return current.filter((item) => item !== id);
-      }
-      return [...current, id];
-    });
+  const choose = (side: "left" | "right", next: GenerationKey) => {
+    if (side === "left") {
+      if (next === right) setRight(left);
+      setLeft(next);
+      return;
+    }
+    if (next === left) setLeft(right);
+    setRight(next);
   };
 
   return (
@@ -88,31 +83,44 @@ export default function ComparePage() {
       <section className="page-opening compare-opening">
         <div>
           <p className="comparison-kicker">Compare</p>
-          <h1>Pick the generations. Then pick the thing you actually want to compare.</h1>
-          <p>Deselect Alpha if you want Z versus Boomers. Add Millennials. The lists overlap on purpose.</p>
+          <h1>Two generations. One topic.</h1>
+          <p>Put anyone on the left, anyone on the right. Alpha vs Z, or Z vs Boomers.</p>
         </div>
       </section>
 
       <section className="comparison-workspace" aria-label="Generation comparison">
-        <div className="comparison-board-controls">
-          <fieldset className="generation-toggles">
-            <legend>Generations</legend>
-            {generations.map((generation) => {
-              const pressed = selected.includes(generation.id);
-              return (
-                <button
-                  aria-pressed={pressed}
-                  key={generation.id}
-                  onClick={() => toggleGeneration(generation.id)}
-                  type="button"
-                >
-                  <strong>{generation.label}</strong>
-                  <span>{generation.years}</span>
-                </button>
-              );
-            })}
-          </fieldset>
+        <div className="comparison-controls">
+          <label>
+            <span>Left generation</span>
+            <select
+              aria-label="Left generation"
+              value={left}
+              onChange={(event) => choose("left", event.target.value as GenerationKey)}
+            >
+              {generations.map((generation) => (
+                <option key={generation.id} value={generation.id}>
+                  {generation.label} · {generation.years}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Right generation</span>
+            <select
+              aria-label="Right generation"
+              value={right}
+              onChange={(event) => choose("right", event.target.value as GenerationKey)}
+            >
+              {generations.map((generation) => (
+                <option key={generation.id} value={generation.id}>
+                  {generation.label} · {generation.years}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
+        <div className="comparison-board-controls">
           <div className="comparison-topic-groups">
             <fieldset>
               <legend>Culture they grew up with</legend>
@@ -150,7 +158,6 @@ export default function ComparePage() {
         <section className="comparison-result" aria-label="Comparison result" aria-live="polite">
           <p className="comparison-result-title">{activeTopic.title}</p>
           <h2 className="comparison-prompt">{activeTopic.prompt}</h2>
-          <p className="comparison-method">{activeTopic.method}</p>
 
           {pairRead ? (
             <section className="comparison-difference" aria-label="Strategic difference">
@@ -158,16 +165,13 @@ export default function ComparePage() {
             </section>
           ) : null}
 
-          <div
-            className="canon-board"
-            style={{ "--canon-count": String(orderedSelected.length) } as CSSProperties}
-          >
-            {orderedSelected.map((key) => {
+          <div className="canon-board" style={{ "--canon-count": "2" } as CSSProperties}>
+            {selected.map((key) => {
               const generation = getGeneration(key);
               const cohort = getGenerationCohort(activeTopic, key);
               if (!generation) return null;
               return (
-                <article className="canon-column" key={key}>
+                <article className="canon-column" key={`${key}-${generation.label}`}>
                   <header>
                     <p className="comparison-eyebrow">{generation.label}</p>
                     <p className="canon-years">{generation.years} · {generation.agesIn2026} in 2026</p>
@@ -192,7 +196,7 @@ export default function ComparePage() {
             })}
           </div>
 
-          <details className="comparison-proof" data-testid="comparison-proof" key={`${activeTopic.id}-${orderedSelected.join("-")}`}>
+          <details className="comparison-proof" data-testid="comparison-proof" key={`${activeTopic.id}-${left}-${right}`}>
             <summary><span>Evidence and methodology</span><ChevronDown aria-hidden="true" size={20} /></summary>
             <div className="comparison-human-read">
               <section>
@@ -201,11 +205,11 @@ export default function ComparePage() {
               </section>
               <section>
                 <p className="comparison-eyebrow">Keep in mind</p>
-                <p>{oldest && oldest !== "genAlpha" ? activeTopic.comparisons[oldest].caveat : activeTopic.comparisons.genZ.caveat}</p>
+                <p>{activeTopic.comparisons[(left === "genAlpha" ? right : left) as ComparisonCohortKey].caveat}</p>
               </section>
             </div>
-            <div className="comparison-scope-grid" style={{ "--canon-count": String(orderedSelected.length) } as CSSProperties}>
-              {orderedSelected.map((key) => {
+            <div className="comparison-scope-grid" style={{ "--canon-count": "2" } as CSSProperties}>
+              {selected.map((key) => {
                 const generation = getGeneration(key);
                 const cohort = getGenerationCohort(activeTopic, key);
                 if (!generation) return null;
@@ -222,8 +226,8 @@ export default function ComparePage() {
                 );
               })}
             </div>
-            <div className="comparison-evidence-grid" style={{ "--canon-count": String(Math.min(orderedSelected.length, 3)) } as CSSProperties}>
-              {orderedSelected.map((key) => {
+            <div className="comparison-evidence-grid" style={{ "--canon-count": "2" } as CSSProperties}>
+              {selected.map((key) => {
                 const generation = getGeneration(key);
                 if (!generation) return null;
                 return <EvidenceColumn key={key} label={generation.label} cohort={getGenerationCohort(activeTopic, key)} />;

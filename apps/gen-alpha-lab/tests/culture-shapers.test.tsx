@@ -426,6 +426,7 @@ describe("culture shaper directory filters", () => {
     await user.keyboard("{Enter}");
     expect(screen.getByText(/artists? shown/i)).toBeInTheDocument();
 
+    await user.click(screen.getByText("More filters"));
     await user.click(screen.getByRole("button", { name: "8–12" }));
     await user.click(screen.getByRole("button", { name: "music" }));
     await user.click(screen.getByRole("button", { name: "Netflix" }));

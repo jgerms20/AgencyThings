@@ -37,7 +37,7 @@ describe("Gen Alpha gender-room content model", () => {
           expect(insight.labId.length).toBeGreaterThan(0);
           expect(insight.labUrl.endsWith(insight.labId) || insight.labUrl.includes(`${insight.labId}`)).toBe(true);
           expect(labUrl.origin).toBe("https://agencythings-gen-alpha.vercel.app");
-          expect(labUrl.pathname).toMatch(/^\/(?:insights|influencers)\/|^\/gender$/);
+          expect(labUrl.pathname).toMatch(/^\/(?:insights|influencers|humor)\/?|^\/gender$/);
           expect(sourceUrl.protocol).toBe("https:");
           expect(insight.evidenceCount).toBeGreaterThanOrEqual(1);
           expect(insight.sources.length).toBeGreaterThanOrEqual(1);

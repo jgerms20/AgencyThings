@@ -9,6 +9,7 @@ const ofcom = "https://www.ofcom.org.uk/siteassets/resources/documents/research-
 const ofcomLives = "https://www.ofcom.org.uk/siteassets/resources/documents/research-and-data/media-literacy-research/children/childrens-media-lives-2025/childrens-media-lives-2025-summary-report.pdf?v=396299";
 const ofcomNation = "https://www.ofcom.org.uk/media-use-and-attitudes/online-habits/from-apps-to-ai-search-how-the-uk-goes-online-in-2025";
 const pwc = "https://www.pwc.com/us/en/industries/consumer-markets/library/gen-alpha-survey-report.html";
+const snapHumor = "https://forbusiness.snapchat.com/blog/how-to-laugh-and-win-nextgen";
 
 function marketFromScope(scope: string): MarketLabel {
   const hasUS = /U\.S\./i.test(scope);
@@ -62,7 +63,7 @@ const boysObjects: RoomObject[] = [
     insights: [
       finding("boys-youtube-frequency", "YouTube is especially habitual", "Teen boys report almost-constant YouTube use more often than girls: 19% versus 11%.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewSocial, "/gender#boys"),
       finding("boys-phone-self-check", "Heavy phone use is not a girls-only concern", "One-third of teen boys say they spend too much time on their smartphone, keeping self-regulation relevant in this room too.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewScreen, "/gender#boys"),
-      finding("boys-creator-to-cart", "Creator-to-cart is a journey to investigate", "A creator mention may become a search, wish list, or shared cart before an adult decides whether to buy. The path is plausible; we still need to observe it directly.", "medium", "U.S. children 7–14; commerce hypothesis", ["PwC"], pwc, "/insights/learning-commercial-fluency", undefined, "working hunch"),
+      finding("boys-humor-language", "Humor is how serious things get said", "82% of Next Gen in the Snapchat × Omnicom study say humor is how this generation talks about serious things. The phone is where the joke is sent, not just found.", "medium", "Daily social-app users 13–28; Snap x Omnicom 2026; multi-market", ["Snapchat", "Omnicom"], snapHumor, "/humor"),
     ],
   },
   {
@@ -158,7 +159,7 @@ const boysObjects: RoomObject[] = [
     insights: [
       finding("boys-gaming-name-calling", "Harassment rises with participation", "48% of teen boy players report being called an offensive name in a game versus 32% of girl players.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewGaming, "/gender#boys"),
       finding("play-safety-boundaries", "Safety belongs inside the play design", "Privacy, consent, reporting, contact controls, and escalation should be visible before a problem occurs.", "high", "Children in online games; policy context", ["Ofcom", "UNICEF"], ofcom, "/insights/play-safety-boundaries"),
-      finding("time-parent-context", "Adults manage context, not only minutes", "Permission, content, payment, bedtime, and conversation shape what the device means.", "high", "Children and families", ["Common Sense Media", "Ofcom"], commonSense, "/insights/time-parent-context"),
+      finding("boys-creator-to-cart", "Creator-to-cart is a journey to investigate", "A creator mention may become a search, wish list, or shared cart before an adult decides whether to buy. The path is plausible; we still need to observe it directly.", "medium", "U.S. children 7–14; commerce hypothesis", ["PwC"], pwc, "/insights/learning-commercial-fluency", undefined, "working hunch"),
     ],
   },
   {
@@ -209,7 +210,7 @@ const girlsObjects: RoomObject[] = [
     insights: [
       finding("girls-social-platforms", "TikTok and Instagram are more common", "66% of U.S. teen girls use each platform, compared with 59% and 56% of boys respectively.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewSocial, "/gender#girls"),
       finding("girls-friendship-benefit", "Online contact is more often credited with closeness", "71% of U.K. girls ages 13–17 say being online helps build and maintain friendships versus 60% of boys.", "high", "U.K. teens 13–17; near-age proxy", ["Ofcom"], ofcomNation, "/gender#girls"),
-      finding("girls-creator-to-cart", "Creator-to-cart is a journey to investigate", "A creator or family video may become a search, comparison, wish list, or shared cart before a caregiver decides. We have the pieces, not yet the full journey.", "medium", "U.S. children 7–14; commerce hypothesis", ["PwC"], pwc, "/insights/learning-commercial-fluency", undefined, "working hunch"),
+      finding("girls-humor-send", "The joke lives in the send", "Funny content on Snapchat is 5.7× more likely to be shared than discovered. Private sending is the job, not the broadcast.", "medium", "Daily social-app users 13–28; Snap x Omnicom 2026; multi-market", ["Snapchat", "Omnicom"], snapHumor, "/humor"),
     ],
   },
   {
@@ -305,7 +306,7 @@ const girlsObjects: RoomObject[] = [
     insights: [
       finding("girls-too-much-phone", "Phone time is more often judged as excessive", "44% of U.S. teen girls say they spend too much time on their smartphone versus 33% of boys.", "high", "U.S. teens 13–17; near-age proxy", ["Pew Research Center"], pewScreen, "/gender#girls"),
       finding("girls-popularity-safety", "Social pressure is part of online safety", "Girls report more pressure to be popular on social and messaging services, especially at ages 13–15.", "high", "U.K. children 8–17", ["Ofcom"], ofcom, "/gender#girls"),
-      finding("time-parent-context", "Adults manage relationships and context", "The useful boundary covers privacy, contact, purchases, sleep, reporting, and conversation—not only screen minutes.", "high", "Children and families", ["Common Sense Media", "Ofcom"], commonSense, "/insights/time-parent-context"),
+      finding("girls-creator-to-cart", "Creator-to-cart is a journey to investigate", "A creator or family video may become a search, comparison, wish list, or shared cart before a caregiver decides. We have the pieces, not yet the full journey.", "medium", "U.S. children 7–14; commerce hypothesis", ["PwC"], pwc, "/insights/learning-commercial-fluency", undefined, "working hunch"),
     ],
   },
   {

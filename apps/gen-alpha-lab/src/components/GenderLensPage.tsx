@@ -56,7 +56,7 @@ export default function GenderLensPage() {
 
           <div className="gender-finding-grid">
             {active.findings.map((finding) => (
-              <article className={`gender-finding signal-${finding.signal.replace(" ", "-")}`} key={finding.title}>
+              <article className={`gender-finding signal-${finding.signal.replace(" ", "-")}`} key={finding.title} tabIndex={0}>
                 <div className="gender-finding-topline">
                   {finding.metric ? <strong>{finding.metric}</strong> : <strong className="evidence-gap">Evidence gap</strong>}
                   <div className="gender-finding-tags">
@@ -65,8 +65,10 @@ export default function GenderLensPage() {
                   </div>
                 </div>
                 <h3>{finding.title}</h3>
-                <p className="gender-finding-lead">{finding.finding}</p>
-                <p className="gender-finding-read">{finding.interpretation}</p>
+                <div className="gender-finding-detail">
+                  <p className="gender-finding-lead">{finding.finding}</p>
+                  <p className="gender-finding-read">{finding.interpretation}</p>
+                </div>
                 <a href={finding.sourceUrl} rel="noreferrer" target="_blank" aria-label={`Open source: ${finding.sourceTitle}`}>
                   <span>{finding.sourceOrganization}</span>
                   {finding.sourceTitle}

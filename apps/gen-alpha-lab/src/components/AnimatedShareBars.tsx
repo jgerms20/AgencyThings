@@ -35,7 +35,7 @@ export default function AnimatedShareBars({
   return (
     <div
       ref={ref as RefObject<HTMLDivElement>}
-      className={`demographic-bars demographic-bars-${color} demographic-bars-animated${variant === "global" ? " demographic-bars-global" : ""}`}
+  className={`demographic-bars demographic-bars-${color} demographic-bars-animated${variant === "global" ? " demographic-bars-global" : ""}${items.length <= 2 ? " demographic-bars-fill" : ""}`}
     >
       {items.map((item) => {
         const isHighlight = highlightLabel === item.label;

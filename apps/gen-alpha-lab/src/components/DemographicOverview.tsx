@@ -11,6 +11,7 @@ import {
   generationBoundaryCopy,
   getDemographicSource,
   globalCoverageNote,
+  globalCultureShift,
   globalRegions,
   globalYouthHeadline,
   usEthnicityContext,
@@ -151,9 +152,11 @@ export default function DemographicOverview() {
             highlightLabel="North America"
             variant="global"
           />
-          <aside>
-            <h3>What is intentionally absent</h3>
-            <p>{globalCoverageNote}</p>
+          <aside className="global-culture-shift">
+            <p className="demographic-section-label">{globalCultureShift.kicker}</p>
+            <h3>{globalCultureShift.title}</h3>
+            <p>{globalCultureShift.body}</p>
+            <p className="demographic-measure-note">{globalCoverageNote}</p>
             <SourceLink sourceId="world-population">World Bank age 0–14 data</SourceLink>
           </aside>
         </div>

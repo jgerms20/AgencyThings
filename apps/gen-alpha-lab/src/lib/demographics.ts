@@ -119,6 +119,12 @@ export const demographicSynthesis = {
   body: "North America is only 3.2% of the world’s ages 0–14 population. The next wave of youth culture is being shaped in many countries and languages at once — already visible in KPop Demon Hunters and K-pop, in IShowSpeed’s global soccer streams, and in teenagers like Lamine Yamal becoming worldwide references before they leave their teens.",
 } as const;
 
+export const globalCultureShift = {
+  kicker: "Compared with previous generations",
+  title: "Youth culture is no longer a U.S. export first.",
+  body: "For Boomers through early Millennials, “global culture” often meant American culture traveling outward. Alpha is already 96.8% outside North America — so Bad Bunny, BTS, KPop Demon Hunters, and Lamine Yamal are not extras. They sit closer to the center of gravity.",
+} as const;
+
 export const globalCoverageNote =
   "There is no combined global race, ethnicity, sexual-orientation, or gender-identity rollup here. Countries do not measure those categories consistently enough to combine them responsibly.";
 
