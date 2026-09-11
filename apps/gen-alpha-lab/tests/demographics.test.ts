@@ -3,6 +3,7 @@ import {
   demographicHeadlineFacts,
   demographicSources,
   globalCoverageNote,
+  globalCultureShift,
   globalRegions,
   olderTeenIdentity,
   usEthnicityContext,
@@ -43,6 +44,14 @@ describe("Gen Alpha demographic model", () => {
   it("labels older-teen identity data and global identity limits honestly", () => {
     expect(olderTeenIdentity.scope).toMatch(/U.S. high-school students/i);
     expect(globalCoverageNote).toMatch(/no combined global race, ethnicity, sexual-orientation, or gender-identity rollup/i);
+  });
+
+  it("places the global culture shift next to the youth-population map", () => {
+    expect(globalCultureShift.title).toMatch(/U\.S\. export/i);
+    expect(globalCultureShift.stat).toBe("96.8%");
+    expect(globalCultureShift.thenTitle).toMatch(/U\.S\. export/i);
+    expect(globalCultureShift.nowTitle).toMatch(/Many centers/i);
+    expect(globalCultureShift.names).toEqual(["Bad Bunny", "BTS", "KPop Demon Hunters", "Lamine Yamal"]);
   });
 
   it("links every demographic source to a public HTTPS destination", () => {

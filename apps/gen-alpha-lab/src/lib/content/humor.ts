@@ -1,8 +1,8 @@
 export const humorStudy = {
-  kicker: "Snap x Omnicom, August 2026",
+  kicker: "From the Snapchat × Omnicom report, August 2026",
   title: "How Next Gen laughs.",
-  lede: "This is not another pass over play, YouTube, or homework. Insights already covers how days work. This tab is a single study of humor as a social language — for Next Gen, ages 13–28, not the Lab’s full 0–16 Alpha portrait.",
-  sample: "6,028 daily social-app users across the U.S., U.K., Canada, France, Germany, and India. About 1,000 per country, including 3,593 daily Snapchatters.",
+  lede: "Humor is how this generation talks about serious things. Next Gen here is 13–28, not the Lab’s full 0–16 Alpha portrait.",
+  sample: "6,028 daily social-app users. U.S., U.K., Canada, France, Germany, India.",
   sourceId: "snap-omnicom-humor-2026",
   sourceUrl: "https://forbusiness.snapchat.com/blog/how-to-laugh-and-win-nextgen",
   pdfUrl:
@@ -33,23 +33,23 @@ export const humorHeadlineStats = [
   {
     value: 82,
     suffix: "%",
-    label: "Humor is how this generation talks about serious things",
+    label: "This is how they talk about serious things",
   },
   {
     value: 67,
     suffix: "%",
-    label: "Choose friends based on their sense of humor",
+    label: "Pick friends by their sense of humor",
   },
   {
     value: 75,
     suffix: "%",
-    label: "Say brands online feel like older people trying to joke with them",
+    label: "Brands online feel like uncs trying to joke",
     display: "3 in 4",
   },
   {
     value: 57,
     suffix: "%",
-    label: "Who gets the joke matters more than how many people like it",
+    label: "Who gets it matters more than how many liked it",
   },
 ] as const;
 

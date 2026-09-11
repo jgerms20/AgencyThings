@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Fortnite">
+  <rect width="120" height="120" fill="#12182a"/>
+  <path fill="#6ee0ff" d="M60 22 86 48 60 98 34 48z"/>
+  <path fill="#12182a" d="M60 38 74 48 60 78 46 48z"/>
+  <text x="60" y="108" text-anchor="middle" fill="#fff" font-family="Arial Black, Helvetica, sans-serif" font-size="11" letter-spacing="1.4">FORTNITE</text>
+</svg>

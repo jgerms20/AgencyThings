@@ -18,8 +18,19 @@ describe("Spaces page", () => {
     expect(screen.queryByText("What it enables")).not.toBeInTheDocument();
     expect(screen.queryByText("Safety and age caveat")).not.toBeInTheDocument();
     expect(screen.queryByText("What happens there")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Why they go")).toHaveLength(25);
+    expect(screen.queryByText("Why they go")).not.toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("25 featured spaces");
+  });
+
+  it("opens a featured space for investigation", async () => {
+    const user = userEvent.setup();
+    render(<SpacesPage />);
+
+    const card = document.getElementById("roblox")!;
+    expect(within(card).queryByText("Why they go")).not.toBeInTheDocument();
+    await user.click(within(card).getByRole("button", { name: /Click to investigate/i }));
+    expect(within(card).getByText("Why they go")).toBeInTheDocument();
+    expect(within(card).getByRole("button", { name: /Close/i })).toHaveAttribute("aria-expanded", "true");
   });
 
   it("filters by category, environment, and age and restores featured results", async () => {

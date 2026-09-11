@@ -19,6 +19,12 @@ describe("Gen Alpha demographic overview", () => {
     expect(screen.getByRole("region", { name: "U.S. demographic portrait" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Global snapshot" })).toBeInTheDocument();
     expect(screen.getByText(/North America is only 3\.2%/i)).toBeInTheDocument();
+    expect(screen.getByText(/Youth culture is no longer a U\.S\. export first/i)).toBeInTheDocument();
+    expect(screen.getByText("96.8%")).toBeInTheDocument();
+    expect(screen.getByText("Bad Bunny")).toBeInTheDocument();
+    expect(screen.getByText("BTS")).toBeInTheDocument();
+    expect(screen.getByText("KPop Demon Hunters")).toBeInTheDocument();
+    expect(screen.getByText("Lamine Yamal")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "From who they are to how they live." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "How they live" })).toBeInTheDocument();
     expect(screen.getAllByTestId("deeper-route")).toHaveLength(4);

@@ -47,6 +47,8 @@ export type Space = {
   tone: SpaceTone;
   featured?: boolean;
   image?: string;
+  imageTreatment?: "logo" | "photo";
+  logoBackground?: string;
   culturalEvidenceUrl?: string;
   culturalEvidenceLabel?: string;
 };
@@ -433,22 +435,22 @@ const featuredSpaceIds = new Set([
 ]);
 
 const spaceImages: Record<string, string> = {
-  roblox: "/spaces/roblox.jpg",
+  roblox: "/spaces/logos/roblox.svg",
   minecraft: "/culture/minecraft.jpg",
-  fortnite: "/spaces/fortnite.jpg",
+  fortnite: "/spaces/logos/fortnite.svg",
   "nintendo-switch": "/spaces/nintendo-switch.jpg",
   pokemon: "/culture/pokemon.png",
-  youtube: "/spaces/youtube.jpg",
-  tiktok: "/spaces/tiktok.jpg",
+  youtube: "/spaces/logos/youtube.svg",
+  tiktok: "/spaces/logos/tiktok.svg",
   twitch: "/spaces/twitch.jpg",
-  netflix: "/spaces/netflix.jpg",
+  netflix: "/spaces/logos/netflix.svg",
   "disney-plus": "/spaces/disney-plus.jpg",
   snapchat: "/spaces/snapchat.jpg",
-  discord: "/spaces/discord.jpg",
-  instagram: "/spaces/instagram.jpg",
+  discord: "/spaces/logos/discord.svg",
+  instagram: "/spaces/logos/instagram.svg",
   whatsapp: "/spaces/whatsapp.jpg",
   "imessage-facetime": "/spaces/imessage.jpg",
-  spotify: "/spaces/spotify.jpg",
+  spotify: "/spaces/logos/spotify.svg",
   chatgpt: "/spaces/chatgpt.jpg",
   capcut: "/spaces/capcut.jpg",
   scratch: "/spaces/scratch.jpg",
@@ -459,6 +461,37 @@ const spaceImages: Record<string, string> = {
   "cinemas-live-entertainment": "/spaces/cinema.jpg",
   "retail-fandom-collector-spaces": "/spaces/retail.jpg",
 };
+
+const spaceLogoBackgrounds: Record<string, string> = {
+  roblox: "#000000",
+  minecraft: "#62b47a",
+  fortnite: "#12182a",
+  "nintendo-switch": "#e60012",
+  pokemon: "#1b2a6b",
+  youtube: "#0f0f0f",
+  tiktok: "#010101",
+  twitch: "#9146ff",
+  netflix: "#141414",
+  "disney-plus": "#000000",
+  snapchat: "#fffc00",
+  discord: "#5865f2",
+  instagram: "#c13584",
+  whatsapp: "#25d366",
+  "imessage-facetime": "#34c759",
+  spotify: "#1ed760",
+  chatgpt: "#10a37f",
+  capcut: "#000000",
+};
+
+const photoSpaceIds = new Set([
+  "scratch",
+  "school",
+  "after-school-sports-clubs",
+  "home-family-routines",
+  "parks-playgrounds-pickup-play",
+  "cinemas-live-entertainment",
+  "retail-fandom-collector-spaces",
+]);
 
 const culturalEvidence: Record<string, { url: string; label: string }> = {
   roblox: { url: "https://www.waltonfamilyfoundation.org/bodacious-and-walton-family-foundation-unveil-new-report-on-generation-alphas-use-of-creation-gaming-for-learning-and-development", label: "Creation gaming research" },
@@ -476,6 +509,8 @@ export const spaces: Space[] = seeds.map(({ evidence, ...seed }, index) => ({
   ...evidence,
   featured: featuredSpaceIds.has(seed.id),
   image: spaceImages[seed.id],
+  imageTreatment: photoSpaceIds.has(seed.id) ? "photo" : "logo",
+  logoBackground: spaceLogoBackgrounds[seed.id],
   culturalEvidenceUrl: culturalEvidence[seed.id]?.url,
   culturalEvidenceLabel: culturalEvidence[seed.id]?.label,
   tone: tones[index % tones.length],

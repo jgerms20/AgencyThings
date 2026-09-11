@@ -80,17 +80,15 @@ describe("generation comparison board", () => {
     const user = userEvent.setup();
     render(<ComparePage />);
 
-    expect(screen.getByRole("heading", { name: /Pick the generations/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Gen Z/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: /Gen Alpha/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: /Two generations/i })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Left generation" })).toHaveValue("genZ");
+    expect(screen.getByRole("combobox", { name: "Right generation" })).toHaveValue("genAlpha");
     expect(screen.getByRole("button", { name: "Formative moments" })).toHaveAttribute("aria-pressed", "true");
 
-    await user.click(screen.getByRole("button", { name: /Boomers/ }));
-    await user.click(screen.getByRole("button", { name: /Gen Alpha/ }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Right generation" }), "boomers");
 
-    expect(screen.getByRole("button", { name: /Gen Alpha/ })).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByRole("button", { name: /Gen Z/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: /Boomers/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("combobox", { name: "Left generation" })).toHaveValue("genZ");
+    expect(screen.getByRole("combobox", { name: "Right generation" })).toHaveValue("boomers");
 
     const result = screen.getByRole("region", { name: "Comparison result" });
     expect(within(result).getByText(getPairRead(comparisonDimensions[0], "genZ", "boomers"))).toBeInTheDocument();
@@ -121,18 +119,18 @@ describe("generation comparison board", () => {
 
     expect(screen.getAllByText("shared").length).toBeGreaterThan(0);
 
-    await user.click(screen.getByRole("button", { name: /Millennials/ }));
-    expect(screen.getByText("COVID-19")).toBeInTheDocument();
+    await user.selectOptions(screen.getByRole("combobox", { name: "Left generation" }), "millennials");
+    expect(screen.getByText("COVID as working adults")).toBeInTheDocument();
     expect(screen.getByText("COVID school")).toBeInTheDocument();
   });
 
-  it("does not drop below two selected generations", async () => {
+  it("keeps two different generations when the same option is chosen twice", async () => {
     const user = userEvent.setup();
     render(<ComparePage />);
 
-    await user.click(screen.getByRole("button", { name: /Gen Z/ }));
-    expect(screen.getByRole("button", { name: /Gen Z/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: /Gen Alpha/ })).toHaveAttribute("aria-pressed", "true");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Left generation" }), "genAlpha");
+    expect(screen.getByRole("combobox", { name: "Left generation" })).toHaveValue("genAlpha");
+    expect(screen.getByRole("combobox", { name: "Right generation" })).toHaveValue("genZ");
   });
 
   it("opens measured media mix without pretending it is a taste ranking", async () => {

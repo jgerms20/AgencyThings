@@ -2,6 +2,8 @@
 
 Editorial place-card images for the Gen Alpha Lab spaces directory. Retrieved August 20, 2026.
 
+Digital tiles default to logos so the brand fills the card. Original Lab SVG marks live in `logos/` and use public brand colors, not official trademark files.
+
 ## Reused culture assets
 
 - `../culture/minecraft.jpg`: Minecraft official CDN creeper mark (see `../culture/ATTRIBUTION.md`).

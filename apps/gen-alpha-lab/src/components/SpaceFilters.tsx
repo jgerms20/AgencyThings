@@ -78,44 +78,64 @@ function RelatedFormatReference({
 }
 
 function FeaturedSpaceCard({ space }: { space: SpaceProfile }) {
+  const [open, setOpen] = useState(false);
+  const isLogo = space.imageTreatment !== "photo";
+
   return (
     <article
       aria-labelledby={`${space.id}-heading`}
-      className={`space-profile space-profile-${space.tone}`}
+      className={`space-profile space-profile-${space.tone}${open ? " is-open" : ""}`}
       data-testid="space-profile"
       id={space.id}
       style={{ scrollMarginTop: "6rem", maxWidth: "100%", minWidth: 0 }}
       tabIndex={-1}
     >
-      {space.image ? (
-        <div className="space-profile-media">
-          <Image
-            alt=""
-            className="space-profile-image"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            src={space.image}
-          />
+      <button
+        aria-controls={`${space.id}-investigate`}
+        aria-expanded={open}
+        className="space-profile-summary"
+        onClick={() => setOpen((current) => !current)}
+        type="button"
+      >
+        {space.image ? (
+          <div
+            className={`space-profile-media${isLogo ? " space-profile-media-logo" : ""}`}
+            style={isLogo && space.logoBackground ? { background: space.logoBackground } : undefined}
+          >
+            <Image
+              alt=""
+              className={isLogo ? "space-profile-logo" : "space-profile-image"}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              src={space.image}
+              unoptimized={space.image.endsWith(".svg")}
+            />
+          </div>
+        ) : null}
+        <div className="space-profile-body">
+          <h2 id={`${space.id}-heading`}>{space.name}</h2>
+          <span className="space-profile-investigate-cue">{open ? "Close" : "Click to investigate"}</span>
+        </div>
+      </button>
+      {open ? (
+        <div className="space-profile-investigate" id={`${space.id}-investigate`}>
+          <p className="space-profile-what">{space.whatItIs}</p>
+          <div className="space-profile-why">
+            <span>Why they go</span>
+            <p>{space.whyTheyGo}</p>
+          </div>
+          {space.culturalEvidenceUrl && space.culturalEvidenceLabel ? (
+            <a
+              className="space-profile-evidence-link"
+              href={space.culturalEvidenceUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {space.culturalEvidenceLabel} <ExternalLink aria-hidden="true" size={14} />
+            </a>
+          ) : null}
         </div>
       ) : null}
-      <div className="space-profile-body">
-        <h2 id={`${space.id}-heading`}>{space.name}</h2>
-        <p className="space-profile-what">{space.whatItIs}</p>
-        <div className="space-profile-why">
-          <span>Why they go</span>
-          <p>{space.whyTheyGo}</p>
-        </div>
-        {space.culturalEvidenceUrl && space.culturalEvidenceLabel ? (
-          <a
-            className="space-profile-evidence-link"
-            href={space.culturalEvidenceUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {space.culturalEvidenceLabel} <ExternalLink aria-hidden="true" size={14} />
-          </a>
-        ) : null}
-      </div>
     </article>
   );
 }
