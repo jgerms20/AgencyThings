@@ -48,10 +48,10 @@ describe("Gen Alpha demographic model", () => {
 
   it("places the global culture shift next to the youth-population map", () => {
     expect(globalCultureShift.title).toMatch(/U\.S\. export/i);
-    expect(globalCultureShift.body).toMatch(/Bad Bunny/);
-    expect(globalCultureShift.body).toMatch(/KPop Demon Hunters/);
-    expect(globalCultureShift.body).toMatch(/Lamine Yamal/);
-    expect(globalCultureShift.body).toMatch(/96\.8%/);
+    expect(globalCultureShift.stat).toBe("96.8%");
+    expect(globalCultureShift.thenTitle).toMatch(/U\.S\. export/i);
+    expect(globalCultureShift.nowTitle).toMatch(/Many centers/i);
+    expect(globalCultureShift.names).toEqual(["Bad Bunny", "BTS", "KPop Demon Hunters", "Lamine Yamal"]);
   });
 
   it("links every demographic source to a public HTTPS destination", () => {

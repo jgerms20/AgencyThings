@@ -116,13 +116,21 @@ export const generationBoundaryCopy = {
 
 export const demographicSynthesis = {
   title: "The youth majority is already outside North America.",
-  body: "North America is only 3.2% of the world’s ages 0–14 population. The next wave of youth culture is being shaped in many countries and languages at once — already visible in KPop Demon Hunters and K-pop, in IShowSpeed’s global soccer streams, and in teenagers like Lamine Yamal becoming worldwide references before they leave their teens.",
+  body: "North America is only 3.2% of the world’s ages 0–14 population. That is the map. The culture point sits beside it: what counts as global cool is no longer a one-way U.S. export.",
 } as const;
 
 export const globalCultureShift = {
   kicker: "Compared with previous generations",
   title: "Youth culture is no longer a U.S. export first.",
-  body: "For Boomers through early Millennials, “global culture” often meant American culture traveling outward. Alpha is already 96.8% outside North America — so Bad Bunny, BTS, KPop Demon Hunters, and Lamine Yamal are not extras. They sit closer to the center of gravity.",
+  stat: "96.8%",
+  statLabel: "of ages 0–14 live outside North America",
+  thenLabel: "Then",
+  thenTitle: "U.S. export",
+  thenBody: "Boomers through early Millennials. “Global culture” mostly meant American culture traveling outward.",
+  nowLabel: "Now",
+  nowTitle: "Many centers",
+  nowBody: "Alpha is growing up where what’s cool is already being made in many countries at once. The future of pop culture is not a U.S. broadcast.",
+  names: ["Bad Bunny", "BTS", "KPop Demon Hunters", "Lamine Yamal"],
 } as const;
 
 export const globalCoverageNote =

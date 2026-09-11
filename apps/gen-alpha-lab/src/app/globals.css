@@ -2426,9 +2426,11 @@ iframe { display: block; max-width: 100%; }
 .global-demographic-section .demographic-bar-row-highlight { background: rgba(9, 10, 9, .08) !important; }
 .global-demographic-section .demographic-bar-metrics em { color: rgba(9, 10, 9, .62); }
 .global-demographic-section .demographic-bars-animated .demographic-bar-row:hover,
-.global-demographic-section .demographic-bars-animated .demographic-bar-row:focus-within {
-  background: #090a09;
-  color: #fff;
+.global-demographic-section .demographic-bars-animated .demographic-bar-row:focus-within,
+.global-demographic-section .demographic-bar-row-highlight:hover,
+.global-demographic-section .demographic-bar-row-highlight:focus-within {
+  background: #090a09 !important;
+  color: #fff !important;
   border-color: #090a09;
 }
 .global-demographic-section .demographic-bars-animated .demographic-bar-row:hover .demographic-bar-label span,
@@ -2437,18 +2439,55 @@ iframe { display: block; max-width: 100%; }
 .global-demographic-section .demographic-bars-animated .demographic-bar-row:focus-within .demographic-bar-label strong,
 .global-demographic-section .demographic-bars-animated .demographic-bar-row:hover .demographic-bar-metrics em,
 .global-demographic-section .demographic-bars-animated .demographic-bar-row:focus-within .demographic-bar-metrics em {
-  color: #fff;
+  color: #fff !important;
 }
-.global-demographic-section .demographic-bar-hover,
+.global-demographic-section .demographic-bar-hover {
+  top: 10px;
+  right: 12px;
+  left: auto;
+  z-index: 4;
+  min-width: 160px;
+  padding: 10px 12px;
+  background: #090a09 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 1px #fff;
+}
 .global-demographic-section .demographic-bar-hover span,
 .global-demographic-section .demographic-bar-hover strong {
-  background: #090a09;
-  color: #fff;
+  background: transparent;
+  color: #fff !important;
 }
 .global-culture-shift { display: flex; flex-direction: column; border-top: 2px solid #090a09; padding-top: 20px; }
-.global-culture-shift h3 { max-width: 18ch; font-size: clamp(1.6rem, 2.4vw, 2.2rem); line-height: 1.05; }
-.global-culture-shift > p:nth-of-type(2) { margin-top: 16px; font-size: .92rem; font-weight: 750; line-height: 1.5; }
+.global-culture-shift h3 { max-width: 16ch; font-size: clamp(1.7rem, 2.6vw, 2.35rem); line-height: 1.02; }
+.global-culture-stat { display: grid; gap: 6px; margin: 18px 0 4px; }
+.global-culture-stat strong {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 6vw, 5.2rem);
+  letter-spacing: -.06em;
+  line-height: .8;
+}
+.global-culture-stat span { max-width: 16ch; font-size: .78rem; font-weight: 850; text-transform: uppercase; }
+.global-culture-then-now { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 22px; background: #090a09; }
+.global-culture-then-now > div { display: grid; gap: 6px; min-height: 148px; padding: 14px 14px 16px; background: var(--acid); }
+.global-culture-then-now span { font-size: .62rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+.global-culture-then-now strong { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.05; }
+.global-culture-then-now p { margin: 0; font-size: .78rem; font-weight: 750; line-height: 1.4; }
+.global-culture-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.global-culture-names li {
+  border: 1px solid #090a09;
+  padding: 7px 10px;
+  font-size: .72rem;
+  font-weight: 850;
+}
 .global-demographic-body aside p { margin-top: 16px; font-size: .82rem; font-weight: 750; line-height: 1.55; }
+.global-culture-shift .demographic-measure-note { color: rgba(9, 10, 9, .62); }
 .global-demographic-section .demographic-source-link { color: #090a09; }
 
 .demographic-next > header { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .55fr); gap: 80px; align-items: end; margin-bottom: 50px; }
@@ -2490,6 +2529,7 @@ iframe { display: block; max-width: 100%; }
   .demographic-next-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .demographic-next-grid > a:nth-child(2) { border-right: 0; }
   .demographic-next-grid > a:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+  .global-culture-then-now { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {
