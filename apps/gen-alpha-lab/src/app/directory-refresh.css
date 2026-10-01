@@ -1,0 +1,469 @@
+.directory-refresh {
+  --directory-accent: var(--acid);
+  --directory-accent-strong: var(--acid-ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.directory-refresh--people { --directory-accent: var(--violet); }
+.directory-refresh--spaces { --directory-accent: var(--coral); }
+
+.directory-refresh .page-opening {
+  min-height: 0;
+  padding-top: 44px;
+  padding-bottom: 40px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.directory-refresh .page-opening > p { color: var(--muted); }
+
+.directory-refresh .directory-filters {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 24px 32px;
+  background: var(--paper);
+}
+
+.directory-refresh .directory-filters fieldset { min-width: 0; }
+
+.directory-refresh .directory-filter-primary {
+  display: grid;
+  grid-template-columns: minmax(340px, auto) minmax(220px, 1fr);
+  gap: 20px;
+  align-items: end;
+}
+
+.directory-refresh .directory-filters legend,
+.directory-refresh .directory-filters label {
+  color: var(--muted);
+  font-family: var(--font-utility);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.directory-refresh .directory-filters fieldset > div,
+.directory-refresh .directory-filters .influencer-filter-chips > div {
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.directory-refresh .directory-filters button {
+  min-height: 34px;
+  min-width: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: .72rem;
+}
+
+.directory-refresh .directory-filters button:hover,
+.directory-refresh .directory-filters button:focus-visible {
+  border-color: var(--directory-accent-strong);
+  color: var(--ink);
+}
+
+.directory-refresh .directory-filters button[aria-pressed="true"],
+.directory-refresh .directory-filters button[aria-pressed="true"]:hover,
+.directory-refresh .directory-filters button[aria-pressed="true"]:focus-visible {
+  background: var(--directory-accent);
+  color: #17241d;
+}
+
+.directory-refresh .directory-filter-more {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.directory-refresh .directory-filter-more summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: var(--font-utility);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.directory-refresh .directory-filter-more > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(160px, .55fr) minmax(0, 1.1fr);
+  gap: 16px;
+  padding-top: 14px;
+}
+
+.directory-refresh .directory-filter-more .influencer-filter-chips { margin-top: 0; }
+
+.directory-refresh .influencer-filter-search,
+.directory-refresh .space-filter-search {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.directory-refresh .influencer-filter-search > span,
+.directory-refresh .space-filter-search > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 12px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.directory-refresh .influencer-filter-search input,
+.directory-refresh .space-filter-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+
+.directory-refresh .influencer-filter-search > span:focus-within,
+.directory-refresh .space-filter-search > span:focus-within,
+.directory-refresh .directory-filters select:focus-visible {
+  border-color: var(--directory-accent-strong);
+  outline: 2px solid var(--directory-accent);
+  outline-offset: 2px;
+}
+
+.directory-refresh .influencer-filter-summary,
+.directory-refresh .space-filter-summary {
+  margin-top: 0;
+}
+
+.directory-refresh .culture-shaper-directory,
+.directory-refresh .space-directory { overflow: clip; }
+
+.directory-refresh .influencer-directory {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  border: 0;
+  padding: 24px 32px 48px;
+}
+
+.directory-refresh .influencer-directory article,
+.directory-refresh .influencer-directory article:nth-child(n) {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.directory-refresh .culture-shaper-card__link {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.directory-refresh .culture-shaper-card__image,
+.directory-refresh .culture-shaper-card__monogram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--paper);
+}
+
+.directory-refresh .culture-shaper-card__image--portrait { object-position: center top; }
+
+.directory-refresh .culture-shaper-card__monogram {
+  display: grid;
+  place-items: center;
+  color: var(--directory-accent-strong);
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+}
+
+.directory-refresh .culture-shaper-card__body {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 204px;
+  padding: 16px 18px 18px;
+}
+
+.directory-refresh .culture-shaper-card__meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+}
+
+.directory-refresh .culture-shaper-card__meta span,
+.directory-refresh .culture-shaper-card__meta small {
+  color: inherit;
+  font-size: .64rem;
+  font-weight: 800;
+}
+
+.directory-refresh .culture-shaper-card h2 {
+  margin: 4px 28px 0 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1.08;
+}
+
+.directory-refresh .culture-shaper-card__role {
+  margin: 0;
+  color: var(--directory-accent-strong);
+  font-size: .74rem;
+  font-weight: 800;
+  line-height: 1.3;
+  text-transform: none;
+}
+
+.directory-refresh .culture-shaper-card__summary {
+  display: -webkit-box;
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 400;
+  text-transform: none;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.directory-refresh .culture-shaper-card__platforms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: auto 0 0;
+  padding: 8px 24px 0 0;
+  list-style: none;
+}
+
+.directory-refresh .culture-shaper-card__platforms li {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 6px;
+  color: var(--muted);
+  font-size: .62rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.directory-refresh .culture-shaper-card__arrow {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: var(--directory-accent-strong);
+}
+
+.directory-refresh .culture-shaper-card__link:hover,
+.directory-refresh .culture-shaper-card__link:focus-visible {
+  background: var(--paper);
+  outline: 2px solid var(--directory-accent);
+  outline-offset: -2px;
+}
+
+.directory-refresh .space-filter-controls {
+  grid-template-columns: minmax(220px, 1.3fr) repeat(3, minmax(140px, .7fr)) minmax(160px, auto);
+  align-items: end;
+}
+
+.directory-refresh .space-filter-controls label { display: grid; gap: 8px; }
+
+.directory-refresh .space-filter-controls select {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 28px 7px 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: .78rem;
+}
+
+.directory-refresh .spaces-featured-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  border: 0;
+  padding: 24px 32px;
+}
+
+.directory-refresh .space-profile,
+.directory-refresh .space-profile:nth-child(n),
+.directory-refresh .space-profile-compact,
+.directory-refresh .space-profile-compact:nth-child(n) {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.directory-refresh .space-profile-media {
+  aspect-ratio: 4 / 3;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.directory-refresh .space-profile-image { object-fit: cover; }
+
+.directory-refresh .space-profile-body {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background: transparent;
+}
+
+.directory-refresh .space-profile-category,
+.directory-refresh .space-profile-compact-header p {
+  margin: 0;
+  color: var(--directory-accent-strong);
+  font-size: .66rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.directory-refresh .space-profile h2,
+.directory-refresh .space-profile-compact h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.3rem;
+  line-height: 1.12;
+}
+
+.directory-refresh .space-profile-what,
+.directory-refresh .space-profile-compact-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 600;
+  line-height: 1.48;
+}
+
+.directory-refresh .space-card__details {
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.directory-refresh .space-card__details summary {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.directory-refresh .space-card__details summary::marker { color: var(--directory-accent-strong); }
+
+.directory-refresh .space-card__detail-content {
+  display: grid;
+  gap: 14px;
+  padding: 4px 0 8px;
+}
+
+.directory-refresh .space-card__detail-content > div > span {
+  color: var(--muted);
+  font-size: .64rem;
+  font-weight: 800;
+}
+
+.directory-refresh .space-card__detail-content p {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.directory-refresh .space-profile-evidence-link {
+  color: var(--directory-accent-strong);
+  font-size: .72rem;
+}
+
+.directory-refresh .space-related-format-reference {
+  border-top: 1px solid var(--line);
+  padding: 14px 0 0;
+}
+
+.directory-refresh .space-related-format-reference-trigger {
+  border-color: var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: .7rem;
+}
+
+.directory-refresh .space-related-format-reference-trigger:hover,
+.directory-refresh .space-related-format-reference-trigger:focus-visible {
+  background: var(--directory-accent);
+  color: #17241d;
+}
+
+.directory-refresh .space-related-format-reference-panel {
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 12px;
+  border-color: var(--line);
+  padding: 12px;
+}
+
+.directory-refresh .spaces-compact-section {
+  border: 0;
+  padding: 0 32px 48px;
+  background: transparent;
+}
+
+.directory-refresh .spaces-compact-heading { padding: 12px 0 14px; }
+
+.directory-refresh .spaces-compact-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.directory-refresh .space-profile-compact { padding: 16px; }
+
+.directory-refresh .space-profile-compact-header { margin-bottom: 8px; }
+
+@media (max-width: 1000px) {
+  .directory-refresh .directory-filter-primary { grid-template-columns: 1fr; }
+  .directory-refresh .directory-filter-more > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .directory-refresh .influencer-directory,
+  .directory-refresh .spaces-featured-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .directory-refresh .space-filter-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .directory-refresh .spaces-compact-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .directory-refresh .page-opening,
+  .directory-refresh .directory-filters,
+  .directory-refresh .influencer-directory,
+  .directory-refresh .spaces-featured-grid,
+  .directory-refresh .spaces-compact-section { padding-right: 18px; padding-left: 18px; }
+  .directory-refresh .influencer-directory,
+  .directory-refresh .spaces-featured-grid,
+  .directory-refresh .spaces-compact-list,
+  .directory-refresh .space-filter-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .directory-refresh .space-filter-search,
+  .directory-refresh .space-filter-summary { grid-column: 1 / -1; }
+  .directory-refresh .directory-filter-more > div { grid-template-columns: 1fr; }
+  .directory-refresh .culture-shaper-card__body { min-height: 196px; padding: 14px; }
+  .directory-refresh .space-profile-body,
+  .directory-refresh .space-profile-compact { padding: 14px; }
+}
+
+@media (max-width: 440px) {
+  .directory-refresh .influencer-directory,
+  .directory-refresh .spaces-featured-grid,
+  .directory-refresh .spaces-compact-list { grid-template-columns: 1fr; }
+}

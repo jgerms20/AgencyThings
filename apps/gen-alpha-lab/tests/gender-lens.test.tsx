@@ -23,12 +23,13 @@ describe("Gender Lens", () => {
     expect(serialized).not.toMatch(/all boys|all girls|only boys|only girls|naturally|hardwired/i);
   });
 
-  it("opens on the expanded girls lens and keeps the hero copy spatially separated", () => {
+  it("opens on three concise girls takeaways with evidence disclosed on demand", async () => {
+    const user = userEvent.setup();
     const { container } = render(<GenderLensPage />);
 
-    expect(screen.getByRole("heading", { name: "Gender is a lens, not a shortcut." })).toBeInTheDocument();
-    expect(container.querySelector(".gender-opening-thesis")).toContainElement(screen.getByRole("heading", { name: "Gender is a lens, not a shortcut." }));
-    expect(container.querySelector(".gender-opening-copy")).toHaveTextContent(/patterns are real enough to investigate/i);
+    expect(screen.getByRole("heading", { name: "See the pattern. Keep the person." })).toBeInTheDocument();
+    expect(container.querySelector(".gender-opening-thesis")).toContainElement(screen.getByRole("heading", { name: "See the pattern. Keep the person." }));
+    expect(container.querySelector(".gender-opening-copy")).toHaveTextContent(/near-age proxies/i);
 
     const tabs = screen.getByRole("tablist", { name: "Gender lenses" });
     expect(within(tabs).getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
@@ -37,17 +38,24 @@ describe("Gender Lens", () => {
       "Gender-diverse youth",
     ]);
     expect(screen.getByRole("tab", { name: "Girls" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText("86%")).toBeInTheDocument();
-    expect(screen.getByText("59%")).toBeInTheDocument();
-    expect(screen.getByText("38%")).toBeInTheDocument();
+    expect(container.querySelectorAll(".gender-takeaway")).toHaveLength(3);
+    const firstEvidence = container.querySelector(".gender-evidence")!;
+    expect(firstEvidence).not.toHaveAttribute("open");
+    expect(within(firstEvidence as HTMLElement).getByText("86%")).not.toBeVisible();
+    await user.click(within(firstEvidence as HTMLElement).getByText(/Explore 2 findings/));
+    expect(firstEvidence).toHaveAttribute("open");
+    expect(within(firstEvidence as HTMLElement).getByText("86%")).toBeVisible();
+    expect(within(firstEvidence as HTMLElement).getByText("59%")).toBeVisible();
+    expect(within(firstEvidence as HTMLElement).getAllByRole("link", { name: /Open source/ })).toHaveLength(2);
     expect(screen.getAllByText("Counter-pattern", { exact: true }).length).toBeGreaterThan(0);
   });
 
   it("switches to distinct boys findings including upside and risk", async () => {
     const user = userEvent.setup();
-    render(<GenderLensPage />);
+    const { container } = render(<GenderLensPage />);
 
     await user.click(screen.getByRole("tab", { name: "Boys" }));
+    for (const summary of container.querySelectorAll(".gender-evidence summary")) await user.click(summary);
     expect(screen.getByText("2:38")).toBeInTheDocument();
     expect(screen.getAllByText("62%")).toHaveLength(2);
     expect(screen.getByText("48%")).toBeInTheDocument();
@@ -57,9 +65,10 @@ describe("Gender Lens", () => {
 
   it("keeps gender-diverse visibility, safety, and media-data gaps separate", async () => {
     const user = userEvent.setup();
-    render(<GenderLensPage />);
+    const { container } = render(<GenderLensPage />);
 
     await user.click(screen.getByRole("tab", { name: "Gender-diverse youth" }));
+    for (const summary of container.querySelectorAll(".gender-evidence summary")) await user.click(summary);
     expect(screen.getByText("3.3%")).toBeInTheDocument();
     expect(screen.getByText("2.2%")).toBeInTheDocument();
     expect(screen.getAllByText("Evidence gap").length).toBeGreaterThan(0);
@@ -75,5 +84,26 @@ describe("Gender Lens", () => {
     expect(methodology).toHaveTextContent("ages 13–17");
     expect(methodology).toHaveTextContent("near-age proxy");
     expect(methodology).toHaveTextContent("self-report");
+  });
+
+  it("retains every finding, caveat, and source behind the three takeaways", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<GenderLensPage />);
+
+    for (const lens of genderLenses) {
+      await user.click(screen.getByRole("tab", { name: lens.label }));
+      const disclosures = container.querySelectorAll(".gender-evidence");
+      expect(disclosures).toHaveLength(3);
+      for (const disclosure of disclosures) await user.click(disclosure.querySelector("summary")!);
+
+      const findings = container.querySelectorAll(".gender-finding");
+      expect(findings).toHaveLength(lens.findings.length);
+      for (const finding of lens.findings) {
+        const article = [...findings].find((node) => node.textContent?.includes(finding.title));
+        expect(article).toHaveTextContent(finding.finding);
+        expect(article).toHaveTextContent(finding.interpretation);
+        expect(article?.querySelector(`a[href="${finding.sourceUrl}"]`)).toBeInTheDocument();
+      }
+    }
   });
 });

@@ -91,7 +91,7 @@ export const globalRegions: DemographicShare[] = [
   { label: "Middle East, North Africa, Afghanistan & Pakistan", value: 13, count: "~261M" },
   { label: "Europe & Central Asia", value: 8, count: "~161M" },
   { label: "Latin America & Caribbean", value: 7.4, count: "~149M" },
-  { label: "North America", value: 3.2, count: "~64M" },
+  { label: "North America", value: 3.2, count: "~65M" },
 ];
 
 export const usPopulationHeadline = {
@@ -115,9 +115,18 @@ export const generationBoundaryCopy = {
 } as const;
 
 export const demographicSynthesis = {
-  title: "The youth majority is already outside North America.",
-  body: "North America is only 3.2% of the world’s ages 0–14 population. The next wave of youth culture is being shaped in many countries and languages at once — already visible in KPop Demon Hunters and K-pop, in IShowSpeed’s global soccer streams, and in teenagers like Lamine Yamal becoming worldwide references before they leave their teens.",
+  title: "A long demographic shift. Not an Alpha-specific trait.",
+  body: "North America's share of the world's children fell from 5.25% in 1965 to 3.24% in 2024. But it has stayed close to 3.5% since 1980: the change since 2010 is just 0.25 percentage points. Geography provides context; it does not explain this generation's culture or behavior.",
 } as const;
+
+export const youthPopulationHistory = [
+  { year: 1965, northAmerica: 66232637, world: 1262219550 },
+  { year: 1980, northAmerica: 56493075, world: 1574934227 },
+  { year: 1995, northAmerica: 64019917, world: 1839394422 },
+  { year: 2010, northAmerica: 66590016, world: 1910395026 },
+  { year: 2024, northAmerica: 65148297, world: 2012895582 },
+] as const;
+export const youthHistorySource = "https://api.worldbank.org/v2/country/NAC%3BWLD/indicator/SP.POP.0014.TO?date=1965%3A2024&format=json&per_page=200";
 
 export const globalCoverageNote =
   "There is no combined global race, ethnicity, sexual-orientation, or gender-identity rollup here. Countries do not measure those categories consistently enough to combine them responsibly.";

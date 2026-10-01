@@ -8,7 +8,7 @@ describe("Insights page", () => {
   it("presents twenty featured insights across four visibly named themes", () => {
     render(<InsightsPage />);
 
-    expect(screen.getByRole("heading", { name: "Four ways their days actually work." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Inside their everyday." })).toBeInTheDocument();
     expect(screen.getAllByTestId("insight-directory-item")).toHaveLength(20);
     for (const theme of ["Play & Belonging", "Media & Influence", "Time & Routines", "Learning & Becoming"]) {
       expect(screen.getByRole("heading", { name: theme })).toBeInTheDocument();

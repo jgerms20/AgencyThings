@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./presentation-refresh.css";
+import "./directory-refresh.css";
+import "./lens-refresh.css";
 
 export const metadata: Metadata = {
   title: "Gen Alpha Intelligence Lab",

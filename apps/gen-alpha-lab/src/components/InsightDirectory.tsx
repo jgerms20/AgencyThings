@@ -37,6 +37,7 @@ export default function InsightDirectory() {
           key={theme.id}
         >
           <header>
+            <img className="insight-theme-image" src={theme.id === "play-belonging" ? "/findings/connection.png" : theme.id === "media-influence" ? "/culture/kpop-demon-hunters.jpg" : theme.id === "time-routines" ? "/findings/creation.png" : "/findings/learning-ai.png"} alt="" loading="lazy" />
             <h2>{theme.title}</h2>
             <p>{theme.description}</p>
           </header>
@@ -79,8 +80,8 @@ export default function InsightDirectory() {
                 </article>
               );
             })}
-            <aside className="insight-cluster-pocket" aria-label={`${theme.title} further reading`}>
-              <p>Also in this theme</p>
+            <details className="insight-cluster-pocket" aria-label={`${theme.title} further reading`}>
+              <summary>More in this theme</summary>
               <ul>
                 {getInsightsForTheme(theme.id).filter((insight) => !insight.featured).map((insight) => (
                   <li data-testid="insight-directory-pocket" key={insight.id}>
@@ -88,7 +89,7 @@ export default function InsightDirectory() {
                   </li>
                 ))}
               </ul>
-            </aside>
+            </details>
           </div>
         </section>
       ))}

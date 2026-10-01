@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, PlaySquare, RotateCcw } from "lucide-react";
+import { ExternalLink, PlaySquare, RotateCcw, Search } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
@@ -11,8 +11,6 @@ import {
 } from "@/lib/spaces";
 
 type SpaceFiltersProps = { spaces: SpaceProfile[] };
-
-const selectStyle = { minWidth: 0, width: "100%", maxWidth: "100%" } as const;
 
 function RelatedFormatReference({
   activeFormatReferenceSpaceId,
@@ -77,7 +75,64 @@ function RelatedFormatReference({
   );
 }
 
-function FeaturedSpaceCard({ space }: { space: SpaceProfile }) {
+function SpaceDetails({
+  activeFormatReferenceSpaceId,
+  setActiveFormatReferenceSpaceId,
+  space,
+}: {
+  activeFormatReferenceSpaceId: string | null;
+  setActiveFormatReferenceSpaceId: (id: string | null) => void;
+  space: SpaceProfile;
+}) {
+  return (
+    <details className="space-card__details" data-testid="space-detail">
+      <summary>Evidence and context</summary>
+      <div className="space-card__detail-content">
+        <div>
+          <span>Why they go</span>
+          <p>{space.whyTheyGo}</p>
+        </div>
+        <div>
+          <span>Evidence</span>
+          <p>{space.evidenceSummary}</p>
+        </div>
+        <div>
+          <span>Strategy implication</span>
+          <p>{space.implication}</p>
+        </div>
+        <div>
+          <span>Safety and age context</span>
+          <p>{space.safetyCaveat}</p>
+        </div>
+        {space.culturalEvidenceUrl && space.culturalEvidenceLabel ? (
+          <a
+            className="space-profile-evidence-link"
+            href={space.culturalEvidenceUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {space.culturalEvidenceLabel} <ExternalLink aria-hidden="true" size={14} />
+          </a>
+        ) : null}
+        <RelatedFormatReference
+          activeFormatReferenceSpaceId={activeFormatReferenceSpaceId}
+          setActiveFormatReferenceSpaceId={setActiveFormatReferenceSpaceId}
+          space={space}
+        />
+      </div>
+    </details>
+  );
+}
+
+function FeaturedSpaceCard({
+  activeFormatReferenceSpaceId,
+  setActiveFormatReferenceSpaceId,
+  space,
+}: {
+  activeFormatReferenceSpaceId: string | null;
+  setActiveFormatReferenceSpaceId: (id: string | null) => void;
+  space: SpaceProfile;
+}) {
   return (
     <article
       aria-labelledby={`${space.id}-heading`}
@@ -99,22 +154,14 @@ function FeaturedSpaceCard({ space }: { space: SpaceProfile }) {
         </div>
       ) : null}
       <div className="space-profile-body">
+        <p className="space-profile-category">{space.category}</p>
         <h2 id={`${space.id}-heading`}>{space.name}</h2>
         <p className="space-profile-what">{space.whatItIs}</p>
-        <div className="space-profile-why">
-          <span>Why they go</span>
-          <p>{space.whyTheyGo}</p>
-        </div>
-        {space.culturalEvidenceUrl && space.culturalEvidenceLabel ? (
-          <a
-            className="space-profile-evidence-link"
-            href={space.culturalEvidenceUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {space.culturalEvidenceLabel} <ExternalLink aria-hidden="true" size={14} />
-          </a>
-        ) : null}
+        <SpaceDetails
+          activeFormatReferenceSpaceId={activeFormatReferenceSpaceId}
+          setActiveFormatReferenceSpaceId={setActiveFormatReferenceSpaceId}
+          space={space}
+        />
       </div>
     </article>
   );
@@ -143,7 +190,7 @@ function CompactSpaceCard({
         <p>{space.category}</p>
       </header>
       <p className="space-profile-compact-summary">{space.whatItIs}</p>
-      <RelatedFormatReference
+      <SpaceDetails
         activeFormatReferenceSpaceId={activeFormatReferenceSpaceId}
         setActiveFormatReferenceSpaceId={setActiveFormatReferenceSpaceId}
         space={space}
@@ -156,16 +203,19 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
   const [category, setCategory] = useState("all");
   const [environment, setEnvironment] = useState("all");
   const [age, setAge] = useState("all");
+  const [search, setSearch] = useState("");
   const [activeFormatReferenceSpaceId, setActiveFormatReferenceSpaceId] = useState<string | null>(null);
 
-  const filtersActive = category !== "all" || environment !== "all" || age !== "all";
+  const filtersActive = category !== "all" || environment !== "all" || age !== "all" || search.trim() !== "";
 
   const filtered = useMemo(
     () => spaces.filter((space) =>
       (category === "all" || space.category === category)
       && (environment === "all" || space.environment === environment)
-      && (age === "all" || space.ageBands.includes(age as (typeof spaceAgeBands)[number]))),
-    [age, category, environment, spaces],
+      && (age === "all" || space.ageBands.includes(age as (typeof spaceAgeBands)[number]))
+      && [space.name, space.category, space.environment, space.whatItIs, space.whyTheyGo]
+        .some((value) => value.toLowerCase().includes(search.trim().toLowerCase()))),
+    [age, category, environment, search, spaces],
   );
 
   const featuredSpaces = useMemo(() => filtered.filter((space) => space.featured), [filtered]);
@@ -179,6 +229,7 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
     setCategory("all");
     setEnvironment("all");
     setAge("all");
+    setSearch("");
   };
 
   return (
@@ -187,24 +238,37 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
       className="space-directory"
       style={{ maxWidth: "100%", minWidth: 0, overflow: "clip" }}
     >
-      <div className="space-filter-controls">
+      <div className="space-filter-controls directory-filters">
+        <label className="space-filter-search">
+          Search
+          <span>
+            <Search aria-hidden="true" size={16} />
+            <input
+              aria-label="Search spaces"
+              placeholder="Search spaces"
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </span>
+        </label>
         <label>
           Category
-          <select aria-label="Category" style={selectStyle} value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select aria-label="Category" value={category} onChange={(event) => setCategory(event.target.value)}>
             <option value="all">All categories</option>
             {spaceCategories.map((option) => <option value={option} key={option}>{option}</option>)}
           </select>
         </label>
         <label>
           Environment
-          <select aria-label="Environment" style={selectStyle} value={environment} onChange={(event) => setEnvironment(event.target.value)}>
+          <select aria-label="Environment" value={environment} onChange={(event) => setEnvironment(event.target.value)}>
             <option value="all">All environments</option>
             {spaceEnvironments.map((option) => <option value={option} key={option}>{option[0].toUpperCase() + option.slice(1)}</option>)}
           </select>
         </label>
         <label>
           Audience age
-          <select aria-label="Audience age" style={selectStyle} value={age} onChange={(event) => setAge(event.target.value)}>
+          <select aria-label="Audience age" value={age} onChange={(event) => setAge(event.target.value)}>
             <option value="all">All ages</option>
             {spaceAgeBands.map((option) => <option value={option} key={option}>Ages {option}</option>)}
           </select>
@@ -221,7 +285,14 @@ export default function SpaceFilters({ spaces }: SpaceFiltersProps) {
 
       {featuredSpaces.length > 0 ? (
         <div className="spaces-featured-grid">
-          {featuredSpaces.map((space) => <FeaturedSpaceCard key={space.id} space={space} />)}
+          {featuredSpaces.map((space) => (
+            <FeaturedSpaceCard
+              activeFormatReferenceSpaceId={activeFormatReferenceSpaceId}
+              key={space.id}
+              setActiveFormatReferenceSpaceId={setActiveFormatReferenceSpaceId}
+              space={space}
+            />
+          ))}
         </div>
       ) : null}
 

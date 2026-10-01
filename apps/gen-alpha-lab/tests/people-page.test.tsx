@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import PeoplePage from "../src/components/PeoplePage";
 import { influencers } from "../src/lib/influencers";
@@ -9,7 +9,7 @@ describe("Influencers directory", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "People shaping what Gen Alpha watches, plays, and copies."
+        name: "Who shapes their world."
       })
     ).toBeInTheDocument();
     expect(screen.getAllByTestId("influencer-card")).toHaveLength(30);
@@ -25,5 +25,18 @@ describe("Influencers directory", () => {
       expect(portrait).toHaveAttribute("loading", "lazy");
       expect(portrait).toHaveAttribute("decoding", "async");
     }
+  });
+
+  it("keeps platform labels concise on directory cards while preserving profile links", () => {
+    render(<PeoplePage />);
+
+    const shaper = influencers.find((entry) => entry.platforms.length > 2);
+    expect(shaper).toBeDefined();
+
+    const card = screen.getByRole("link", { name: `Explore ${shaper!.name}` }).closest("article")!;
+    const platforms = within(card).getByTestId("culture-shaper-platforms");
+
+    expect(within(platforms).getAllByTestId("culture-shaper-platform")).toHaveLength(2);
+    expect(platforms).toHaveTextContent(`+${shaper!.platforms.length - 2}`);
   });
 });

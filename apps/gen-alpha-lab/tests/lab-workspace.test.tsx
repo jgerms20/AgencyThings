@@ -18,7 +18,10 @@ describe("Gen Alpha demographic overview", () => {
     expect(screen.getByText("2.01B")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "U.S. demographic portrait" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Global snapshot" })).toBeInTheDocument();
-    expect(screen.getByText(/North America is only 3\.2%/i)).toBeInTheDocument();
+    expect(screen.queryByText(/North America is only 3\.2%/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "North American share of children over time" })).toBeInTheDocument();
+    expect(screen.getByText("5.25%")).toBeInTheDocument();
+    expect(screen.getByText("3.24%")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "From who they are to how they live." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "How they live" })).toBeInTheDocument();
     expect(screen.getAllByTestId("deeper-route")).toHaveLength(4);

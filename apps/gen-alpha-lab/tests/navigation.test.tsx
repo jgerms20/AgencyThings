@@ -10,7 +10,7 @@ const expectedDestinations = [
   ["Humor", "/humor"],
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
-  ["Marketing 101", "/reach-them"],
+  ["Brand playbook", "/reach-them"],
   ["Gender lens", "/gender"],
   ["Compare", "/compare"],
   ["Summary", "/summary"],
@@ -22,14 +22,14 @@ afterEach(() => {
 });
 
 describe("responsive primary navigation", () => {
-  it("renders all ten desktop destinations in the approved order", () => {
+  it("keeps all ten destinations in the grouped desktop navigation", () => {
     render(<SiteHeader active="overview" />);
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
     const links = within(navigation).getAllByRole("link");
 
-    expect(links.map((link) => link.textContent)).toEqual(expectedDestinations.map(([label]) => label));
-    expect(links.map((link) => link.getAttribute("href"))).toEqual(expectedDestinations.map(([, href]) => href));
+    expect(links.map((link) => link.textContent).sort()).toEqual(expectedDestinations.map(([label]) => label).sort());
+    expect(links.map((link) => link.getAttribute("href")).sort()).toEqual(expectedDestinations.map(([, href]) => href).sort());
   });
 
   it("marks the active desktop destination", () => {
@@ -39,12 +39,23 @@ describe("responsive primary navigation", () => {
     expect(screen.getByRole("link", { name: "Overview" })).not.toHaveAttribute("aria-current");
   });
 
+  it("returns keyboard focus to Explore after Escape", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader active="overview" />);
+    const summary = screen.getByText("Explore");
+    await user.click(summary);
+    screen.getByRole("link", { name: "Compare" }).focus();
+    await user.keyboard("{Escape}");
+    expect(summary.closest("details")).not.toHaveAttribute("open");
+    expect(summary).toHaveFocus();
+  });
+
   it("derives the active destination when a page does not pass one", async () => {
     window.history.replaceState({}, "", "/reach-them");
     render(<SiteHeader />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Marketing 101" })).toHaveAttribute("aria-current", "page");
+      expect(screen.getByRole("link", { name: "Brand playbook" })).toHaveAttribute("aria-current", "page");
     });
   });
 
