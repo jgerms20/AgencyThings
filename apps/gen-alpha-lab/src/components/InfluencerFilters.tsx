@@ -137,6 +137,10 @@ function toggleSelection<T extends string>(current: T[], value: T) {
   return current.includes(value) ? current.filter((entry) => entry !== value) : [...current, value];
 }
 
+function isPortraitShaper(shaper: CultureShaper) {
+  return shaper.type === "creator" || shaper.type === "artist" || shaper.type === "athlete";
+}
+
 export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
   const [type, setType] = useState<CultureShaperDirectoryType>("all");
   const [search, setSearch] = useState("");
@@ -168,84 +172,91 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
 
   return (
     <section className="culture-shaper-directory" aria-label="Culture shaper directory">
-      <div className="influencer-filter-controls">
-        <fieldset>
-          <legend>Type</legend>
-          <div>
-            {typeOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={type === option.value}
-                onClick={() => setType(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+      <div className="influencer-filter-controls directory-filters">
+        <div className="directory-filter-primary">
+          <fieldset>
+            <legend>Type</legend>
+            <div>
+              {typeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={type === option.value}
+                  onClick={() => setType(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
 
-        <label className="influencer-filter-search">
-          Search
-          <span>
-            <Search aria-hidden="true" size={16} />
-            <input
-              aria-label="Search by name or topic"
-              placeholder="Type a name or topic"
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </span>
-        </label>
+          <label className="influencer-filter-search">
+            Search
+            <span>
+              <Search aria-hidden="true" size={16} />
+              <input
+                aria-label="Search by name or topic"
+                placeholder="Type a name or topic"
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </span>
+          </label>
+        </div>
 
-        <fieldset className="influencer-filter-chips">
-          <legend>Platform</legend>
+        <details className="directory-filter-more">
+          <summary>More filters</summary>
           <div>
-            {platformOptions.map((platform) => (
-              <button
-                key={platform}
-                type="button"
-                aria-pressed={platforms.includes(platform)}
-                onClick={() => setPlatforms((current) => toggleSelection(current, platform))}
-              >
-                {platform}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+            <fieldset className="influencer-filter-chips">
+              <legend>Platform</legend>
+              <div>
+                {platformOptions.map((platform) => (
+                  <button
+                    key={platform}
+                    type="button"
+                    aria-pressed={platforms.includes(platform)}
+                    onClick={() => setPlatforms((current) => toggleSelection(current, platform))}
+                  >
+                    {platform}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
-        <fieldset className="influencer-filter-chips influencer-filter-chips-age">
-          <legend>Audience age</legend>
-          <div>
-            {ageOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={ages.includes(option.value)}
-                onClick={() => setAges((current) => toggleSelection(current, option.value))}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+            <fieldset className="influencer-filter-chips influencer-filter-chips-age">
+              <legend>Audience age</legend>
+              <div>
+                {ageOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={ages.includes(option.value)}
+                    onClick={() => setAges((current) => toggleSelection(current, option.value))}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
-        <fieldset className="influencer-filter-chips influencer-filter-chips-topic">
-          <legend>Topic</legend>
-          <div>
-            {topicOptions.map((topic) => (
-              <button
-                key={topic}
-                type="button"
-                aria-pressed={topics.includes(topic)}
-                onClick={() => setTopics((current) => toggleSelection(current, topic))}
-              >
-                {topic}
-              </button>
-            ))}
+            <fieldset className="influencer-filter-chips influencer-filter-chips-topic">
+              <legend>Topic</legend>
+              <div>
+                {topicOptions.map((topic) => (
+                  <button
+                    key={topic}
+                    type="button"
+                    aria-pressed={topics.includes(topic)}
+                    onClick={() => setTopics((current) => toggleSelection(current, topic))}
+                  >
+                    {topic}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           </div>
-        </fieldset>
+        </details>
 
         <div className="influencer-filter-summary">
           <p role="status" aria-live="polite">{resultLabel}</p>
@@ -257,20 +268,43 @@ export default function InfluencerFilters({ shapers }: InfluencerFiltersProps) {
 
       <div className="influencer-directory" aria-label="Influencers shaping Gen Alpha culture">
         {filtered.map((shaper, index) => (
-          <article data-testid={shaper.type === "creator" ? "influencer-card" : "culture-shaper-card"} key={shaper.id}>
-            <Link href={`/influencers/${shaper.id}`} aria-label={`Explore ${shaper.name}`} title={`Lab ID: ${shaper.id}`}>
-              {getCultureShaperImage(shaper) ? <img src={getCultureShaperImage(shaper)} alt={shaper.name} loading="lazy" decoding="async" /> : (
-                <span className="culture-shaper-monogram" style={{ aspectRatio: "1 / 1", display: "grid", placeItems: "center" }} aria-hidden="true">
+          <article
+            className="culture-shaper-card"
+            data-testid={shaper.type === "creator" ? "influencer-card" : "culture-shaper-card"}
+            key={shaper.id}
+          >
+            <Link
+              className="culture-shaper-card__link"
+              href={`/influencers/${shaper.id}`}
+              aria-label={`Explore ${shaper.name}`}
+              title={`Lab ID: ${shaper.id}`}
+            >
+              {getCultureShaperImage(shaper) ? (
+                <img
+                  className={`culture-shaper-card__image${isPortraitShaper(shaper) ? " culture-shaper-card__image--portrait" : ""}`}
+                  src={getCultureShaperImage(shaper)}
+                  alt={shaper.name}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span className="culture-shaper-monogram culture-shaper-card__monogram" aria-hidden="true">
                   {shaper.name.slice(0, 2).toUpperCase()}
                 </span>
               )}
-              <div>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <small>{shaper.type.replace("screen-ip", "Screen / IP")}</small>
+              <div className="culture-shaper-card__body">
+                <div className="culture-shaper-card__meta">
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <small>{shaper.type.replace("screen-ip", "Screen / IP")}</small>
+                </div>
                 <h2>{shaper.name}</h2>
-                <p>{shaper.role}</p>
-                <small>{shaper.audience.center}</small>
-                <ArrowUpRight aria-hidden="true" size={19} />
+                <p className="culture-shaper-card__role">{shaper.role}</p>
+                <p className="culture-shaper-card__summary">{shaper.summary}</p>
+                <ul aria-label={`${shaper.name} platforms`} className="culture-shaper-card__platforms" data-testid="culture-shaper-platforms">
+                  {shaper.platforms.slice(0, 2).map((platform) => <li data-testid="culture-shaper-platform" key={platform}>{platform}</li>)}
+                  {shaper.platforms.length > 2 ? <li aria-label={`${shaper.platforms.length - 2} more platforms`}>+{shaper.platforms.length - 2}</li> : null}
+                </ul>
+                <ArrowUpRight aria-hidden="true" className="culture-shaper-card__arrow" size={18} />
               </div>
             </Link>
           </article>

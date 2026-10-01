@@ -1,8 +1,7 @@
 "use client";
 
-import { type CSSProperties, type RefObject } from "react";
+import { type CSSProperties } from "react";
 import type { DemographicShare } from "@/lib/demographics";
-import { useCountUp } from "./useCountUp";
 
 type AnimatedShareBarsProps = {
   items: readonly DemographicShare[];
@@ -12,16 +11,6 @@ type AnimatedShareBarsProps = {
   variant?: "default" | "global";
 };
 
-function AnimatedPercent({ value, active }: { value: number; active: boolean }) {
-  const { value: current } = useCountUp({
-    end: value,
-    duration: 1400,
-    decimals: value % 1 === 0 ? 0 : 1,
-    startOnView: active,
-  });
-
-  return <>{active ? current.toFixed(value % 1 === 0 ? 0 : 1) : "0"}%</>;
-}
 
 export default function AnimatedShareBars({
   items,
@@ -30,11 +19,9 @@ export default function AnimatedShareBars({
   showCounts = false,
   variant = "default",
 }: AnimatedShareBarsProps) {
-  const { ref, hasStarted } = useCountUp({ end: 1, duration: 1, startOnView: true });
 
   return (
     <div
-      ref={ref as RefObject<HTMLDivElement>}
       className={`demographic-bars demographic-bars-${color} demographic-bars-animated${variant === "global" ? " demographic-bars-global" : ""}`}
     >
       {items.map((item) => {
@@ -54,13 +41,13 @@ export default function AnimatedShareBars({
               <div className="demographic-bar-metrics">
                 {showCounts && item.count ? <em>{item.count}</em> : null}
                 <strong>
-                  <AnimatedPercent value={item.value} active={hasStarted} />
+                  {item.value.toFixed(decimals)}%
                 </strong>
               </div>
             </div>
             <div className="demographic-bar-track" aria-hidden="true">
               <span
-                className={hasStarted ? "demographic-bar-fill demographic-bar-fill-visible" : "demographic-bar-fill"}
+                className="demographic-bar-fill demographic-bar-fill-visible"
                 style={{ "--bar-width": `${item.value}%` } as CSSProperties}
               />
             </div>

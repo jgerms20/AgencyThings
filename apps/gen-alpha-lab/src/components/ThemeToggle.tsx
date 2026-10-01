@@ -13,17 +13,24 @@ function themeFromDocument(): Theme {
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(themeFromDocument);
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem(themeStorageKey);
-    if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
+    let initial = themeFromDocument();
+    try {
+      const savedTheme = window.localStorage.getItem(themeStorageKey);
+      if (savedTheme === "light" || savedTheme === "dark") initial = savedTheme;
+    } catch { /* Theme switching also works when browser storage is unavailable. */ }
+    setTheme(initial);
+    document.documentElement.dataset.theme = initial;
   }, []);
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    window.localStorage.setItem(themeStorageKey, theme);
-  }, [theme]);
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    try { window.localStorage.setItem(themeStorageKey, next); } catch { /* Keep the current page usable. */ }
+  }
 
   const themeLabel = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
 
@@ -32,7 +39,7 @@ export default function ThemeToggle() {
       className="theme-toggle"
       type="button"
       aria-label={themeLabel}
-      onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+      onClick={toggleTheme}
     >
       {theme === "dark" ? <Sun aria-hidden="true" size={17} /> : <Moon aria-hidden="true" size={17} />}
       <span>{theme === "dark" ? "Light" : "Dark"}</span>

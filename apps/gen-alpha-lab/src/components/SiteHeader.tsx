@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { useEffect, useState } from "react";
 import MobileNav, { type NavigationItem } from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
+import { ChevronDown } from "lucide-react";
 
 type NavigationId = "overview" | "insights" | "humor" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "summary" | "library";
 
@@ -16,7 +17,7 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "humor", label: "Humor", href: "/humor" as Route },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
-  { id: "reach-them", label: "Marketing 101", href: "/reach-them" },
+  { id: "reach-them", label: "Brand playbook", href: "/reach-them" },
   { id: "gender", label: "Gender lens", href: "/gender" },
   { id: "compare", label: "Compare", href: "/compare" },
   { id: "summary", label: "Summary", href: "/summary" },
@@ -44,7 +45,7 @@ export default function SiteHeader({ active }: SiteHeaderProps) {
         Gen Alpha Intelligence Lab
       </Link>
       <nav aria-label="Primary navigation" className="primary-nav">
-        {links.map((link) => (
+        {links.filter((link) => ["overview", "insights", "influencers", "spaces", "library"].includes(link.id)).map((link) => (
           <Link
             aria-current={current === link.id ? "page" : undefined}
             href={link.href}
@@ -53,6 +54,15 @@ export default function SiteHeader({ active }: SiteHeaderProps) {
             {link.label}
           </Link>
         ))}
+        <details className="explore-menu" onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.currentTarget.open = false;
+            event.currentTarget.querySelector("summary")?.focus();
+          }
+        }}>
+          <summary>Explore <ChevronDown size={15} aria-hidden="true" /></summary>
+          <div>{links.filter((link) => !["overview", "insights", "influencers", "spaces", "library"].includes(link.id)).map((link) => <Link key={link.id} href={link.href} aria-current={current === link.id ? "page" : undefined}>{link.label}</Link>)}</div>
+        </details>
       </nav>
       <ThemeToggle />
       <MobileNav active={current} links={links} />

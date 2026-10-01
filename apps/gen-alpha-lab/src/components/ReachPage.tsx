@@ -46,16 +46,17 @@ export default function ReachPage() {
       <SiteHeader />
 
       <section className="page-opening reach-opening">
-        <p className="reach-kicker">Marketing 101 / established practice</p>
-        <h1>Earn participation. Don&apos;t chase attention.</h1>
-        <p>These are useful starting points, not our proprietary point of view. Make the value obvious, fit the real-world context, and put the guardrail where people can see it.</p>
+        <p className="reach-kicker">Established practice</p>
+        <h1>Brand playbook</h1>
+        <p className="reach-opening-lead">Earn participation. Don&apos;t chase attention.</p>
+        <p className="reach-opening-note">Start with child value, fit the adult and everyday context, then make safety visible. These are useful starting points, not a proprietary framework.</p>
       </section>
 
       <section className="reach-boundaries" aria-label="Non-negotiable privacy and safety boundaries">
         <header>
           <ShieldCheck aria-hidden="true" size={28} strokeWidth={1.8} />
           <div>
-            <p className="reach-kicker">Four non-negotiables</p>
+            <p className="reach-kicker">Always on</p>
             <h2>Safety is part of the idea.</h2>
           </div>
         </header>
@@ -76,7 +77,7 @@ export default function ReachPage() {
                 <h2 id={`${stage.id}-title`}>{stage.title}</h2>
                 <p>{stage.description}</p>
               </div>
-              <p>{stage.plays.length} plays</p>
+              <p>{stage.plays.length} plays to explore</p>
             </header>
 
             <ol className="reach-play-list">

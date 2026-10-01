@@ -52,9 +52,10 @@ describe("Reach Them strategy", () => {
   it("groups all eight canonical plays into three scannable stages", () => {
     render(<ReachPage />);
 
-    expect(screen.getByText("Marketing 101 / established practice")).toBeInTheDocument();
-    expect(screen.getByText(/These are useful starting points, not our proprietary point of view/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Earn participation. Don't chase attention." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Brand playbook" })).toBeInTheDocument();
+    expect(screen.getByText("Earn participation. Don't chase attention.")).toBeInTheDocument();
+    expect(screen.getByText(/not a proprietary framework/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Marketing 101/i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create value" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Fit the context" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Apply guardrails" })).toBeInTheDocument();
@@ -130,18 +131,18 @@ describe("Reach Them strategy", () => {
     expect(within(boundaries).getAllByRole("listitem")).toHaveLength(4);
   });
 
-  it("keeps every reach text grid single-column at phone width", () => {
-    const stylesheet = readFileSync("src/app/globals.css", "utf8");
+  it("keeps the refreshed view responsive in its scoped stylesheet", () => {
+    const stylesheet = readFileSync("src/app/lens-refresh.css", "utf8");
     const phoneStyles = stylesheet.slice(stylesheet.indexOf("@media (max-width: 700px)"));
 
-    expect(phoneStyles).toMatch(/\.reach-stage-heading,\s*\.reach-play-summary-grid,\s*\.reach-play-detail-grid\s*\{\s*grid-template-columns:\s*1fr;/);
-    expect(phoneStyles).toMatch(/\.reach-boundaries ul\s*\{\s*grid-template-columns:\s*1fr;/);
+    expect(phoneStyles).toMatch(/\.reach-page \.reach-boundaries ul \{ grid-template-columns: 1fr;/);
+    expect(phoneStyles).toMatch(/\.reach-page \.reach-play-summary-grid, \.reach-page \.reach-play-detail-grid \{ grid-template-columns: 1fr;/);
   });
 
   it("exposes the strategy at the reach-them route", () => {
     render(<ReachRoute />);
 
-    expect(screen.getByRole("heading", { name: "Earn participation. Don't chase attention." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Brand playbook" })).toBeInTheDocument();
   });
 
   it("renders safely when unresolved strategy references bypass validation", () => {

@@ -1,7 +1,5 @@
 "use client";
 
-import { type RefObject } from "react";
-import { useCountUp } from "./useCountUp";
 
 type PopulationCountProps = {
   value: number;
@@ -18,15 +16,10 @@ export default function PopulationCount({
   "data-testid": testId,
   ariaLabel,
 }: PopulationCountProps) {
-  const { value: current, ref } = useCountUp({ end: value, duration: 2200 });
-
-  const formatted = current.toLocaleString("en-US");
-  const isComplete = Math.round(current) >= value;
-  const visible = isComplete && display ? display : formatted;
+  const visible = display ?? value.toLocaleString("en-US");
 
   return (
     <p
-      ref={ref as RefObject<HTMLParagraphElement>}
       className={`demographic-population-count ${className}`.trim()}
       data-testid={testId}
       aria-label={ariaLabel ?? `${value.toLocaleString("en-US")} people`}

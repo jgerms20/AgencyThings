@@ -6,8 +6,8 @@ export default function InsightsPage() {
     <main className="insights-page">
       <SiteHeader active="insights" />
       <section className="page-opening insights-opening">
-        <h1>Four ways their days actually work.</h1>
-        <p>Play, media, time, and learning — twenty featured reads from forty sourced insights. Each opens here; the rest stay on their detail pages.</p>
+        <h1>Inside their everyday.</h1>
+        <p>How play, media, routines, and learning shape childhood. Start with a finding. Follow it to the evidence.</p>
       </section>
 
       <InsightDirectory />

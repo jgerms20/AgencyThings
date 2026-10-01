@@ -17,14 +17,14 @@ describe("Insight-led detail pages", () => {
     expect(within(primaryNavigation).getAllByRole("link").map((link) => link.textContent)).toEqual([
       "Overview",
       "Insights",
-      "Humor",
       "Influencers",
       "Spaces",
-      "Marketing 101",
+      "Sources",
+      "Humor",
+      "Brand playbook",
       "Gender lens",
       "Compare",
       "Summary",
-      "Sources",
     ]);
     expect(screen.queryByText(/Evidence confidence/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related findings" })).not.toBeInTheDocument();

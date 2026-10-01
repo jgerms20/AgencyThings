@@ -19,6 +19,8 @@ import {
   usRegions,
   usSexSplit,
   usTopStates,
+  youthPopulationHistory,
+  youthHistorySource,
 } from "@/lib/demographics";
 
 function SourceLink({ sourceId, children }: { sourceId: string; children: React.ReactNode }) {
@@ -38,24 +40,13 @@ export default function DemographicOverview() {
     <>
       <section className="demographic-opening">
         <div className="demographic-opening-copy">
-          <p className="demographic-opening-kicker">{generationBoundaryCopy.kicker}</p>
+          <p className="demographic-opening-kicker">Gen Alpha Intelligence Lab</p>
           <h1>Who is Gen Alpha?</h1>
-          <p>{generationBoundaryCopy.opening}</p>
+          <p>A generation growing up across games, group chats, and shared culture. Understand the people, the places, and the patterns behind their everyday.</p>
+          <div className="overview-start"><Link href="/insights">Explore the findings <ArrowUpRight size={18} /></Link><Link href="/summary">The short version <ArrowUpRight size={18} /></Link></div>
         </div>
-
-        <div className="demographic-age-rail" aria-label="Gen Alpha working birth-year range from 2010 to 2024">
-          <div className="demographic-age-track" aria-hidden="true">
-            <span />
-            <i />
-            <b />
-          </div>
-          <div className="demographic-age-labels">
-            <p><strong>2010</strong><span>Oldest edge</span></p>
-            <p><strong>2017</strong><span>Middle of the span</span></p>
-            <p><strong>2024</strong><span>Youngest edge</span></p>
-          </div>
-        </div>
-
+      </section>
+      <section className="overview-context" aria-label="Generation at a glance">
         <div className="demographic-headline-grid">
           {demographicHeadlineFacts.map((fact) => (
             <article data-testid="demographic-headline-fact" key={fact.label}>
@@ -65,6 +56,7 @@ export default function DemographicOverview() {
             </article>
           ))}
         </div>
+        <details className="overview-method"><summary>{generationBoundaryCopy.kicker}</summary><p>{generationBoundaryCopy.opening}</p></details>
       </section>
 
       <section className="demographic-section us-demographic-section" aria-label="U.S. demographic portrait">
@@ -78,7 +70,7 @@ export default function DemographicOverview() {
           <p className="demographic-population-disclaimer">{usPopulationHeadline.disclaimer}</p>
         </header>
 
-        <div className="demographic-us-grid">
+        <details className="overview-demographic-detail"><summary>Explore the U.S. demographic portrait <ArrowUpRight size={18} /></summary><div className="demographic-us-grid">
           <article className="demographic-measure demographic-measure-sex">
             <header>
               <h3>Sex</h3>
@@ -124,14 +116,14 @@ export default function DemographicOverview() {
             <AnimatedShareBars items={usEthnicityContext} color="coral" />
             <p className="demographic-measure-note">Keep race and Hispanic origin separate when presenting this portrait.</p>
           </article>
-        </div>
+        </div></details>
       </section>
 
       <section className="demographic-section global-demographic-section" aria-label="Global snapshot">
         <header className="global-demographic-opening">
           <div>
             <p className="demographic-section-label">Global</p>
-            <h2>The world’s youth population is larger — and unevenly distributed.</h2>
+            <h2>Put the geography in perspective.</h2>
           </div>
           <div className="global-total">
             <PopulationCount
@@ -143,7 +135,17 @@ export default function DemographicOverview() {
             <span>{globalYouthHeadline.detail}</span>
           </div>
         </header>
-        <div className="global-demographic-body">
+        <section className="population-history" aria-label="North American share of children over time">
+          <h3>North America's share of the world's children</h3>
+          <p>Ages 0–14 in each year. Same age range, different points in history.</p>
+          <div className="population-history-chart">{youthPopulationHistory.map((point) => {
+            const share = point.northAmerica / point.world * 100;
+            return <div key={point.year}><span>{point.year}</span><div className="history-track" aria-hidden="true"><i style={{ width: `${share / 6 * 100}%` }} /></div><strong>{share.toFixed(2)}%</strong></div>;
+          })}</div>
+          <p className="history-reading">The recent difference is modest: <strong>0.25 percentage points since 2010.</strong> Most of the long-run change predates Gen Alpha.</p>
+          <details><summary>How this compares with past generations</summary><p>The 1965 snapshot covers births roughly 1951–1965, the 1980 snapshot roughly 1966–1980, 1995 roughly 1981–1995, 2010 roughly 1996–2010, and 2024 roughly 2010–2024. These overlap familiar generation labels but are fixed-age snapshots, not exact cohort totals.</p><p>World Bank North America means the U.S., Canada, and Bermuda; Mexico is in Latin America and the Caribbean. Share = regional under-15 population divided by the world under-15 population.</p><a href={youthHistorySource} target="_blank" rel="noreferrer">View the historical data <ArrowUpRight size={15} /></a></details>
+        </section>
+        <details className="overview-demographic-detail"><summary>See the regional breakdown <ArrowUpRight size={18} /></summary><div className="global-demographic-body">
           <AnimatedShareBars
             items={globalRegions}
             color="acid"
@@ -156,7 +158,7 @@ export default function DemographicOverview() {
             <p>{globalCoverageNote}</p>
             <SourceLink sourceId="world-population">World Bank age 0–14 data</SourceLink>
           </aside>
-        </div>
+        </div></details>
       </section>
 
       <section className="demographic-section demographic-synthesis" aria-label="Demographic insight">

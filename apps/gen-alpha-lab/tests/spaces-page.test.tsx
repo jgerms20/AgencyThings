@@ -18,7 +18,7 @@ describe("Spaces page", () => {
     expect(screen.queryByText("What it enables")).not.toBeInTheDocument();
     expect(screen.queryByText("Safety and age caveat")).not.toBeInTheDocument();
     expect(screen.queryByText("What happens there")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Why they go")).toHaveLength(25);
+    expect(screen.getAllByTestId("space-detail")).toHaveLength(54);
     expect(screen.getByRole("status")).toHaveTextContent("25 featured spaces");
   });
 
@@ -53,6 +53,24 @@ describe("Spaces page", () => {
     expect(screen.getAllByTestId("space-profile")).toHaveLength(25);
     expect(screen.getAllByTestId("space-profile-compact")).toHaveLength(29);
     expect(screen.getByRole("status")).toHaveTextContent("25 featured spaces");
+  });
+
+  it("searches spaces and keeps supporting context inside closed details by default", async () => {
+    const user = userEvent.setup();
+    render(<SpacesPage />);
+
+    const search = screen.getByRole("searchbox", { name: "Search spaces" });
+    await user.type(search, "Roblox");
+
+    expect(screen.getByRole("heading", { name: "Roblox" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Spotify" })).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("1 space shown");
+
+    const details = screen.getByTestId("space-detail");
+    expect(details).not.toHaveAttribute("open");
+    await user.click(within(details).getByText("Evidence and context"));
+    expect(details).toHaveAttribute("open");
+    expect(within(details).getByText("Why they go")).toBeInTheDocument();
   });
 
   it("reveals one related format reference at a time on compact cards", async () => {
