@@ -80,10 +80,10 @@ describe("generation comparison board", () => {
     const user = userEvent.setup();
     render(<ComparePage />);
 
-    expect(screen.getByRole("heading", { name: /Pick the generations/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /What changes between generations/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Gen Z/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: /Gen Alpha/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Formative moments" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Biggest shows" })).toHaveAttribute("aria-pressed", "true");
 
     await user.click(screen.getByRole("button", { name: /Boomers/ }));
     await user.click(screen.getByRole("button", { name: /Gen Alpha/ }));
@@ -93,20 +93,23 @@ describe("generation comparison board", () => {
     expect(screen.getByRole("button", { name: /Boomers/ })).toHaveAttribute("aria-pressed", "true");
 
     const result = screen.getByRole("region", { name: "Comparison result" });
-    expect(within(result).getByText(getPairRead(comparisonDimensions[0], "genZ", "boomers"))).toBeInTheDocument();
+    const shows = comparisonDimensions.find((topic) => topic.id === "tv-shows")!;
+    expect(within(result).getByText(getPairRead(shows, "genZ", "boomers"))).toBeInTheDocument();
     expect(within(result).queryByText(/Their memory starts in a phone-and-platform world/i)).not.toBeInTheDocument();
-    expect(within(result).getByText(/Network television, civil rights, Vietnam/i)).toBeInTheDocument();
+    expect(within(result).getByText(/Network appointment television/i)).toBeInTheDocument();
   });
 
   it("switches topics from chips and keeps evidence collapsed", async () => {
     const user = userEvent.setup();
     render(<ComparePage />);
 
+    await user.click(screen.getByRole("button", { name: "Formative moments" }));
     await user.click(screen.getByRole("button", { name: "Biggest shows" }));
     const result = screen.getByRole("region", { name: "Comparison result" });
     expect(within(result).getByText(/What counted as “the show”/i)).toBeInTheDocument();
     expect(within(result).getByText("Love Island")).toBeInTheDocument();
     expect(within(result).getByText("Bluey")).toBeInTheDocument();
+    expect(result.querySelectorAll(".canon-example img").length).toBeGreaterThanOrEqual(8);
 
     const proof = within(result).getByTestId("comparison-proof");
     expect(proof).not.toHaveAttribute("open");
@@ -119,7 +122,8 @@ describe("generation comparison board", () => {
     const user = userEvent.setup();
     render(<ComparePage />);
 
-    expect(screen.getAllByText("shared").length).toBeGreaterThan(0);
+    await user.click(screen.getByRole("button", { name: "Formative moments" }));
+    expect(screen.getAllByText("Shared").length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole("button", { name: /Millennials/ }));
     expect(screen.getByText("COVID-19")).toBeInTheDocument();

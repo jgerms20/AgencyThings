@@ -14,15 +14,16 @@ type SiteHeaderProps = { active?: NavigationId };
 const links: readonly NavigationItem<NavigationId>[] = [
   { id: "overview", label: "Overview", href: "/" },
   { id: "insights", label: "Insights", href: "/insights" },
-  { id: "humor", label: "Humor", href: "/humor" as Route },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
+  { id: "humor", label: "Humor", href: "/humor" as Route },
   { id: "reach-them", label: "Brand playbook", href: "/reach-them" },
   { id: "gender", label: "Gender lens", href: "/gender" },
   { id: "compare", label: "Compare", href: "/compare" },
   { id: "summary", label: "Summary", href: "/summary" },
   { id: "library", label: "Sources", href: "/library" }
 ];
+const primaryIds: readonly NavigationId[] = ["overview", "insights", "influencers", "spaces", "humor", "reach-them", "gender", "compare"];
 
 function navigationIdForPath(pathname: string): NavigationId | undefined {
   return links.find((link) => link.href === "/" ? pathname === "/" : pathname.startsWith(`${link.href}/`) || pathname === link.href)?.id;
@@ -45,7 +46,7 @@ export default function SiteHeader({ active }: SiteHeaderProps) {
         Gen Alpha Intelligence Lab
       </Link>
       <nav aria-label="Primary navigation" className="primary-nav">
-        {links.filter((link) => ["overview", "insights", "influencers", "spaces", "library"].includes(link.id)).map((link) => (
+        {links.filter((link) => primaryIds.includes(link.id)).map((link) => (
           <Link
             aria-current={current === link.id ? "page" : undefined}
             href={link.href}
@@ -61,7 +62,7 @@ export default function SiteHeader({ active }: SiteHeaderProps) {
           }
         }}>
           <summary>Explore <ChevronDown size={15} aria-hidden="true" /></summary>
-          <div>{links.filter((link) => !["overview", "insights", "influencers", "spaces", "library"].includes(link.id)).map((link) => <Link key={link.id} href={link.href} aria-current={current === link.id ? "page" : undefined}>{link.label}</Link>)}</div>
+          <div>{links.filter((link) => !primaryIds.includes(link.id)).map((link) => <Link key={link.id} href={link.href} aria-current={current === link.id ? "page" : undefined}>{link.label}</Link>)}</div>
         </details>
       </nav>
       <ThemeToggle />

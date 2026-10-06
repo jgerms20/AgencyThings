@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -246,6 +246,17 @@ describe("canonical culture shapers", () => {
     }
   });
 
+  it("has a working image path for every culture shaper", async () => {
+    for (const shaper of cultureShapers) {
+      const image = getCultureShaperImage(shaper);
+      expect(image, `${shaper.name} is missing an image`).toBeTruthy();
+      if (image?.startsWith("/")) {
+        const file = await stat(join(process.cwd(), "public", image.slice(1)));
+        expect(file.size, `${shaper.name} has an empty image`).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it("resolves franchise aliases and stores Minecraft and PAW Patrol key art", async () => {
     const attribution = await readFile(join(process.cwd(), "public/culture/ATTRIBUTION.md"), "utf8");
     const minecraft = getCultureShaper("minecraft")!;
@@ -254,11 +265,11 @@ describe("canonical culture shapers", () => {
     expect(minecraft.id).toBe("minecraft-franchise");
     expect(getCultureShaper("minecraft-franchise")).toEqual(minecraft);
     expect(getCultureShaper("pokemon")?.id).toBe("pokemon-franchise");
-    expect(getCultureShaperImage(minecraft)).toBe("/culture/minecraft.jpg");
+    expect(getCultureShaperImage(minecraft)).toBe("/culture/minecraft-world.png");
     expect(getCultureShaperImage(pawPatrol)).toBe("/culture/paw-patrol.png");
-    expect(readJpegDimensions(await readFile(join(process.cwd(), "public/culture/minecraft.jpg"))).width).toBeGreaterThan(0);
+    expect((await readFile(join(process.cwd(), "public/culture/minecraft-world.png"))).length).toBeGreaterThan(0);
     expect((await readFile(join(process.cwd(), "public/culture/paw-patrol.png"))).length).toBeGreaterThan(0);
-    expect(attribution).toContain("`minecraft.jpg`");
+    expect(attribution).toContain("`minecraft-world.png`");
     expect(attribution).toContain("`paw-patrol.png`");
   });
 
@@ -496,7 +507,7 @@ describe("indicator explanations", () => {
     render(<InfluencerDetail influencer={{ id: "minecraft" }} />);
 
     expect(screen.getByRole("heading", { name: "Minecraft" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Minecraft" })).toHaveAttribute("src", "/culture/minecraft.jpg");
+    expect(screen.getByRole("img", { name: "Minecraft" })).toHaveAttribute("src", "/culture/minecraft-world.png");
     expect(screen.getByText("minecraft-franchise")).toBeVisible();
     expect(screen.getByRole("link", { name: /minecraft\.net/i })).toHaveAttribute("href", "https://www.minecraft.net/");
   });

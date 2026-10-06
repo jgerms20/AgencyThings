@@ -8,14 +8,16 @@ describe("humor study tab", () => {
   it("renders the Snap x Omnicom briefing instead of dumping the deck", () => {
     render(<HumorPage />);
 
-    expect(screen.getByRole("heading", { name: "How Next Gen laughs." })).toBeInTheDocument();
-    expect(screen.getByText(/not the Lab’s full 0–16 Alpha portrait/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Humor is social language." })).toBeInTheDocument();
+    expect(screen.getByText(/not a census of every child/i)).toBeInTheDocument();
     expect(screen.getByText(/Humor is how this generation talks about serious things/i)).toBeInTheDocument();
+    expect(screen.getByText("82%")).toBeInTheDocument();
+    expect(screen.getByText("3 in 4")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Context is the punchline" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Okay they kinda ate." })).toBeInTheDocument();
     expect(screen.getByText("Unc found the meme.")).toBeInTheDocument();
-    expect(screen.getByText(/Not where they find it. Where they send it./i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Four moves. Not forty slides." })).toBeInTheDocument();
+    expect(screen.getByText(/Do not borrow a meme/i)).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /playful selfie/i })).toHaveAttribute("src", "/culture/humor-study.jpg");
     expect(screen.getByRole("link", { name: /Snapchat for Business write-up/i })).toHaveAttribute("href", humorStudy.sourceUrl);
     expect(screen.getByRole("link", { name: /Full study PDF/i })).toHaveAttribute("href", humorStudy.pdfUrl);
     expect(screen.getByRole("link", { name: /Open the source record/i })).toHaveAttribute("href", "/library/snap-omnicom-humor-2026");

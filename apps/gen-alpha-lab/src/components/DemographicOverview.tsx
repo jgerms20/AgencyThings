@@ -133,8 +133,18 @@ export default function DemographicOverview() {
               data-testid="global-population-count"
             />
             <span>{globalYouthHeadline.detail}</span>
+            <strong className="global-youth-share">24.7% <small>of the world</small></strong>
           </div>
         </header>
+        <div className="global-age-comparison" aria-label="World population by age in 2024">
+          <div className="global-age-bar" aria-hidden="true"><i /><i /><i /></div>
+          <div className="global-age-legend">
+            <span><b>0–14</b><strong>24.7%</strong></span>
+            <span><b>15–64</b><strong>65.1%</strong></span>
+            <span><b>65+</b><strong>10.2%</strong></span>
+          </div>
+          <p>Age bands, not exact generations. <a href="https://data.worldbank.org/indicator/SP.POP.0014.TO.ZS" target="_blank" rel="noreferrer">World Bank 2024 data <ArrowUpRight size={14} aria-hidden="true" /></a></p>
+        </div>
         <section className="population-history" aria-label="North American share of children over time">
           <h3>North America's share of the world's children</h3>
           <p>Ages 0–14 in each year. Same age range, different points in history.</p>

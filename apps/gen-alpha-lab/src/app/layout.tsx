@@ -3,6 +3,7 @@ import "./globals.css";
 import "./presentation-refresh.css";
 import "./directory-refresh.css";
 import "./lens-refresh.css";
+import "./visual-pass.css";
 
 export const metadata: Metadata = {
   title: "Gen Alpha Intelligence Lab",
