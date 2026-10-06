@@ -54,7 +54,7 @@ describe("Reach Them strategy", () => {
 
     expect(screen.getByRole("heading", { name: "Brand playbook" })).toBeInTheDocument();
     expect(screen.getByText("Earn participation. Don't chase attention.")).toBeInTheDocument();
-    expect(screen.getByText(/not a proprietary framework/i)).toBeInTheDocument();
+    expect(screen.getByText(/Three decisions. Eight practical plays/i)).toBeInTheDocument();
     expect(screen.queryByText(/Marketing 101/i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create value" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Fit the context" })).toBeInTheDocument();
@@ -106,6 +106,7 @@ describe("Reach Them strategy", () => {
     await user.click(summary!);
 
     expect(disclosure).toHaveAttribute("open");
+    await user.click(within(disclosure).getByText(/Examples, sources, and safety checks/i));
     expect(within(disclosure).getByText(play.formats[0])).toBeVisible();
     for (const insightId of play.insightIds.slice(0, 2)) {
       expect(disclosure.querySelector(`a[href="/insights/${insightId}"]`)).toBeVisible();
@@ -125,10 +126,9 @@ describe("Reach Them strategy", () => {
 
     const boundaries = screen.getByRole("region", { name: "Non-negotiable privacy and safety boundaries" });
     expect(boundaries).toHaveTextContent("No covert persuasion");
-    expect(boundaries).toHaveTextContent("No behavioral targeting of children");
-    expect(boundaries).toHaveTextContent("No unnecessary collection of a child's data");
-    expect(boundaries).toHaveTextContent("No child-only path to purchase or public sharing");
-    expect(within(boundaries).getAllByRole("listitem")).toHaveLength(4);
+    expect(boundaries).toHaveTextContent("No behavioral targeting");
+    expect(boundaries).toHaveTextContent("No unnecessary child data");
+    expect(boundaries).toHaveTextContent("No child-only purchase path");
   });
 
   it("keeps the refreshed view responsive in its scoped stylesheet", () => {

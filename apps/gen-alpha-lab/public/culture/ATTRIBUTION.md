@@ -18,3 +18,35 @@ The following editorial portraits and marks were retrieved from Wikimedia Common
 - `sabrina-carpenter.jpg`: Sabrina Carpenter at the O2 Arena, Wikimedia Commons.
 - `caitlin-clark.jpg`, `simone-biles.jpg`, `cristiano-ronaldo.jpg`, `angel-reese.jpg`, `aja-wilson.jpg`, and `lamine-yamal.jpg`: Wikimedia Commons profile imagery.
 - `barbie.png` and `pokemon.png`: Wikimedia Commons logo marks.
+
+## Visual pass, October 2026
+
+Portraits below are unmodified 960px-or-smaller Wikimedia Commons versions. Each file page lists the photographer and reuse license:
+
+| Local file | Commons file page | Credit / license |
+| --- | --- | --- |
+| `trinity-rodman.jpg` | [Trinity Rodman (cropped)](https://commons.wikimedia.org/wiki/File:Trinity_Rodman_(cropped).jpg) | S. Davis, CC BY-SA 2.0 |
+| `coco-gauff.jpg` | [Coco Gauff 2023 DC Open 01 cropped](https://commons.wikimedia.org/wiki/File:Coco_Gauff_2023_DC_Open_01_cropped.jpg) | Hameltion, CC BY-SA 4.0 |
+| `naomi-osaka.jpg` | [Naomi Osaka Rome 2025 (cropped)](https://commons.wikimedia.org/wiki/File:Naomi_Osaka_Rome_2025_(cropped).jpg) | TristanLaplap, CC BY-SA 4.0 |
+| `rayssa-leal.jpg` | [Laureus Rayssa Leal](https://commons.wikimedia.org/wiki/File:25th_Laureus_World_Sports_Awards_-_Red_Carpet_-_Rayssa_Leal_-_240422_183748_(cropped01).jpg) | Barcex, CC BY-SA 4.0 |
+| `jude-bellingham.jpg` | [Jude Bellingham](https://commons.wikimedia.org/wiki/File:Jude_Bellingham_during_EA_Sports_on_Sep_26_2024.jpg) | MohaESP88, CC BY 3.0 |
+| `kylian-mbappe.jpg` | [Kylian Mbappe](https://commons.wikimedia.org/wiki/File:Kylian_Mbappe_France_v_Senegal_16_June_2026-391_(cropped).jpg) | Bryan Berlin, CC BY-SA 4.0 |
+| `shohei-ohtani.jpg` | [Shohei Ohtani](https://commons.wikimedia.org/wiki/File:Shohei_Ohtani_(51005075907)_(cropped).jpg) | Jeffrey Hayes, CC BY 2.0 |
+| `stephen-curry.jpg` | [Stephen Curry shooting](https://commons.wikimedia.org/wiki/File:Stephen_Curry_Shooting_(cropped)_(cropped).jpg) | Cyrus Saatsaz, CC BY-SA 4.0 |
+| `erling-haaland.jpg` | [Erling Haaland](https://commons.wikimedia.org/wiki/File:Erling_Haaland_2023_(cropped-v2).jpg) | Jacek Stanislawek, CC BY-SA 4.0 |
+| `simone-biles-new.jpg` | [Simone Biles 2024 Olympics](https://commons.wikimedia.org/wiki/File:Simone_biles_2024_Olympics.jpg) | Ocoudis, CC0 |
+| `barbie-dolls.jpg` | [Barbie Doll Display](https://commons.wikimedia.org/wiki/File:Barbie_Doll_Display_at_Barbie_Expo_Les_Cours_Mont-Royal.jpg) | Librarygurl, CC BY-SA 4.0 |
+| `lego.jpg` | [Lego bricks](https://commons.wikimedia.org/wiki/File:Lego_bricks.jpg) | Benjamin D. Esham, CC BY-SA 4.0 |
+| `minecraft-world.png` | [Minecraft Alex and fauna](https://commons.wikimedia.org/wiki/File:Minecraft_Alex_and_fauna.png) | Xbox Mexico, CC BY 3.0 |
+| `sonic.png` | [Modern Sonic](https://commons.wikimedia.org/wiki/File:Modern_Sonic.png) | SEGA, CC BY 3.0; Wikimedia license review pending |
+
+Official editorial art used to identify shows, films, and the cited research:
+
+- `inside-out.jpg`: [Disney Inside Out 2](https://movies.disney.com/inside-out-2) poster.
+- `spider-verse.jpg`: [Sony Pictures Across the Spider-Verse](https://www.sonypictures.com/movies/spidermanacrossthespiderverse) poster.
+- `frozen.jpg`, `moana.jpg`: [Disney Frozen](https://movies.disney.com/frozen) and [Moana](https://movies.disney.com/moana) posters.
+- `stranger-things.jpg`, `squid-game.jpg`: [Netflix Stranger Things](https://www.netflix.com/tudum/stranger-things) and [Squid Game](https://www.netflix.com/tudum/squid-game) page art.
+- `euphoria.jpg`: [HBO Euphoria](https://www.hbo.com/euphoria) page art.
+- `love-island.jpg`: [ITV Love Island Series 13 press image](https://www.itv.com/presscentre/media-packs/love-island-series-13-press-pack).
+- `cocomelon.jpg`: [CoComelon official page](https://www.cocomelon.com/) promotional art.
+- `humor-study.jpg`: [Snap x Omnicom study](https://forbusiness.snapchat.com/blog/how-to-laugh-and-win-nextgen) page art.

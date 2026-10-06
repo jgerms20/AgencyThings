@@ -434,8 +434,8 @@ const featuredSpaceIds = new Set([
 
 const spaceImages: Record<string, string> = {
   roblox: "/spaces/roblox.jpg",
-  minecraft: "/culture/minecraft.jpg",
-  fortnite: "/spaces/fortnite.jpg",
+  minecraft: "/culture/minecraft-world.png",
+  fortnite: "/spaces/fortnite-battle-royale.jpg",
   "nintendo-switch": "/spaces/nintendo-switch.jpg",
   pokemon: "/culture/pokemon.png",
   youtube: "/spaces/youtube.jpg",

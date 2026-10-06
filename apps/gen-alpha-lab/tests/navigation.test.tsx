@@ -7,9 +7,9 @@ import SiteHeader from "../src/components/SiteHeader";
 const expectedDestinations = [
   ["Overview", "/"],
   ["Insights", "/insights"],
-  ["Humor", "/humor"],
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
+  ["Humor", "/humor"],
   ["Brand playbook", "/reach-them"],
   ["Gender lens", "/gender"],
   ["Compare", "/compare"],
@@ -44,7 +44,7 @@ describe("responsive primary navigation", () => {
     render(<SiteHeader active="overview" />);
     const summary = screen.getByText("Explore");
     await user.click(summary);
-    screen.getByRole("link", { name: "Compare" }).focus();
+    screen.getByRole("link", { name: "Sources" }).focus();
     await user.keyboard("{Escape}");
     expect(summary.closest("details")).not.toHaveAttribute("open");
     expect(summary).toHaveFocus();

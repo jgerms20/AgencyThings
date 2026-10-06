@@ -20,6 +20,7 @@ const strategyStages = [
     number: "01",
     title: "Create value",
     description: "Give children something worth making, learning, joining, or returning to.",
+    image: "/spaces/roblox.jpg",
     plays: strategyPlays.slice(0, 2),
   },
   {
@@ -27,6 +28,7 @@ const strategyStages = [
     number: "02",
     title: "Fit the context",
     description: "Work with the adults, rituals, places, and formats already shaping the moment.",
+    image: "/culture/bluey.jpg",
     plays: strategyPlays.slice(2, 6),
   },
   {
@@ -34,6 +36,7 @@ const strategyStages = [
     number: "03",
     title: "Apply guardrails",
     description: "Make safety visible and measure the usefulness children actually receive.",
+    image: "/spaces/snapchat.jpg",
     plays: strategyPlays.slice(6, 8),
   },
 ] as const;
@@ -49,7 +52,7 @@ export default function ReachPage() {
         <p className="reach-kicker">Established practice</p>
         <h1>Brand playbook</h1>
         <p className="reach-opening-lead">Earn participation. Don&apos;t chase attention.</p>
-        <p className="reach-opening-note">Start with child value, fit the adult and everyday context, then make safety visible. These are useful starting points, not a proprietary framework.</p>
+        <p className="reach-opening-note">Three decisions. Eight practical plays. Each grounded in the Lab&apos;s evidence.</p>
       </section>
 
       <section className="reach-boundaries" aria-label="Non-negotiable privacy and safety boundaries">
@@ -60,12 +63,7 @@ export default function ReachPage() {
             <h2>Safety is part of the idea.</h2>
           </div>
         </header>
-        <ul>
-          <li>No covert persuasion</li>
-          <li>No behavioral targeting of children</li>
-          <li>No unnecessary collection of a child&apos;s data</li>
-          <li>No child-only path to purchase or public sharing</li>
-        </ul>
+        <p className="reach-safety-line">No covert persuasion. No behavioral targeting. No unnecessary child data. No child-only purchase path.</p>
       </section>
 
       <div className="reach-stages">
@@ -77,7 +75,7 @@ export default function ReachPage() {
                 <h2 id={`${stage.id}-title`}>{stage.title}</h2>
                 <p>{stage.description}</p>
               </div>
-              <p>{stage.plays.length} plays to explore</p>
+              <img src={stage.image} alt="" loading="lazy" />
             </header>
 
             <ol className="reach-play-list">
@@ -119,7 +117,7 @@ export default function ReachPage() {
                           </span>
                         </div>
 
-                        <div className="reach-play-detail-grid">
+                        <details className="reach-play-more"><summary>Examples, sources, and safety checks <ChevronDown aria-hidden="true" size={18} /></summary><div className="reach-play-detail-grid">
                           <section>
                             <h3>Formats to try</h3>
                             <ul>
@@ -149,7 +147,7 @@ export default function ReachPage() {
                               {play.ethicalConstraints.slice(0, 2).map((constraint) => <li key={constraint}>{constraint}</li>)}
                             </ul>
                           </section>
-                        </div>
+                        </div></details>
                       </div>
                     </details>
                   </li>

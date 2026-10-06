@@ -28,7 +28,7 @@ Editorial place-card images for the Gen Alpha Lab spaces directory. Retrieved Au
 - `whatsapp.jpg`: Wikimedia Commons WhatsApp logo.
 - `imessage.jpg`: Wikimedia Commons iMessage logo.
 - `chatgpt.jpg`: Wikimedia Commons OpenAI symbol (2025).
-- `fortnite.jpg`: Wikimedia Commons screenshot from a Fortnite tournament video released under YouTube’s Creative Commons option.
+- `fortnite.jpg` and `fortnite-battle-royale.jpg`: [Epic Games Fortnite Battle Royale](https://www.fortnite.com/@epic/battle-royale) official discovery art, retrieved October 2026. The latter URL avoids stale optimized-image caches.
 
 ## Official destinations
 
