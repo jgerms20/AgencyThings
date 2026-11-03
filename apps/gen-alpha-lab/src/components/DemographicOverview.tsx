@@ -46,6 +46,15 @@ export default function DemographicOverview() {
           <div className="overview-start"><Link href="/insights">Explore the findings <ArrowUpRight size={18} /></Link><Link href="/summary">The short version <ArrowUpRight size={18} /></Link></div>
         </div>
       </section>
+      <section className="overview-house" aria-label="Explore the House">
+        <img src="/house/gen-alpha-girls-bedroom.png" alt="" aria-hidden="true" loading="lazy" />
+        <div>
+          <p>Inside the Lab</p>
+          <h2>The House</h2>
+          <span>The research, seen through the objects and spaces of everyday life.</span>
+          <Link href="/house">Explore the House <ArrowUpRight aria-hidden="true" size={18} /></Link>
+        </div>
+      </section>
       <section className="overview-context" aria-label="Generation at a glance">
         <div className="demographic-headline-grid">
           {demographicHeadlineFacts.map((fact) => (

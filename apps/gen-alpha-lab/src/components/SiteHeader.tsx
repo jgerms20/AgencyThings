@@ -7,7 +7,7 @@ import MobileNav, { type NavigationItem } from "@/components/MobileNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import { ChevronDown } from "lucide-react";
 
-type NavigationId = "overview" | "insights" | "humor" | "influencers" | "spaces" | "reach-them" | "gender" | "compare" | "summary" | "library";
+type NavigationId = "overview" | "insights" | "humor" | "influencers" | "spaces" | "house" | "reach-them" | "gender" | "compare" | "summary" | "library";
 
 type SiteHeaderProps = { active?: NavigationId };
 
@@ -16,6 +16,7 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "insights", label: "Insights", href: "/insights" },
   { id: "influencers", label: "Influencers", href: "/influencers" },
   { id: "spaces", label: "Spaces", href: "/spaces" },
+  { id: "house", label: "House", href: "/house" },
   { id: "humor", label: "Humor", href: "/humor" as Route },
   { id: "reach-them", label: "Brand playbook", href: "/reach-them" },
   { id: "gender", label: "Gender lens", href: "/gender" },
@@ -23,7 +24,7 @@ const links: readonly NavigationItem<NavigationId>[] = [
   { id: "summary", label: "Summary", href: "/summary" },
   { id: "library", label: "Sources", href: "/library" }
 ];
-const primaryIds: readonly NavigationId[] = ["overview", "insights", "influencers", "spaces", "humor", "reach-them", "gender", "compare"];
+const primaryIds: readonly NavigationId[] = ["overview", "insights", "influencers", "spaces", "house", "humor", "reach-them", "gender", "compare"];
 
 function navigationIdForPath(pathname: string): NavigationId | undefined {
   return links.find((link) => link.href === "/" ? pathname === "/" : pathname.startsWith(`${link.href}/`) || pathname === link.href)?.id;

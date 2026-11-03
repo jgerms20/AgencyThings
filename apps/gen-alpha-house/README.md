@@ -1,6 +1,6 @@
-# Gen Alpha House
+# Gen Alpha House (legacy entry point)
 
-An immersive companion to the [Gen Alpha Intelligence Lab](https://agencythings-gen-alpha.vercel.app). The experience maps 54 sourced research connections onto 18 familiar objects across distinct boys’ and girls’ rooms while keeping the Lab as the authoritative source for full insights and evidence.
+The House now lives inside the [Gen Alpha Intelligence Lab](https://agencythings-gen-alpha.vercel.app/house). This former standalone app redirects to that canonical route. Edit House data and UI in `apps/gen-alpha-lab` so the rooms and research always ship together.
 
 ## Local development
 
@@ -20,13 +20,13 @@ npm run build
 
 ## Deployment
 
-Create a separate Vercel project from the `jgerms20/AgencyThings` repository and set the project root to:
+If the former standalone Vercel project is still connected, keep its project root at:
 
 ```text
 apps/gen-alpha-house
 ```
 
-The app is static and does not require environment variables. Do not point the existing `agencythings-gen-alpha` project at this directory; the House is a companion deployment.
+The app does not require environment variables. It only redirects to the Lab; the existing `agencythings-gen-alpha` project must continue to use `apps/gen-alpha-lab` as its root.
 
 ## Generated artwork
 

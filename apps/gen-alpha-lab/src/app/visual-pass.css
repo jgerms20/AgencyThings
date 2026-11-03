@@ -24,6 +24,15 @@
 .directory-refresh .culture-shaper-card__image[src$="spider-verse.jpg"] { object-position: 50% 28%; }
 
 .global-demographic-opening { grid-template-columns: minmax(0, .85fr) minmax(340px, 1.15fr); align-items: start; }
+.overview-house { position: relative; display: flex; min-height: 370px; align-items: center; overflow: hidden; background: #101b18; color: #f6faf6; }
+.overview-house::after { position: absolute; inset: 0; background: rgba(4, 10, 9, .52); content: ""; }
+.overview-house > img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 54%; }
+.overview-house > div { position: relative; z-index: 1; width: min(100%, 1400px); margin: 0 auto; padding: 42px 5%; }
+.overview-house p { font-size: .78rem; font-weight: 800; }
+.overview-house h2 { margin: 10px 0 12px; font-size: clamp(3rem, 6vw, 6rem); line-height: 1; }
+.overview-house span { display: block; max-width: 35ch; font-size: 1.15rem; line-height: 1.4; }
+.overview-house a { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; border-bottom: 2px solid #bde7d4; padding-bottom: 8px; font-weight: 800; }
+.overview-house a:hover, .overview-house a:focus-visible { color: #bde7d4; }
 .global-total { border-top: 3px solid var(--acid-ink); padding-top: 14px; }
 .global-population-count strong { font-size: clamp(3.5rem, 6.8vw, 7rem) !important; line-height: .95; }
 .global-total > span { max-width: none; color: var(--muted); font-size: .82rem; text-transform: none; }
@@ -128,6 +137,8 @@
 }
 @media (max-width: 1100px) { .primary-nav { display: none; } }
 @media (max-width: 700px) {
+  .overview-house { min-height: 390px; }
+  .overview-house > img { object-position: 58% center; }
   .compare-opening { min-height: 0; padding-top: 38px; padding-bottom: 30px; }
   .comparison-topic-groups { gap: 12px; padding: 12px 18px; }
   .global-demographic-opening { grid-template-columns: 1fr; }

@@ -12,6 +12,7 @@ describe("Gen Alpha demographic overview", () => {
 
     await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "dark"));
     expect(screen.getByRole("heading", { name: "Who is Gen Alpha?" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Explore the House/i })).toHaveAttribute("href", "/house");
     expect(screen.getByText("Generation boundaries are conventions")).toBeInTheDocument();
     expect(screen.getAllByTestId("demographic-headline-fact")).toHaveLength(4);
     expect(screen.getByText("59.7M")).toBeInTheDocument();

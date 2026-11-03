@@ -1,5 +1,5 @@
-import HouseExperience from "@/components/HouseExperience";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <HouseExperience />;
+  redirect("https://agencythings-gen-alpha.vercel.app/house");
 }
