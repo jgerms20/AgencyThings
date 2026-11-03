@@ -9,6 +9,7 @@ const expectedDestinations = [
   ["Insights", "/insights"],
   ["Influencers", "/influencers"],
   ["Spaces", "/spaces"],
+  ["House", "/house"],
   ["Humor", "/humor"],
   ["Brand playbook", "/reach-them"],
   ["Gender lens", "/gender"],
@@ -22,7 +23,7 @@ afterEach(() => {
 });
 
 describe("responsive primary navigation", () => {
-  it("keeps all ten destinations in the grouped desktop navigation", () => {
+  it("keeps the House alongside the Lab destinations in desktop navigation", () => {
     render(<SiteHeader active="overview" />);
 
     const navigation = screen.getByRole("navigation", { name: "Primary navigation" });
@@ -33,9 +34,9 @@ describe("responsive primary navigation", () => {
   });
 
   it("marks the active desktop destination", () => {
-    render(<SiteHeader active="compare" />);
+    render(<SiteHeader active="house" />);
 
-    expect(screen.getByRole("link", { name: "Compare" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "House" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Overview" })).not.toHaveAttribute("aria-current");
   });
 

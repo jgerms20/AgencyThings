@@ -19,6 +19,7 @@ describe("Insight-led detail pages", () => {
       "Insights",
       "Influencers",
       "Spaces",
+      "House",
       "Humor",
       "Brand playbook",
       "Gender lens",
